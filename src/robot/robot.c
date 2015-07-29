@@ -107,11 +107,11 @@ int set_logging(int argc, const char **argv)
 
 	struct tm t2;
 	// YEAR			MONTH			DAY				HOUR			MINUTE			SECOND
-	t2.tm_year = 0; t2.tm_mon = 0; t2.tm_mday = 0; t2.tm_hour = 0; t2.tm_min = 0; t2.tm_sec = 5;
+	t2.tm_year = 0; t2.tm_mon = 0; t2.tm_mday = 0; t2.tm_hour = 0; t2.tm_min = 0; t2.tm_sec = 0;
 
 	l->diff = t2.tm_sec + t2.tm_min * 60 + t2.tm_hour * 60 * 60 + t2.tm_mday * 60 * 60 * 24 + t2.tm_mon * 60 * 60 * 24 * 30 + t2.tm_year * 60 * 60 * 24 * 30 * 365;
 	l->pid = getpid();
-	l->cache_max = 16;
+	l->cache_max = 0;
 	l->size_max = 1024*1024*1; // 1MB
 	strncpy(l->path, "../../log", sizeof l->path - 1);
 	strncpy(l->mode, "w+", sizeof l->mode - 1);
