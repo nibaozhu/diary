@@ -43,6 +43,9 @@ int search_url(const char *string, int length);
 char *content = NULL;
 int pos = 0;
 
+int parsing_http_protocol_response(const char *content, int length);
+
+
 int usage(const char *argv0)
 {
 	return printf("%s www.nibaozhu.cn 80 \"/project/index.html\"\n", argv0);
@@ -326,7 +329,7 @@ int main(int argc, char **argv)
 
 				if (events[n].events & EPOLLIN)
 				{
-					plog(error, "%s: %d: %s "
+					plog(info, "%s: %d: %s "
 "The associated file is available for read(2) operations."
 					"(events[%d].events = 0x%03x)\n", __FILE__, __LINE__, __func__, n, events[n].events);
 
@@ -364,6 +367,14 @@ int reads(int fd)
 
 		memcpy(content + pos, buffer, retval);
 		pos += retval;
+
+//		char *strstr(const char *haystack, const char *needle);
+		const char *crlf = NULL; // cr = carriage return, lf: line feed
+		crlf = strstr(content, "\r\n\r\n");
+		if (crlf != NULL)
+		{
+			parsing_http_protocol_response(content, crlf - content);
+		}
 
 	} while (0);
 	return retval;
@@ -444,7 +455,7 @@ int do_use_fd()
 int search_url(const char *string, int length)
 {
 	plog(info, "|||%s|||\n", string);  
-	//int regcomp(regex_t *preg, const char *regex, int cflags);
+
 	regex_t preg;
 	const char *regex = "http://\\([a-z0-9]\\+\\.\\)\\+[a-z0-9]\\+\\(:[0-9]\\+\\)\\?\\(/[a-z0-9\\.\\?=&]\\+\\)*\\(/\\)\\?";
 	int cflags = REG_ICASE;
@@ -454,12 +465,12 @@ int search_url(const char *string, int length)
 	char errbuf[1024] = {0};
 	size_t errbuf_size = 1024;
 
+//	int regcomp(regex_t *preg, const char *regex, int cflags);
 	errcode = regcomp(&preg, regex, cflags);
 	if (errcode != 0)
 	{
 // size_t regerror(int errcode, const regex_t *preg, char *errbuf,
 //                 size_t errbuf_size);
-
 		size = regerror(errcode, &preg, errbuf, errbuf_size);
 		printf("errcode = %d, %s(%u)\n", errcode, errbuf, size);
 		return 1;
@@ -490,6 +501,39 @@ int search_url(const char *string, int length)
 
 //	void regfree(regex_t *preg);
 	regfree(&preg);
+
+	return 0;
+}
+
+
+int parsing_http_protocol_response(const char *content, int length)
+{
+//	char *strstr(const char *haystack, const char *needle);
+	char string[1024];
+	memset(string, 0, sizeof string);
+	if (length >= 1024)
+	{
+		return 1;
+	}
+
+	memcpy(string, content, length);
+
+//	HTTP/1.1 400
+	const char *return_code = strstr(string, "HTTP/1.1 200");
+	if (return_code == NULL)
+	{
+		return 1;
+	}
+
+
+	const char *chunked = strstr(string, "Transfer-Encoding: chunked\r\n");
+	plog(notice, "|||chunked = %p|||\n", chunked);
+
+	const char *content_length = strstr(string, "Content-Length: ");
+	if (content_length != NULL)
+	{
+		plog(notice, "|||content_length = %d|||\n", atoi(content_length + strlen("Content-Length: ")));
+	}
 
 	return 0;
 }
