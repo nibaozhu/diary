@@ -144,7 +144,7 @@ int main(int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
-	// print the program name , pid, release
+	// print the program, pid, release
 	plog(info, "PROGRAM: %s, PID: %u, RELEASE: %s %s\n", l->name, l->pid, __DATE__, __TIME__);
 
 	do {
@@ -349,7 +349,9 @@ int reads(int fd)
 			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
 			break;
 		}
-		plog(notice, "fd = %d\n---response begin---\n%s\n---response end---\n", fd, buffer);
+		plog(notice, "\n---response begin---\n"
+"%s\n"
+		"---response end---\n", buffer);
 	} while (0);
 	return retval;
 }
@@ -370,7 +372,7 @@ int writes(int fd, const char *uri, const char *host)
 "Connection: Keep-Alive\r\n"
 "\r\n"
 /* -http protocol request message header ENDED- */
-, uri, host);
+		, uri, host);
 
 		size_t length = strlen(buffer);
 		retval = write(fd, buffer, length);
@@ -379,7 +381,9 @@ int writes(int fd, const char *uri, const char *host)
 			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
 			break;
 		}
-		plog(notice, "fd = %d\n---request begin---\n%s\n---request end---\n", fd, buffer);
+		plog(notice, "\n---request begin---\n"
+"%s\n"
+		"---request end---\n", buffer);
 	} while (0);
 	return retval;
 }
