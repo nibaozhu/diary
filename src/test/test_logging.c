@@ -93,7 +93,7 @@ int main(int argc, char **argv)
 	l->pid = getpid();
 	l->cache_max = 23;
 	l->size_max = 1024*1024*1; // 1MB
-	strncpy(l->path, "log", sizeof l->path - 1);
+	strncpy(l->path, "../../log", sizeof l->path - 1);
 	strncpy(l->mode, "w+", sizeof l->mode - 1);
 	l->stream_level = debug;
 	l->stdout_level = debug;
