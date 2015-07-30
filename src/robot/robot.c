@@ -8,17 +8,17 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <errno.h>
 #include <sys/epoll.h>
 #include <unistd.h>
 #include <fcntl.h>
-
+#include <signal.h>
+#include <regex.h>
 #include <netdb.h>
 extern int h_errno;
-
-#include <signal.h>
 
 #define MAX_EVENTS (0xff)
 #define IP_LENGTH (0xf)
@@ -38,6 +38,10 @@ int nconnect = 0;
 /////////////////
 char host[1024];
 char uri[1024] = "/";
+
+int search_url(const char *string, int length);
+char *content = NULL;
+int pos = 0;
 
 int usage(const char *argv0)
 {
@@ -132,6 +136,9 @@ int unset_logging()
 
 int main(int argc, char **argv)
 {
+	content = malloc(1024 * 1024);
+	memset(content, 0, sizeof content);
+
 	int retval = set_logging(argc, (const char**)argv);
 	if (retval == EXIT_FAILURE)
 	{
@@ -349,9 +356,15 @@ int reads(int fd)
 			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
 			break;
 		}
-		plog(notice, "\n---response begin---\n"
-"%s\n"
-		"---response end---\n", buffer);
+		plog(debug, "\n---response begin---\n%s\n---response end---\n", buffer); 
+		if (retval == 0)
+		{
+			search_url(content, pos);
+		}
+
+		memcpy(content + pos, buffer, retval);
+		pos += retval;
+
 	} while (0);
 	return retval;
 }
@@ -425,5 +438,59 @@ int do_use_fd()
 		}
 	} while (0);
 	return retval;
+}
+
+
+int search_url(const char *string, int length)
+{
+	plog(info, "|||%s|||\n", string);  
+	//int regcomp(regex_t *preg, const char *regex, int cflags);
+	regex_t preg;
+	const char *regex = "http://\\([a-z0-9]\\+\\.\\)\\+[a-z0-9]\\+\\(:[0-9]\\+\\)\\?\\(/[a-z0-9\\.\\?=&]\\+\\)*\\(/\\)\\?";
+	int cflags = REG_ICASE;
+
+	size_t size = 0;
+	int errcode = 0;
+	char errbuf[1024] = {0};
+	size_t errbuf_size = 1024;
+
+	errcode = regcomp(&preg, regex, cflags);
+	if (errcode != 0)
+	{
+// size_t regerror(int errcode, const regex_t *preg, char *errbuf,
+//                 size_t errbuf_size);
+
+		size = regerror(errcode, &preg, errbuf, errbuf_size);
+		printf("errcode = %d, %s(%u)\n", errcode, errbuf, size);
+		return 1;
+	}
+
+// int regexec(const regex_t *preg, const char *string, size_t nmatch,
+//                   regmatch_t pmatch[], int eflags);
+
+	//const char *string = "how are you? yes. http://www9.sina.com.cn:80/news/index.html hi, very good.\n";
+	regmatch_t pmatch[10];
+	size_t nmatch = 10;
+	int eflags = REG_NOTBOL;
+
+	while (errcode == 0)
+	{
+		// regexec() returns zero for a successful match or REG_NOMATCH for failure.
+		errcode = regexec(&preg, string, nmatch, pmatch, eflags);
+		if (errcode == 0)
+		{
+			char its[1024];
+			memset(its, 0, sizeof its);
+			memcpy(its, string + pmatch[0].rm_so, pmatch[0].rm_eo - pmatch[0].rm_so);
+			plog(notice, "|||%s|||\n", its);
+		}
+
+		string += pmatch[0].rm_so + 1;
+	}
+
+//	void regfree(regex_t *preg);
+	regfree(&preg);
+
+	return 0;
 }
 

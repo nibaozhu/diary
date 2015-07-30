@@ -4,19 +4,27 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
-BUFFER_LENGTH	robot.c	21;"	d	file:
+BUFFER_LENGTH	robot.c	25;"	d	file:
 CFLAGS	GNUmakefile	/^CFLAGS=-g -O0$/;"	m
-IP_LENGTH	robot.c	20;"	d	file:
-MAX_EVENTS	robot.c	19;"	d	file:
-count	robot.c	/^int count = 0;$/;"	v
+CPPFLAGS	GNUmakefile	/^CPPFLAGS=-I ..\/..\/include\/$/;"	m
+IP_LENGTH	robot.c	24;"	d	file:
+MAX_EVENTS	robot.c	23;"	d	file:
+content	robot.c	/^char *content = NULL;$/;"	v
 do_use_fd	robot.c	/^int do_use_fd()$/;"	f
 fds	robot.c	/^int fds[MAX_EVENTS] = {0};$/;"	v
+handler	robot.c	/^void handler(int signum)$/;"	f
 host	robot.c	/^char host[1024];$/;"	v
+l	robot.c	/^struct logging *l;$/;"	v	typeref:struct:logging
 main	robot.c	/^int main(int argc, char **argv)$/;"	f
 nconnect	robot.c	/^int nconnect = 0;$/;"	v
+pos	robot.c	/^int pos = 0;$/;"	v
 quit	robot.c	/^int quit = 0;$/;"	v
 reads	robot.c	/^int reads(int fd)$/;"	f
+search_url	robot.c	/^int search_url(const char *string, int length)$/;"	f
+set_disposition	robot.c	/^int set_disposition()$/;"	f
+set_logging	robot.c	/^int set_logging(int argc, const char **argv)$/;"	f
 setnonblocking	robot.c	/^int setnonblocking(int fd)$/;"	f
+unset_logging	robot.c	/^int unset_logging()$/;"	f
 uri	robot.c	/^char uri[1024] = "\/";$/;"	v
 usage	robot.c	/^int usage(const char *argv0)$/;"	f
 writes	robot.c	/^int writes(int fd, const char *uri, const char *host)$/;"	f
