@@ -19,6 +19,7 @@
 #include <signal.h>
 #include <regex.h>
 #include <netdb.h>
+#include <assert.h>
 extern int h_errno;
 
 #define MAX_EVENTS (0xff)
@@ -45,7 +46,7 @@ int search_url(const char *string, int length);
 char *content = NULL;
 int pos = 0;
 
-int parsing_http_protocol_response(const char *content, int length);
+int parsing_http_protocol_response(const char *content, int length, char **chunked);
 
 
 int usage(const char *argv0)
@@ -385,10 +386,17 @@ int reads(int fd)
 
 //		char *strstr(const char *haystack, const char *needle);
 		const char *crlf = NULL; // cr: carriage return, lf: line feed
+		char *chunked = NULL;
 		crlf = strstr(content, "\r\n\r\n");
 		if (crlf != NULL)
 		{
-			parsing_http_protocol_response(content, crlf + 4 - content);
+			parsing_http_protocol_response(content, crlf + 4 - content, &chunked);
+		}
+
+		if (chunked != NULL)
+		{
+//			decoding_chunked_content(crlf + 4, pos - (crlf + 4 - content), end_of_zero);
+			assert(1 == 1);
 		}
 
 	} while (0);
@@ -514,7 +522,7 @@ int search_url(const char *string, int length)
 }
 
 
-int parsing_http_protocol_response(const char *content, int length)
+int parsing_http_protocol_response(const char *content, int length, char **chunked)
 {
 //	char *strstr(const char *haystack, const char *needle);
 	char string[1024];
@@ -533,8 +541,12 @@ int parsing_http_protocol_response(const char *content, int length)
 		return 1;
 	}
 
-	const char *chunked = strstr(string, "Transfer-Encoding: chunked\r\n");
-	plog(notice, "|||chunked = %p|||\n", chunked);
+	*chunked = strstr(string, "Transfer-Encoding: chunked\r\n");
+	plog(notice, "|||chunked = %p|||\n", *chunked);
+	if (chunked != NULL)
+	{
+		
+	}
 
 	const char *content_length = strstr(string, "Content-Length: ");
 	if (content_length != NULL)
