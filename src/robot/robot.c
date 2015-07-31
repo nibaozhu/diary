@@ -32,6 +32,7 @@ int setnonblocking(int fd);
 int reads(int fd);
 int writes(int fd, const char *uri, const char *host);
 int do_use_fd();
+
 int quit = 0;
 int fds[MAX_EVENTS] = {0};
 int nconnect = 0;
@@ -383,11 +384,11 @@ int reads(int fd)
 		pos += retval;
 
 //		char *strstr(const char *haystack, const char *needle);
-		const char *crlf = NULL; // cr = carriage return, lf: line feed
+		const char *crlf = NULL; // cr: carriage return, lf: line feed
 		crlf = strstr(content, "\r\n\r\n");
 		if (crlf != NULL)
 		{
-			parsing_http_protocol_response(content, crlf - content);
+			parsing_http_protocol_response(content, crlf + 4 - content);
 		}
 
 	} while (0);
@@ -468,7 +469,7 @@ int do_use_fd()
 
 int search_url(const char *string, int length)
 {
-	plog(info, "|||%s|||\n", string);  
+	plog(info, "\n|||%s|||\n", string);  
 
 	regex_t preg;
 	const char *regex = "http://\\([a-z0-9-]\\+\\.\\)\\+[a-z0-9]\\+\\(:[0-9]\\+\\)\\?\\(/[a-z0-9\\.\\?=&-]\\+\\)*\\(/\\)\\?";
@@ -477,7 +478,7 @@ int search_url(const char *string, int length)
 	size_t size = 0;
 	int errcode = 0;
 	char errbuf[1024] = {0};
-	size_t errbuf_size = 1024;
+	size_t errbuf_size = sizeof errbuf;
 
 	errcode = regcomp(&preg, regex, cflags);
 	if (errcode != 0)
@@ -531,7 +532,6 @@ int parsing_http_protocol_response(const char *content, int length)
 	{
 		return 1;
 	}
-
 
 	const char *chunked = strstr(string, "Transfer-Encoding: chunked\r\n");
 	plog(notice, "|||chunked = %p|||\n", chunked);
