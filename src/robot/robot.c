@@ -5,6 +5,7 @@
  * Written by Ni Baozhu: <nibz@qq.com>.
  */
 
+#include <bits/local_lim.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -246,7 +247,17 @@ int main(int argc, char **argv)
 			break;
 		}
 
-		plog(notice, "localhost %s:%d | connect to %s|%s|:%d\n", local_ip, ntohs(local.sin_port), argv[1], temp_addr, ntohs(addr.sin_port));
+		char hostname[HOST_NAME_MAX];
+		size_t len = sizeof hostname;
+		memset(hostname, 0, len);
+		retval = gethostname(hostname, len);
+		if (retval == -1)
+		{
+			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
+			break;
+		}
+
+		plog(notice, "%s|%s:%d|+>|%s|%s:%d\n", hostname, local_ip, ntohs(local.sin_port), ht->h_name, temp_addr, ntohs(addr.sin_port));
 
 		//set non blocking
 		retval = setnonblocking(fd);
@@ -460,7 +471,7 @@ int search_url(const char *string, int length)
 	plog(info, "|||%s|||\n", string);  
 
 	regex_t preg;
-	const char *regex = "http://\\([a-z0-9]\\+\\.\\)\\+[a-z0-9]\\+\\(:[0-9]\\+\\)\\?\\(/[a-z0-9\\.\\?=&]\\+\\)*\\(/\\)\\?";
+	const char *regex = "http://\\([a-z0-9-]\\+\\.\\)\\+[a-z0-9]\\+\\(:[0-9]\\+\\)\\?\\(/[a-z0-9\\.\\?=&-]\\+\\)*\\(/\\)\\?";
 	int cflags = REG_ICASE;
 
 	size_t size = 0;
