@@ -4,11 +4,11 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
-BUFFER_LENGTH	robot.c	25;"	d	file:
+BUFFER_LENGTH	robot.c	26;"	d	file:
 CFLAGS	GNUmakefile	/^CFLAGS=-g -O0$/;"	m
 CPPFLAGS	GNUmakefile	/^CPPFLAGS=-I ..\/..\/include\/$/;"	m
-IP_LENGTH	robot.c	24;"	d	file:
-MAX_EVENTS	robot.c	23;"	d	file:
+IP_LENGTH	robot.c	25;"	d	file:
+MAX_EVENTS	robot.c	24;"	d	file:
 content	robot.c	/^char *content = NULL;$/;"	v
 do_use_fd	robot.c	/^int do_use_fd()$/;"	f
 fds	robot.c	/^int fds[MAX_EVENTS] = {0};$/;"	v
@@ -17,6 +17,7 @@ host	robot.c	/^char host[1024];$/;"	v
 l	robot.c	/^struct logging *l;$/;"	v	typeref:struct:logging
 main	robot.c	/^int main(int argc, char **argv)$/;"	f
 nconnect	robot.c	/^int nconnect = 0;$/;"	v
+parsing_http_protocol_response	robot.c	/^int parsing_http_protocol_response(const char *content, int length)$/;"	f
 pos	robot.c	/^int pos = 0;$/;"	v
 quit	robot.c	/^int quit = 0;$/;"	v
 reads	robot.c	/^int reads(int fd)$/;"	f
