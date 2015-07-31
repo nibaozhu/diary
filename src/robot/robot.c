@@ -246,7 +246,7 @@ int main(int argc, char **argv)
 			break;
 		}
 
-		plog(notice, "local %s:%d ->- remote %s:%d\n", local_ip, ntohs(local.sin_port), temp_addr, ntohs(addr.sin_port));
+		plog(notice, "localhost %s:%d | connect to %s|%s|:%d\n", local_ip, ntohs(local.sin_port), argv[1], temp_addr, ntohs(addr.sin_port));
 
 		//set non blocking
 		retval = setnonblocking(fd);
@@ -344,6 +344,9 @@ int main(int argc, char **argv)
 			}
 		}
 	} while (0);
+
+	unset_logging();
+
 	return retval;
 }
 
@@ -465,23 +468,17 @@ int search_url(const char *string, int length)
 	char errbuf[1024] = {0};
 	size_t errbuf_size = 1024;
 
-//	int regcomp(regex_t *preg, const char *regex, int cflags);
 	errcode = regcomp(&preg, regex, cflags);
 	if (errcode != 0)
 	{
-// size_t regerror(int errcode, const regex_t *preg, char *errbuf,
-//                 size_t errbuf_size);
 		size = regerror(errcode, &preg, errbuf, errbuf_size);
 		printf("errcode = %d, %s(%u)\n", errcode, errbuf, size);
 		return 1;
 	}
 
-// int regexec(const regex_t *preg, const char *string, size_t nmatch,
-//                   regmatch_t pmatch[], int eflags);
-
-	//const char *string = "how are you? yes. http://www9.sina.com.cn:80/news/index.html hi, very good.\n";
-	regmatch_t pmatch[10];
-	size_t nmatch = 10;
+//	const char *string = "how are you? yes. http://www9.sina.com.cn:80/news/index.html hi, very good.\n";
+	regmatch_t pmatch[1];
+	size_t nmatch = 1;
 	int eflags = REG_NOTBOL;
 
 	while (errcode == 0)
@@ -499,7 +496,6 @@ int search_url(const char *string, int length)
 		string += pmatch[0].rm_so + 1;
 	}
 
-//	void regfree(regex_t *preg);
 	regfree(&preg);
 
 	return 0;
