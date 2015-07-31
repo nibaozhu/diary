@@ -404,7 +404,7 @@ int writes(int fd, const char *uri, const char *host)
 		sprintf(buffer,
 /* -http protocol request message header START- */
 "GET %s HTTP/1.1\r\n"
-"User-Agent: Wget/1.12 (linux-gnu)\r\n"
+"User-Agent: None/0.01 (linux-gnu)\r\n"
 "Accept: */*\r\n"
 "Host: %s\r\n"
 "Connection: Keep-Alive\r\n"
