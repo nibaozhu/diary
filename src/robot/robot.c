@@ -47,7 +47,6 @@ char *content = NULL;
 int pos = 0;
 
 int decoding_chunked_content(const char *content_body, int length, char *end_of_zero);
-
 int parsing_http_protocol_response(const char *content, int length, char **chunked, int *i_content_length);
 
 
@@ -124,7 +123,7 @@ int set_logging(int argc, const char **argv)
 	l->diff = t2.tm_sec + t2.tm_min * 60 + t2.tm_hour * 60 * 60 + t2.tm_mday * 60 * 60 * 24 + t2.tm_mon * 60 * 60 * 24 * 30 + t2.tm_year * 60 * 60 * 24 * 30 * 365;
 	l->pid = getpid();
 	l->cache_max = 0;
-	l->size_max = 1024*1024*1; // 1MB
+	l->size_max = 1024*1024*10; // 1MB
 	strncpy(l->path, "../../log", sizeof l->path - 1);
 	strncpy(l->mode, "w+", sizeof l->mode - 1);
 	l->stream_level = debug;
@@ -144,7 +143,7 @@ int unset_logging()
 
 int main(int argc, char **argv)
 {
-	content = malloc(1024 * 1024);
+	content = malloc(1024 * 1024 * 10);
 	memset(content, 0, sizeof content);
 
 	int retval = set_logging(argc, (const char**)argv);
@@ -354,6 +353,11 @@ int main(int argc, char **argv)
 						break;
 					}
 
+					if (quit == 1)
+					{
+						close(events[n].data.fd);
+					}
+
 //					do_use_fd();
 				}
 			}
@@ -377,7 +381,7 @@ int reads(int fd)
 			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
 			break;
 		}
-		plog(debug, "\n---response begin---\n%s\n---response end---\n", buffer); 
+		plog(debug, "read: retval = %u, pos = %d\n---response begin---\n%s\n---response end---\n", retval, pos, buffer); 
 
 		memcpy(content + pos, buffer, retval);
 		pos += retval;
@@ -398,9 +402,10 @@ int reads(int fd)
 			decoding_chunked_content(crlf + 4, pos - (crlf + 4 - content), &end_of_zero);
 		}
 
-		if (end_of_zero == '0' || ((i_content_length >= pos - (crlf + 4 - content)) && chunked == NULL))
+		if (end_of_zero == '0' || ((i_content_length <= pos - (crlf + 4 - content)) && chunked == NULL))
 		{
 			search_url(content, pos);
+			quit = 1;
 		}
 
 	} while (0);
@@ -481,7 +486,7 @@ int do_use_fd()
 
 int search_url(const char *string, int length)
 {
-	plog(info, "\n|||%s|||\n", string);  
+	plog(debug, "%s: %d: %s\n|||%s|||\n", __FILE__, __LINE__, __func__, string);
 
 	regex_t preg;
 	const char *regex = "http://\\([a-z0-9-]\\+\\.\\)\\+[a-z0-9]\\+\\(:[0-9]\\+\\)\\?\\(/[a-z0-9\\.\\?=&-]\\+\\)*\\(/\\)\\?";
@@ -569,12 +574,22 @@ int decoding_chunked_content(const char *content_body, int length, char *end_of_
 	int i = 0;
 	while (1)
 	{
-		if (content_body[i] >= '0' && content_body[i] <= '9') chunked_size += chunked_size * 10 + content_body[i++] - '0';
-		else if (content_body[i] >= 'a' && content_body[i] <= 'f') chunked_size += chunked_size * 10 + content_body[i++] - 'a' + 10;
+		if (content_body[i] >= '0' && content_body[i] <= '9')
+		{
+			chunked_size = chunked_size * 16 + content_body[i++] - '0';
+		}
+		else if (content_body[i] >= 'a' && content_body[i] <= 'f')
+		{
+			chunked_size = chunked_size * 16 + content_body[i++] - 'a' + 10;
+		}
 		else
 		{
 			plog(debug, "|||chunked_size = %d|||\n", chunked_size);
-			if (chunked_size != 0) { i += chunked_size + 2; chunked_size = 0; }
+			if (chunked_size != 0)
+			{
+				i += chunked_size + 4;
+				chunked_size = 0;
+			}
 			else if (chunked_size == 0)
 			{
 				*end_of_zero = '0';
@@ -587,8 +602,7 @@ int decoding_chunked_content(const char *content_body, int length, char *end_of_
 		{
 			break;
 		}
-
-		*end_of_zero = content_body[i];
+		//*end_of_zero = content_body[i];
 	}
 	return 0;
 }
