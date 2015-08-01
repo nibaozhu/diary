@@ -15,7 +15,13 @@ int main(int argc, char **argv)
 {
 //	int regcomp(regex_t *preg, const char *regex, int cflags);
 	regex_t preg;
-	const char *regex = "http://\\([a-z0-9]\\+\\.\\)\\+[a-z0-9]\\+\\(:[0-9]\\+\\)\\?\\(/[a-z0-9\\.\\?=&]\\+\\)*\\(/\\)\\?";
+	//const char *regex = "http://\\([a-z0-9]\\+\\.\\)\\+[a-z0-9]\\+\\(:[0-9]\\+\\)\\?\\(/[a-z0-9\\.\\?=&]\\+\\)*\\(/\\)\\?";
+
+	//(?<=<title>)[^<]+(?=</title>)
+	//const char *regex = "\\(\\?<=<title>\\)[^<]\\+\\(\\?=</title>\\)";
+	// const char *regex = "<title>[^<]\\+</title>";
+	// <meta\\ name=\"description\"\\.\\+content=\"[^<]\\+/>
+	const char *regex = "<meta\\ name=\"description\".\\+content=\"";
 	int cflags = REG_ICASE;
 
 	size_t size = 0;
@@ -33,7 +39,9 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	const char *string = "<a data-href=\"http://news.baidu.com\" \r\nhref=\"http://news.baidu.com/ns?word=word&tn=news&cl=2&rn=20&ct=1&fr=wenku\" class=\"logSend\" data-lojgsend='{\"send\":[\"general\", ";
+	//const char *string = "<a data-href=\"http://news.baidu.com\" \r\nhref=\"http://news.baidu.com/ns?word=word&tn=news&cl=2&rn=20&ct=1&fr=wenku\" class=\"logSend\" data-lojgsend='{\"send\":[\"general\", ";
+
+	const char *string = "<a data-href=\"http://news.baidu.com\" (? <meta name=\"description\"\r\n content=\"yes ok\" /> <title>hello WORLD</title>   <title>hello <hhhh>world</title> \r\nhref=\"http://news.baidu.com/ns?word=word&tn=news&cl=2&rn=20&ct=1&fr=wenku\" class=\"logSend\" data-lojgsend='{\"send\":[\"general\", ";
 	regmatch_t pmatch[1];
 	size_t nmatch = 1;
 	int eflags = REG_NOTBOL;
