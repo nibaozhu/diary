@@ -19,6 +19,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <stdint.h>
+#include <assert.h>
 
 #define MODE_MAX (4)
 #define DATE_MAX (32)
@@ -137,9 +138,23 @@ int pflush()
 		return EXIT_FAILURE;
 	}
 
-	char path[PATH_MAX];
+	char oldpath[PATH_MAX];
+	char newpath[PATH_MAX];
+	memset(oldpath, 0, sizeof oldpath);
+	memset(newpath, 0, sizeof newpath);
+	snprintf(oldpath, sizeof oldpath, "%s/%s_%u.log.%u.tmp", l->path, l->name, l->pid, l->number);
+	snprintf(newpath, sizeof newpath, "%s/%s_%u.log.%u", l->path, l->name, l->pid, l->number);
+
+	retval = rename(oldpath, newpath);
+	if (retval == -1)
+	{
+		fprintf(stderr, "%s %s:%d: %s: %s(%u)\n", level[error], __FILE__, __LINE__, __func__, strerror(errno), errno);
+		return EXIT_FAILURE;
+	}
+
+	char path[PATH_MAX]; // logging file's path
 	memset(path, 0, sizeof path);
-	snprintf(path, sizeof path, "%s/%s_%u.log.%u", l->path, l->name, l->pid, ++l->number);
+	snprintf(path, sizeof path, "%s/%s_%u.log.%u.tmp", l->path, l->name, l->pid, ++l->number);
 
 	FILE *fp = fopen(path, l->mode);
 	if (fp == NULL)
@@ -231,16 +246,12 @@ int plog(enum elevel x, char *fmt, ...)
 
 	int retval = 0;
 	retval = pflush();
-	if (retval == EXIT_FAILURE)
-	{
-		return EXIT_FAILURE;
-	}
 
+	assert(retval == EXIT_SUCCESS);
 	// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
 	//	on January 1, 1970, Coordinated Universal Time (UTC).
 	localtime_r(&t1.tv_sec, &l->t1);
-
-	return EXIT_SUCCESS;
+	return retval;
 }
 
 int initializing(void)
@@ -279,7 +290,7 @@ int initializing(void)
 	char path[PATH_MAX];
 	memset(path, 0, sizeof path);
 	l->number = 0;
-	snprintf(path, sizeof path, "%s/%s_%u.log.%u", l->path, l->name, l->pid, ++l->number);
+	snprintf(path, sizeof path, "%s/%s_%u.log.%u.tmp", l->path, l->name, l->pid, ++l->number);
 
 	FILE *fp = fopen(path, l->mode);
 	if (fp == NULL)
@@ -324,6 +335,20 @@ int uninitialized(void)
 	//        the underlying file descriptor.
 	retval = fclose(l->stream);
 	if (retval == EOF)
+	{
+		fprintf(stderr, "%s %s:%d: %s: %s(%u)\n", level[error], __FILE__, __LINE__, __func__, strerror(errno), errno);
+		return EXIT_FAILURE;
+	}
+
+	char oldpath[PATH_MAX];
+	char newpath[PATH_MAX];
+	memset(oldpath, 0, sizeof oldpath);
+	memset(newpath, 0, sizeof newpath);
+	snprintf(oldpath, sizeof oldpath, "%s/%s_%u.log.%u.tmp", l->path, l->name, l->pid, l->number);
+	snprintf(newpath, sizeof newpath, "%s/%s_%u.log.%u", l->path, l->name, l->pid, l->number);
+
+	retval = rename(oldpath, newpath);
+	if (retval == -1)
 	{
 		fprintf(stderr, "%s %s:%d: %s: %s(%u)\n", level[error], __FILE__, __LINE__, __func__, strerror(errno), errno);
 		return EXIT_FAILURE;
