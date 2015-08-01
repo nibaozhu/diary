@@ -7,18 +7,45 @@
 BUFFER_LENGTH	robot.c	27;"	d	file:
 CFLAGS	GNUmakefile	/^CFLAGS=-g -O0$/;"	m
 CPPFLAGS	GNUmakefile	/^CPPFLAGS=-I ..\/..\/include\/$/;"	m
+DATE_MAX	../../include/logging.h	25;"	d
 IP_LENGTH	robot.c	26;"	d	file:
 MAX_EVENTS	robot.c	25;"	d	file:
+MODE_MAX	../../include/logging.h	24;"	d
+_LOGGING_H	../../include/logging.h	9;"	d
+alert	../../include/logging.h	/^	alert,			\/* action must be taken immediately *\/$/;"	e	enum:elevel
+cache	../../include/logging.h	/^	unsigned int cache; \/\/ logging has cache lines in memory$/;"	m	struct:logging
+cache_max	../../include/logging.h	/^	unsigned int cache_max; \/\/ cache_max lines in memory$/;"	m	struct:logging
+clear_color	../../include/logging.h	/^static const char *clear_color = "\\e[0m";$/;"	v
+color	../../include/logging.h	/^static const char *color[debug + 1] = {$/;"	v
 content	robot.c	/^char *content = NULL;$/;"	v
+critical	../../include/logging.h	/^	critical,		\/* critical conditions *\/$/;"	e	enum:elevel
+debug	../../include/logging.h	/^	debug,			\/* debug-level messages *\/$/;"	e	enum:elevel
 decoding_chunked_content	robot.c	/^int decoding_chunked_content(const char *content_body, int length, char *end_of_zero)$/;"	f
+diff	../../include/logging.h	/^	time_t diff; \/\/ time interval$/;"	m	struct:logging
 do_use_fd	robot.c	/^int do_use_fd()$/;"	f
+elevel	../../include/logging.h	/^enum elevel {$/;"	g
+emergency	../../include/logging.h	/^	emergency,		\/* application is unusable *\/$/;"	e	enum:elevel
+error	../../include/logging.h	/^	error,			\/* error conditions *\/$/;"	e	enum:elevel
 fds	robot.c	/^int fds[MAX_EVENTS] = {0};$/;"	v
 handler	robot.c	/^void handler(int signum)$/;"	f
 host	robot.c	/^char host[1024];$/;"	v
+info	../../include/logging.h	/^	info,			\/* informational *\/$/;"	e	enum:elevel
+initializing	../../include/logging.h	/^int initializing(void)$/;"	f
 l	robot.c	/^struct logging *l;$/;"	v	typeref:struct:logging
+level	../../include/logging.h	/^static const char *level[debug + 1] = {$/;"	v
+logging	../../include/logging.h	/^struct logging {$/;"	s
 main	robot.c	/^int main(int argc, char **argv)$/;"	f
+mode	../../include/logging.h	/^	char mode[MODE_MAX]; \/\/ logging file's mode$/;"	m	struct:logging
+name	../../include/logging.h	/^	char name[NAME_MAX]; \/\/ program name$/;"	m	struct:logging
 nconnect	robot.c	/^int nconnect = 0;$/;"	v
+none	../../include/logging.h	/^	none = -1,		\/* none logging *\/$/;"	e	enum:elevel
+notice	../../include/logging.h	/^	notice,			\/* normal but significant condition *\/$/;"	e	enum:elevel
+number	../../include/logging.h	/^	unsigned int number; \/\/ logging file's suffix number when splits file$/;"	m	struct:logging
 parsing_http_protocol_response	robot.c	/^int parsing_http_protocol_response(const char *content, int length, char **chunked, int *i_content_length)$/;"	f
+path	../../include/logging.h	/^	char path[PATH_MAX]; \/\/ logging file's path$/;"	m	struct:logging
+pflush	../../include/logging.h	/^int pflush()$/;"	f
+pid	../../include/logging.h	/^	pid_t pid; \/\/ program process id$/;"	m	struct:logging
+plog	../../include/logging.h	/^int plog(enum elevel x, char *fmt, ...)$/;"	f
 pos	robot.c	/^int pos = 0;$/;"	v
 quit	robot.c	/^int quit = 0;$/;"	v
 reads	robot.c	/^int reads(int fd)$/;"	f
@@ -26,7 +53,17 @@ search_url	robot.c	/^int search_url(const char *string, int length)$/;"	f
 set_disposition	robot.c	/^int set_disposition()$/;"	f
 set_logging	robot.c	/^int set_logging(int argc, const char **argv)$/;"	f
 setnonblocking	robot.c	/^int setnonblocking(int fd)$/;"	f
+size	../../include/logging.h	/^	unsigned long size; \/\/ logging has written bytes in file$/;"	m	struct:logging
+size_max	../../include/logging.h	/^	unsigned long size_max; \/\/ size_max bytes in file$/;"	m	struct:logging
+stdout_level	../../include/logging.h	/^	enum elevel stdout_level;$/;"	m	struct:logging	typeref:enum:logging::elevel
+stream	../../include/logging.h	/^	FILE *stream;$/;"	m	struct:logging
+stream_level	../../include/logging.h	/^	enum elevel stream_level;$/;"	m	struct:logging	typeref:enum:logging::elevel
+sysdate	../../include/logging.h	/^int sysdate(char *str)$/;"	f
+t0	../../include/logging.h	/^	struct tm t0; \/\/ start time$/;"	m	struct:logging	typeref:struct:logging::tm
+t1	../../include/logging.h	/^	struct tm t1; \/\/ the last flush stream date\/time$/;"	m	struct:logging	typeref:struct:logging::tm
+uninitialized	../../include/logging.h	/^int uninitialized(void)$/;"	f
 unset_logging	robot.c	/^int unset_logging()$/;"	f
 uri	robot.c	/^char uri[1024] = "\/";$/;"	v
 usage	robot.c	/^int usage(const char *argv0)$/;"	f
+warning	../../include/logging.h	/^	warning,		\/* warning conditions *\/$/;"	e	enum:elevel
 writes	robot.c	/^int writes(int fd, const char *uri, const char *host)$/;"	f

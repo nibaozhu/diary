@@ -52,7 +52,7 @@ int parsing_http_protocol_response(const char *content, int length, char **chunk
 
 int usage(const char *argv0)
 {
-	return printf("%s www.nibaozhu.cn 80 \"/project/index.html\"\n", argv0);
+	return plog(notice, "%s www.nibaozhu.cn 80 \"/project/index.html\"\n", argv0);
 }
 
 void handler(int signum)
@@ -162,7 +162,7 @@ int main(int argc, char **argv)
 	plog(info, "PROGRAM: %s, PID: %u, RELEASE: %s %s\n", l->name, l->pid, __DATE__, __TIME__);
 
 	do {
-		if (argc < 3)
+		if (argc < 4)
 		{
 			usage(argv[0]);
 			break;
