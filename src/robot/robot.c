@@ -46,7 +46,9 @@ int search_url(const char *string, int length);
 char *content = NULL;
 int pos = 0;
 
-int parsing_http_protocol_response(const char *content, int length, char **chunked);
+int decoding_chunked_content(const char *content_body, int length, char *end_of_zero);
+
+int parsing_http_protocol_response(const char *content, int length, char **chunked, int *i_content_length);
 
 
 int usage(const char *argv0)
@@ -376,10 +378,6 @@ int reads(int fd)
 			break;
 		}
 		plog(debug, "\n---response begin---\n%s\n---response end---\n", buffer); 
-		if (retval == 0)
-		{
-			search_url(content, pos);
-		}
 
 		memcpy(content + pos, buffer, retval);
 		pos += retval;
@@ -387,16 +385,22 @@ int reads(int fd)
 //		char *strstr(const char *haystack, const char *needle);
 		const char *crlf = NULL; // cr: carriage return, lf: line feed
 		char *chunked = NULL;
+		int i_content_length = 0;
 		crlf = strstr(content, "\r\n\r\n");
 		if (crlf != NULL)
 		{
-			parsing_http_protocol_response(content, crlf + 4 - content, &chunked);
+			parsing_http_protocol_response(content, crlf + 4 - content, &chunked, &i_content_length);
 		}
 
+		char end_of_zero = 0;
 		if (chunked != NULL)
 		{
-//			decoding_chunked_content(crlf + 4, pos - (crlf + 4 - content), end_of_zero);
-			assert(1 == 1);
+			decoding_chunked_content(crlf + 4, pos - (crlf + 4 - content), &end_of_zero);
+		}
+
+		if (end_of_zero == '0' || ((i_content_length >= pos - (crlf + 4 - content)) && chunked == NULL))
+		{
+			search_url(content, pos);
 		}
 
 	} while (0);
@@ -413,7 +417,7 @@ int writes(int fd, const char *uri, const char *host)
 		sprintf(buffer,
 /* -http protocol request message header START- */
 "GET %s HTTP/1.1\r\n"
-"User-Agent: None/0.01 (linux-gnu)\r\n"
+"User-Agent: None/0.01\r\n"
 "Accept: */*\r\n"
 "Host: %s\r\n"
 "Connection: Keep-Alive\r\n"
@@ -522,7 +526,7 @@ int search_url(const char *string, int length)
 }
 
 
-int parsing_http_protocol_response(const char *content, int length, char **chunked)
+int parsing_http_protocol_response(const char *content, int length, char **chunked, int *i_content_length)
 {
 //	char *strstr(const char *haystack, const char *needle);
 	char string[1024];
@@ -545,15 +549,48 @@ int parsing_http_protocol_response(const char *content, int length, char **chunk
 	plog(notice, "|||chunked = %p|||\n", *chunked);
 	if (chunked != NULL)
 	{
-		
+		;;;;
 	}
 
 	const char *content_length = strstr(string, "Content-Length: ");
 	if (content_length != NULL)
 	{
-		plog(notice, "|||content_length = %d|||\n", atoi(content_length + strlen("Content-Length: ")));
+		*i_content_length = atoi(content_length + strlen("Content-Length: "));
+		plog(notice, "|||content_length = %d|||\n", *i_content_length);
 	}
 
 	return 0;
 }
+
+
+int decoding_chunked_content(const char *content_body, int length, char *end_of_zero)
+{
+	int chunked_size = 0;
+	int i = 0;
+	while (1)
+	{
+		if (content_body[i] >= '0' && content_body[i] <= '9') chunked_size += chunked_size * 10 + content_body[i++] - '0';
+		else if (content_body[i] >= 'a' && content_body[i] <= 'f') chunked_size += chunked_size * 10 + content_body[i++] - 'a' + 10;
+		else
+		{
+			plog(debug, "|||chunked_size = %d|||\n", chunked_size);
+			if (chunked_size != 0) { i += chunked_size + 2; chunked_size = 0; }
+			else if (chunked_size == 0)
+			{
+				*end_of_zero = '0';
+				break;
+			}
+			else break;
+		}
+
+		if (i >= length)
+		{
+			break;
+		}
+
+		*end_of_zero = content_body[i];
+	}
+	return 0;
+}
+
 
