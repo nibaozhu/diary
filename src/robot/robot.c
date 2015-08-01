@@ -381,7 +381,7 @@ int reads(int fd)
 			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
 			break;
 		}
-		plog(debug, "read: retval = %u, pos = %d\n---response begin---\n%s\n---response end---\n", retval, pos, buffer); 
+		plog(debug, "pos = %d, read: retval = %u, sum = %d\n---response begin---\n%s\n---response end---\n", pos, retval, pos + retval, buffer); 
 
 		memcpy(content + pos, buffer, retval);
 		pos += retval;
@@ -561,7 +561,7 @@ int parsing_http_protocol_response(const char *content, int length, char **chunk
 	if (content_length != NULL)
 	{
 		*i_content_length = atoi(content_length + strlen("Content-Length: "));
-		plog(notice, "|||content_length = %d|||\n", *i_content_length);
+		plog(notice, "|||header_length = %d, content_length = %d, sum = %d|||\n", length, *i_content_length, length + *i_content_length);
 	}
 
 	return 0;
