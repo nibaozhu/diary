@@ -489,7 +489,15 @@ int search_url(const char *string, int length)
 	plog(debug, "%s: %d: %s\n|||%s|||\n", __FILE__, __LINE__, __func__, string);
 
 	regex_t preg;
-	const char *regex = "http://\\([a-z0-9-]\\+\\.\\)\\+[a-z0-9]\\+\\(:[0-9]\\+\\)\\?\\(/[a-z0-9\\.\\?=&-]\\+\\)*\\(/\\)\\?";
+	const char *regex = 
+"\\("
+"<title>[^<]\\+</title>"	// title
+"\\|"
+"http://\\([a-z0-9-]\\+\\.\\)\\+[a-z0-9]\\+\\(:[0-9]\\+\\)\\?\\(/[a-z0-9\\.\\?=&-]\\+\\)*\\(/\\)\\?" // url
+"\\|"
+"<meta[^<]\\+name=\"description\"[^<]\\+content=\"[^<]\\+/>"	// description
+"\\)"; 
+
 	int cflags = REG_ICASE;
 
 	size_t size = 0;
