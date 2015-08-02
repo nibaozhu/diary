@@ -6,10 +6,13 @@
 !_TAG_PROGRAM_VERSION	5.8	//
 CFLAGS	GNUmakefile	/^CFLAGS=-g -O0$/;"	m
 CPPFLAGS	GNUmakefile	/^CPPFLAGS=-I ..\/..\/include\/$/;"	m
+LDFLAGS	GNUmakefile	/^LDFLAGS=-lsqlite3$/;"	m
+callback	test_sqlite3.c	/^int callback(void *NotUsed, int argc, char **argv, char **colname)$/;"	f
 do_something	test_logging.c	/^int do_something(enum elevel x)$/;"	f
 handler	test_logging.c	/^void handler(int signum)$/;"	f
 l	test_logging.c	/^struct logging *l;$/;"	v	typeref:struct:logging
 main	test_logging.c	/^int main(int argc, char **argv)$/;"	f
-main	test_regex.c	/^int main(void)$/;"	f
+main	test_regex.c	/^int main(int argc, char **argv)$/;"	f
+main	test_sqlite3.c	/^int main(int argc, char **argv)$/;"	f
 quit	test_logging.c	/^unsigned int quit = 0;$/;"	v
 set_disposition	test_logging.c	/^int set_disposition()$/;"	f

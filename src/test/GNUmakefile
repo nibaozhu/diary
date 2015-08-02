@@ -12,7 +12,7 @@ test_regex: test_regex.o
 	$(CC) -o $@ $^
 
 test_sqlite3: test_sqlite3.o
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 install: test_regex test_logging test_sqlite3
 	cp $^ ../../bin
@@ -23,3 +23,4 @@ test_sqlite3.o: test_sqlite3.c
 
 CPPFLAGS=-I ../../include/
 CFLAGS=-g -O0
+LDFLAGS=-lsqlite3
