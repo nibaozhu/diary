@@ -19,8 +19,16 @@
 #include <signal.h>
 #include <regex.h>
 #include <netdb.h>
-#include <assert.h>
 extern int h_errno;
+#include <assert.h>
+
+// -lsqlite3
+#include <sqlite3.h>
+sqlite3 *db;
+
+int initializing_sqlite3(const char *argv4);
+int insert_it(const char *url);
+int callback(void *NotUsed, int argc, char **argv, char **colname);
 
 #define MAX_EVENTS (0xff)
 #define IP_LENGTH (0xf)
@@ -162,11 +170,12 @@ int main(int argc, char **argv)
 	plog(info, "PROGRAM: %s, PID: %u, RELEASE: %s %s\n", l->name, l->pid, __DATE__, __TIME__);
 
 	do {
-		if (argc < 4)
+		if (argc < 5)
 		{
 			usage(argv[0]);
 			break;
 		}
+		initializing_sqlite3(argv[4]);
 
 		int fd = socket(AF_INET, SOCK_STREAM, 0);
 		if (fd < 0)
@@ -364,8 +373,9 @@ int main(int argc, char **argv)
 		}
 	} while (0);
 
+	
+	sqlite3_close(db);
 	unset_logging();
-
 	return retval;
 }
 
@@ -528,6 +538,8 @@ int search_url(const char *string, int length)
 			memset(its, 0, sizeof its);
 			memcpy(its, string + pmatch[0].rm_so, pmatch[0].rm_eo - pmatch[0].rm_so);
 			plog(notice, "|||%s|||\n", its);
+
+			insert_it(its);	
 		}
 
 		string += pmatch[0].rm_so + 1;
@@ -615,4 +627,67 @@ int decoding_chunked_content(const char *content_body, int length, char *end_of_
 	return 0;
 }
 
+
+int initializing_sqlite3(const char *argv4)
+{
+//	sqlite3 *db;
+	char filename[PATH_MAX];
+	int retval = 0;
+
+	memset(filename, 0, sizeof filename);
+	strncpy(filename, argv4, sizeof filename - 1);
+
+	retval = sqlite3_open(filename, &db);
+	if (retval != 0)
+	{
+		fprintf(stderr, "%s\n", sqlite3_errmsg(db));
+		sqlite3_close(db);
+		return retval;
+	}
+
+	char sql[1024];
+	memset(sql, 0, sizeof sql);
+	char *errmsg = NULL;
+	strcpy(sql, "create table t1(url text)");
+
+	retval = sqlite3_exec(db, sql, callback, 0, &errmsg);
+	if (retval != SQLITE_OK)
+	{
+		fprintf(stderr, "%s\n", errmsg);
+		sqlite3_free(errmsg);
+	}
+	return 0;
+}
+
+
+int insert_it(const char *url)
+{
+	char sql[1024];
+	memset(sql, 0, sizeof sql);
+	snprintf(sql, sizeof sql, "insert into t1(url) values('%s')", url);
+	int retval = 0;
+	char *errmsg = NULL;
+
+	retval = sqlite3_exec(db, sql, callback, 0, &errmsg);
+	if (retval != SQLITE_OK)
+	{
+		fprintf(stderr, "%s\n", errmsg);
+		sqlite3_free(errmsg);
+	}
+
+	return 0;
+}
+
+int callback(void *NotUsed, int argc, char **argv, char **colname)
+{
+	int i;
+	static int j = 0;
+	printf("j = %d,\t", j++);
+	for (i = 0; i < argc; i++)
+	{
+		printf("i = %d, %s = %s\t", i, colname[i], argv[i]);
+	}
+	printf("\n");
+	return 0;
+}
 

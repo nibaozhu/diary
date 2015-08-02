@@ -1,5 +1,5 @@
 robot: robot.o
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 install: robot
 	cp robot ../../bin
@@ -12,3 +12,4 @@ clean:
 
 CPPFLAGS=-I ../../include/
 CFLAGS=-g -O0
+LDFLAGS=-lsqlite3
