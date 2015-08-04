@@ -528,7 +528,7 @@ int search_url(const char *string, int length)
 	size_t nmatch = 1;
 	int eflags = REG_NOTBOL;
 
-	while (errcode == 0)
+	while (errcode != REG_NOMATCH)
 	{
 		// regexec() returns zero for a successful match or REG_NOMATCH for failure.
 		errcode = regexec(&preg, string, nmatch, pmatch, eflags);
