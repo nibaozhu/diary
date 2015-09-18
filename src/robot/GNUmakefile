@@ -1,3 +1,5 @@
+all: robot
+
 robot: robot.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 

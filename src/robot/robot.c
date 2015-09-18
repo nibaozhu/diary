@@ -27,7 +27,7 @@ extern int h_errno;
 sqlite3 *db;
 
 int initializing_sqlite3(const char *argv4);
-int insert_it(const char *url);
+int insert_it(const char *url, const char *title);
 int callback(void *NotUsed, int argc, char **argv, char **colname);
 
 #define MAX_EVENTS (0xff)
@@ -40,23 +40,26 @@ struct logging *l;
 int setnonblocking(int fd);
 int reads(int fd);
 int writes(int fd, const char *uri, const char *host);
-int do_use_fd();
+int do_use_fd(const char *uri, const char *host);
 
 int quit = 0;
 int fds[MAX_EVENTS] = {0};
 int nconnect = 0;
 
 /////////////////
-char host[1024];
-char uri[1024] = "/";
+char gURL[1024][1024];
 
-int search_url(const char *string, int length);
+int search_url(const char *url, const char *string, int length);
 char *content = NULL;
 int pos = 0;
 
 int decoding_chunked_content(const char *content_body, int length, char *end_of_zero);
 int parsing_http_protocol_response(const char *content, int length, char **chunked, int *i_content_length);
 
+int let_us_go_this_new_url(const char *url);
+
+int efd = 0;
+struct epoll_event ev, events[MAX_EVENTS];
 
 int usage(const char *argv0)
 {
@@ -170,134 +173,19 @@ int main(int argc, char **argv)
 	plog(info, "PROGRAM: %s, PID: %u, RELEASE: %s %s\n", l->name, l->pid, __DATE__, __TIME__);
 
 	do {
-		if (argc < 5)
+		if (argc < 2)
 		{
 			usage(argv[0]);
 			break;
 		}
-		initializing_sqlite3(argv[4]);
+		initializing_sqlite3(argv[3]);
 
-		int fd = socket(AF_INET, SOCK_STREAM, 0);
-		if (fd < 0)
-		{
-			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
-			break;
-		}
+		char sub_url[1024];
+		memset(sub_url, 0, sizeof sub_url);
 
-		///////////////
-		memset(host, 0, sizeof host);
-		memcpy(host, argv[1], sizeof host - 1);
+		snprintf(sub_url, sizeof sub_url, "http://%s/%s", argv[1], argv[2]);
+		let_us_go_this_new_url(sub_url);
 
-		///////////////
-		memset(uri, 0, sizeof uri);
-		memcpy(uri, argv[3], sizeof uri - 1);
-
-		struct sockaddr_in addr;
-		struct sockaddr_in local;
-		memset(&addr, 0, sizeof (struct sockaddr_in));
-
-		addr.sin_family = AF_INET;
-		addr.sin_port = htons(atoi(argv[2]));
-
-		struct hostent *ht;
-		ht = gethostbyname(argv[1]);
-		if (ht == NULL)
-		{
-			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, hstrerror(h_errno), h_errno);
-			break;
-		}
-
-		char temp_addr[1024] = {0};
-		socklen_t slt = sizeof temp_addr;
-		char *ri;
-
-		// On success, inet_ntop() returns a non-null pointer to dst.  NULL is returned if there was an error, with errno set to indicate the error.
-		inet_ntop(AF_INET, (void *)*(ht->h_addr_list), temp_addr, slt);
-		if (temp_addr == NULL)
-		{
-			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
-			break;
-		}
-
-		retval = inet_pton(AF_INET, temp_addr, (struct sockaddr *) &addr.sin_addr.s_addr);
-		if (retval == 0)
-		{
-			plog(error, "%s: %d: %s %s\n", __FILE__, __LINE__, __func__, 
-"0 is returned if src does not contain a character string representing a valid network address in the specified address family."
-			);
-			break;
-		}
-		else if (retval == -1)
-		{
-			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
-			break;
-		}
-
-		socklen_t addrlen = sizeof (struct sockaddr_in);
-		retval = connect(fd, (struct sockaddr *) &addr, addrlen);
-		if (retval == -1)
-		{
-			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
-			break;
-		}
-
-		fds[nconnect++] = fd;
-
-		socklen_t locallen = sizeof (struct sockaddr_in);
-		retval = getsockname(fd, (struct sockaddr *) &local, &locallen);
-		if (retval == -1)
-		{
-			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
-			break;
-		}
-
-		char local_ip[IP_LENGTH];
-		memset(local_ip, 0, sizeof local_ip);
-		if (inet_ntop(AF_INET, (void*) &local.sin_addr.s_addr, local_ip, locallen) == NULL)
-		{
-			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
-			break;
-		}
-
-		char hostname[HOST_NAME_MAX];
-		size_t len = sizeof hostname;
-		memset(hostname, 0, len);
-		retval = gethostname(hostname, len);
-		if (retval == -1)
-		{
-			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
-			break;
-		}
-
-		plog(notice, "%s|%s:%d|+>|%s|%s:%d\n", hostname, local_ip, ntohs(local.sin_port), ht->h_name, temp_addr, ntohs(addr.sin_port));
-
-		//set non blocking
-		retval = setnonblocking(fd);
-		if (retval < 0)
-		{
-			break;
-		}
-
-		int efd = epoll_create(MAX_EVENTS);
-		if (efd == -1)
-		{
-			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
-			break;
-		}
-
-		struct epoll_event ev, events[MAX_EVENTS];
-		ev.events = EPOLLIN | EPOLLET; //epoll edge triggered
-		//      ev.events = EPOLLIN | EPOLLOUT | EPOLLET; // epoll edge triggered
-		//      ev.events = EPOLLIN | EPOLLOUT          ; // epoll level triggered (default)
-		ev.data.fd = fd;
-		retval = epoll_ctl(efd, EPOLL_CTL_ADD, fd, &ev);
-		if (retval == -1)
-		{
-			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
-			break;
-		}
-
-		do_use_fd();
 
 		int n = 0;
 		while (1)
@@ -381,6 +269,11 @@ int main(int argc, char **argv)
 
 int reads(int fd)
 {
+	char url[1024];
+	memset(url, 0, sizeof url);
+
+	memcpy(url, gURL[fd], sizeof url - 1);
+
 	int retval = 0;
 	do {
 		char buffer[BUFFER_LENGTH];
@@ -414,7 +307,7 @@ int reads(int fd)
 
 		if (end_of_zero == '0' || ((i_content_length <= pos - (crlf + 4 - content)) && chunked == NULL))
 		{
-			search_url(content, pos);
+			search_url(url, content, pos);
 			quit = 1;
 		}
 
@@ -476,7 +369,7 @@ int setnonblocking(int fd)
 	return retval;
 }
 
-int do_use_fd()
+int do_use_fd(const char *uri, const char *host)
 {
 	int retval = 0;
 	int n = 0;
@@ -494,19 +387,19 @@ int do_use_fd()
 }
 
 
-int search_url(const char *string, int length)
+int search_url(const char *url, const char *string, int length)
 {
 	plog(debug, "%s: %d: %s\n|||%s|||\n", __FILE__, __LINE__, __func__, string);
 
 	regex_t preg;
 	const char *regex = 
-"\\("
+"http://\\([a-z0-9-]\\+\\.\\)\\+[a-z0-9]\\+\\(:[0-9]\\+\\)\\?\\(/[a-z0-9\\.]\\+\\)*\\(/\\)\\?" // url
+; 
+
+	regex_t preg2;
+	const char *regex2 = 
 "<title>[^<]\\+</title>"	// title
-"\\|"
-"http://\\([a-z0-9-]\\+\\.\\)\\+[a-z0-9]\\+\\(:[0-9]\\+\\)\\?\\(/[a-z0-9\\.\\?=&-]\\+\\)*\\(/\\)\\?" // url
-"\\|"
-"<meta[^<]\\+name=\"description\"[^<]\\+content=\"[^<]\\+/>"	// description
-"\\)"; 
+; 
 
 	int cflags = REG_ICASE;
 
@@ -523,10 +416,31 @@ int search_url(const char *string, int length)
 		return 1;
 	}
 
+	errcode = regcomp(&preg2, regex2, cflags);
+	if (errcode != 0)
+	{
+		size = regerror(errcode, &preg, errbuf, errbuf_size);
+		printf("errcode = %d, %s(%u)\n", errcode, errbuf, size);
+		return 1;
+	}
+
 //	const char *string = "how are you? yes. http://www9.sina.com.cn:80/news/index.html hi, very good.\n";
 	regmatch_t pmatch[1];
 	size_t nmatch = 1;
 	int eflags = REG_NOTBOL;
+
+	char title[1024];
+
+	// regexec() returns zero for a successful match or REG_NOMATCH for failure.
+	errcode = regexec(&preg2, string, nmatch, pmatch, eflags);
+	if (errcode == 0)
+	{
+		memset(title, 0, sizeof title);
+		memcpy(title, string + pmatch[0].rm_so, pmatch[0].rm_eo - pmatch[0].rm_so);
+		plog(notice, "|||%s|||\n", title);
+
+		insert_it(url, title);
+	}
 
 	while (errcode != REG_NOMATCH)
 	{
@@ -534,18 +448,34 @@ int search_url(const char *string, int length)
 		errcode = regexec(&preg, string, nmatch, pmatch, eflags);
 		if (errcode == 0)
 		{
-			char its[1024];
-			memset(its, 0, sizeof its);
-			memcpy(its, string + pmatch[0].rm_so, pmatch[0].rm_eo - pmatch[0].rm_so);
-			plog(notice, "|||%s|||\n", its);
+			char sub_url[1024];
+			memset(sub_url, 0, sizeof sub_url);
+			memcpy(sub_url, string + pmatch[0].rm_so, pmatch[0].rm_eo - pmatch[0].rm_so);
+			plog(notice, "|||%s|||\n", sub_url);
 
-			insert_it(its);	
+			do {
+			if (strstr(sub_url, ".js")) { break; }
+			if (strstr(sub_url, ".png")) { break; }
+			if (strstr(sub_url, ".jpg")) { break; }
+			if (strstr(sub_url, ".css")) { break; }
+			if (strstr(sub_url, ".ico")) { break; }
+			if (strstr(sub_url, "img")) { break; }
+			if (strstr(sub_url, "cgi")) { break; }
+			if (strstr(sub_url, "gif")) { break; }
+			if (strstr(sub_url, "action.do")) { break; }
+			if (strstr(sub_url, ".php")) { break; }
+			if (strstr(sub_url, ".asp")) { break; }
+			if (strstr(sub_url, ".jsp")) { break; }
+			if (strstr(sub_url, "sta")) { break; }
+			let_us_go_this_new_url(sub_url);
+			} while (0);
 		}
 
 		string += pmatch[0].rm_so + 1;
 	}
 
 	regfree(&preg);
+	regfree(&preg2);
 
 	return 0;
 }
@@ -660,11 +590,11 @@ int initializing_sqlite3(const char *argv4)
 }
 
 
-int insert_it(const char *url)
+int insert_it(const char *url, const char *title)
 {
 	char sql[1024];
 	memset(sql, 0, sizeof sql);
-	snprintf(sql, sizeof sql, "insert into t1(url) values('%s')", url);
+	snprintf(sql, sizeof sql, "insert into t1(url, title) values('%s', '%s')", url, title);
 	int retval = 0;
 	char *errmsg = NULL;
 
@@ -690,4 +620,154 @@ int callback(void *NotUsed, int argc, char **argv, char **colname)
 	printf("\n");
 	return 0;
 }
+
+int let_us_go_this_new_url(const char *url)
+{
+	plog(emergency, "%s: %d: %s %s\n", __FILE__, __LINE__, __func__, url);
+	
+
+	do {
+		///////////////////////////////////////////////
+		int fd = socket(AF_INET, SOCK_STREAM, 0);
+		if (fd < 0)
+		{
+			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
+			break;
+    	}
+	
+		///////////////
+		const char *uri = NULL;
+		char host[1024];
+		memset(host, 0, sizeof host);
+		uri = strstr(&url[7], "/");
+		if (uri == NULL)
+		{
+			uri = "/";
+			snprintf(host, sizeof host, "%s", &url[7]);
+    	}
+		else
+		{
+			snprintf(host, sizeof host, "%s", &url[7]);
+			char *slash = strstr(host, "/");
+			*slash = 0;
+		}
+
+		///////////////
+	
+		struct sockaddr_in addr;
+		struct sockaddr_in local;
+    	memset(&addr, 0, sizeof (struct sockaddr_in));
+	
+		addr.sin_family = AF_INET;
+    	addr.sin_port = htons(80);
+	
+		struct hostent *ht;
+		ht = gethostbyname(host);
+		if (ht == NULL)
+		{
+			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, hstrerror(h_errno), h_errno);
+			break;
+    	}
+	
+		char temp_addr[1024] = {0};
+		socklen_t slt = sizeof temp_addr;
+    	char *ri;
+	
+		// On success, inet_ntop() returns a non-null pointer to dst.  NULL is returned if there was an error, with errno set to indicate the error.
+		inet_ntop(AF_INET, (void *)*(ht->h_addr_list), temp_addr, slt);
+		if (temp_addr == NULL)
+		{
+			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
+			break;
+    	}
+	
+		int retval = 0;
+		retval = inet_pton(AF_INET, temp_addr, (struct sockaddr *) &addr.sin_addr.s_addr);
+		if (retval == 0)
+		{
+		plog(error, "%s: %d: %s %s\n", __FILE__, __LINE__, __func__, 
+"0 is returned if src does not contain a character string representing a valid network address in the specified address family."
+			);
+			break;
+		}
+		else if (retval == -1)
+		{
+			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
+			break;
+		}
+
+		socklen_t addrlen = sizeof (struct sockaddr_in);
+		retval = connect(fd, (struct sockaddr *) &addr, addrlen);
+		if (retval == -1)
+		{
+			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
+			break;
+		}
+
+		fds[nconnect++] = fd;
+		memset(gURL[fd], 0, 1024);
+		memcpy(gURL[fd], url, strlen(url));
+
+		socklen_t locallen = sizeof (struct sockaddr_in);
+		retval = getsockname(fd, (struct sockaddr *) &local, &locallen);
+		if (retval == -1)
+		{
+			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
+			break;
+		}
+
+		char local_ip[IP_LENGTH];
+		memset(local_ip, 0, sizeof local_ip);
+		if (inet_ntop(AF_INET, (void*) &local.sin_addr.s_addr, local_ip, locallen) == NULL)
+		{
+			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
+			break;
+		}
+
+		char hostname[HOST_NAME_MAX];
+		size_t len = sizeof hostname;
+		memset(hostname, 0, len);
+		retval = gethostname(hostname, len);
+		if (retval == -1)
+		{
+			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
+			break;
+		}
+
+		plog(notice, "%s|%s:%d|+>|%s|%s:%d\n", hostname, local_ip, ntohs(local.sin_port), ht->h_name, temp_addr, ntohs(addr.sin_port));
+
+		//set non blocking
+		retval = setnonblocking(fd);
+		if (retval < 0)
+		{
+			break;
+		}
+
+		if (efd == 0) {
+		efd = epoll_create(MAX_EVENTS);
+		if (efd == -1)
+		{
+			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
+			break;
+		} }
+
+		ev.events = EPOLLIN | EPOLLET; //epoll edge triggered
+		//      ev.events = EPOLLIN | EPOLLOUT | EPOLLET; // epoll edge triggered
+		//      ev.events = EPOLLIN | EPOLLOUT          ; // epoll level triggered (default)
+		ev.data.fd = fd;
+		retval = epoll_ctl(efd, EPOLL_CTL_ADD, fd, &ev);
+		if (retval == -1)
+		{
+			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
+			break;
+		}
+
+		do_use_fd(uri, host);
+	///////////////////////////////////////////////
+	} while (0);
+
+	return 0;
+}
+
+
 
