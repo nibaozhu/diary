@@ -1,18 +1,4 @@
 #include "task.h"
-#include "handle.h"
-
-#include <stdio.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <errno.h>
-#include <sys/epoll.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <stdlib.h>
-#include <sys/time.h>
 
 #define MAX_EVENTS (0xff)
 #define BUFFER_LENGTH (0xff)
@@ -178,7 +164,7 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 		socklen_t peer_addrlen = sizeof (struct sockaddr_in);
 		memset(&peer_addr, 0, sizeof (struct sockaddr_in));
 
-		nfds = epoll_wait(epollfd, events, MAX_EVENTS, 1000);
+		nfds = epoll_wait(epollfd, events, MAX_EVENTS, 0);
 		if (nfds == -1) {
 			printf("%s\n", strerror(errno));
 			break;
