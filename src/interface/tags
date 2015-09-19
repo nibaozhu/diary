@@ -4,6 +4,7 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
+BUFFER_LENGTH	task.cc	18;"	d	file:
 CXXFLAGS	Makefile	/^CXXFLAGS=-O0 -g$/;"	m
 LDFLAGS	Makefile	/^LDFLAGS=-D1$/;"	m
 MAX_EVENTS	task.cc	17;"	d	file:
@@ -18,14 +19,17 @@ epollfd	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
 ev	task.cc	/^struct epoll_event ev, events[MAX_EVENTS];$/;"	v	typeref:struct:epoll_event
 events	task.cc	/^struct epoll_event ev, events[MAX_EVENTS];$/;"	v	typeref:struct:
 fd	transport.h	/^	int fd; \/* file descriptor *\/$/;"	m	class:Transport
-init	task.cc	/^int init(int argc, argv) {$/;"	f
+init	task.cc	/^int init(int argc, char **argv) {$/;"	f
 listen_sock	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
 main	main.cc	/^int main(int argc, char **argv) {$/;"	f
 nfds	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
+reads	task.cc	/^int reads(int fd) {$/;"	f
+setnonblocking	task.cc	/^int setnonblocking(int fd) {$/;"	f
 speed	transport.h	/^	double speed; \/* bytes per second *\/$/;"	m	class:Transport
 task	task.cc	/^int task(int argc, char **argv) {$/;"	f
 task_r	task.cc	/^int task_r(std::queue<Transport*> *r) {$/;"	f
 task_w	task.cc	/^int task_w(std::queue<Transport*> *w) {$/;"	f
 task_x	task.cc	/^int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<std::string, Transport*> *m) {$/;"	f
 updated	transport.h	/^	time_t updated; \/* the lastest communication time *\/$/;"	m	class:Transport
+writes	task.cc	/^int writes(int fd) {$/;"	f
 ~Transport	transport.h	/^	~Transport() {$/;"	f	class:Transport

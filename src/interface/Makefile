@@ -11,4 +11,4 @@ task.o: task.cc task.h transport.h
 handle.o: handle.cc handle.h
 
 CXXFLAGS=-O0 -g
-LDFLAGS=-D1
+LDFLAGS=-DM
