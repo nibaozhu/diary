@@ -94,11 +94,11 @@ int init(int argc, char **argv) {
 		addr.sin_family = AF_INET;
 
 #ifdef D
-		addr.sin_port = htons(atoi(argv[2]));
-		ret = inet_pton(AF_INET, argv[1], (struct sockaddr *) &addr.sin_addr.s_addr);
-#else
 		addr.sin_port = htons(atoi("12340"));
 		ret = inet_pton(AF_INET, "127.0.0.1", (struct sockaddr *) &addr.sin_addr.s_addr);
+#else
+		addr.sin_port = htons(atoi(argv[2]));
+		ret = inet_pton(AF_INET, argv[1], (struct sockaddr *) &addr.sin_addr.s_addr);
 #endif
 
 		if (ret != 1) {
@@ -164,7 +164,7 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 		socklen_t peer_addrlen = sizeof (struct sockaddr_in);
 		memset(&peer_addr, 0, sizeof (struct sockaddr_in));
 
-		nfds = epoll_wait(epollfd, events, MAX_EVENTS, 0);
+		nfds = epoll_wait(epollfd, events, MAX_EVENTS, 100);
 		if (nfds == -1) {
 			printf("%s\n", strerror(errno));
 			break;

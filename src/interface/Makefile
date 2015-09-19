@@ -10,5 +10,5 @@ main.o: main.cc main.h
 task.o: task.cc task.h transport.h
 handle.o: handle.cc handle.h
 
-CXXFLAGS=-O0 -g
-LDFLAGS=-DM
+CXXFLAGS=-O0 -g -DD
+LDFLAGS=

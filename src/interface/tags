@@ -5,8 +5,8 @@
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
 BUFFER_LENGTH	task.cc	4;"	d	file:
-CXXFLAGS	Makefile	/^CXXFLAGS=-O0 -g$/;"	m
-LDFLAGS	Makefile	/^LDFLAGS=-DM$/;"	m
+CXXFLAGS	Makefile	/^CXXFLAGS=-O0 -g -DD$/;"	m
+LDFLAGS	Makefile	/^LDFLAGS=$/;"	m
 MAIN_H	main.h	2;"	d
 MAX_EVENTS	task.cc	3;"	d	file:
 TASK_H	task.h	2;"	d
