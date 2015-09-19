@@ -14,8 +14,9 @@ private:
 	double speed; /* bytes per second */
 
 public:
-	Transport() {
+	Transport(int fd) {
 		memset(this, 0, sizeof *this);
+		this->fd = fd;
 	}
 
 	int set_fd(int fd) {

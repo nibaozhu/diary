@@ -94,7 +94,7 @@ int writes(Transport *t) {
 int init(int argc, char **argv) {
 	int ret = 0;
 	do {
-		int listen_sock = socket(AF_INET, SOCK_STREAM, 0);
+		listen_sock = socket(AF_INET, SOCK_STREAM, 0);
 		if (listen_sock < 0) {
 			printf("%s\n", strerror(errno));
 			break;
@@ -154,9 +154,9 @@ int init(int argc, char **argv) {
 
 int task(int argc, char **argv) {
 	int ret = 0;
-	std::queue<Transport*> *r = NULL;
-	std::queue<Transport*> *w = NULL;
-	std::map<std::string, Transport*> *m = NULL;
+	std::queue<Transport*> *r = new std::queue<Transport*>();
+	std::queue<Transport*> *w = new std::queue<Transport*>();
+	std::map<int, Transport*> *m = new std::map<int, Transport*>();
 
 	ret = init(argc, argv);
 	if (ret == -1) {
@@ -164,14 +164,14 @@ int task(int argc, char **argv) {
 	}
 
 	while (true) {
-		ret = task_r(r);
+		ret = task_r(r, m);
 		ret = task_x(r, w, m);
 		ret = task_w(w);
 	}
 	return ret;
 }
 
-int task_r(std::queue<Transport*> *r) {
+int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 	int ret = 0;
 	do {
 		struct sockaddr_in peer_addr;
@@ -213,6 +213,9 @@ int task_r(std::queue<Transport*> *r) {
 				printf("some one connect to me\n");
 				;;;;;;;;;;;;;;;;;;;;
 
+				Transport *t = new Transport(acceptfd);
+				(*m)[acceptfd] = t;
+
 			} else {
 				if (events[n].events & EPOLLHUP) {
 					printf("events[%d].events = 0x%03x\n", n, events[n].events);
@@ -247,9 +250,12 @@ int task_r(std::queue<Transport*> *r) {
 					puts("The associated file is available for read(2) operations."); // my message
 
 					// ret = reads(events[n].data.fd);
-					Transport *t = new Transport();
-					t->set_fd(events[n].data.fd);
+					// Transport *t = new Transport();
+					// t->set_fd(events[n].data.fd);
 
+					printf ("m = %p\n", m);
+					if (m == NULL) { return ret; }
+					Transport *t = (*m)[events[n].data.fd];
 					ret = reads(t);
 					if (ret < 0) {
 						break;
@@ -261,9 +267,12 @@ int task_r(std::queue<Transport*> *r) {
 					puts("The associated file is available for write(2) operations."); // my message
 
 					// ret = writes(events[n].data.fd);
-					Transport *t = new Transport();
-					t->set_fd(events[n].data.fd);
+					// Transport *t = new Transport();
+					// t->set_fd(events[n].data.fd);
 
+					printf ("m = %p\n", m);
+					if (m == NULL) { return ret; }
+					Transport *t = (*m)[events[n].data.fd];
 					ret = writes(t);
 					if (ret < 0) {
 						break;
@@ -301,7 +310,7 @@ int task_w(std::queue<Transport*> *w) {
 	return ret;
 }
 
-int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<std::string, Transport*> *m) {
+int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, Transport*> *m) {
 	int ret = 0;
 
 	printf("r = %p, w = %p, m = %p\n", r, w, m);
