@@ -136,9 +136,9 @@ int init(int argc, char **argv) {
 
 int task(int argc, char **argv) {
 	int ret = 0;
-	std::queue<Transport*> *r;
-	std::queue<Transport*> *w;
-	std::map<std::string, Transport*> *m;
+	std::queue<Transport*> *r = NULL;
+	std::queue<Transport*> *w = NULL;
+	std::map<std::string, Transport*> *m = NULL;
 
 	ret = init(argc, argv);
 	if (ret == -1) {
@@ -192,6 +192,8 @@ int task_r(std::queue<Transport*> *r) {
 				}
 
 				;;;;;;;;;;;;;;;;;;;;
+				printf("some one connect to me\n");
+				;;;;;;;;;;;;;;;;;;;;
 
 			} else {
 				if (events[n].events & EPOLLHUP) {
@@ -241,9 +243,12 @@ int task_r(std::queue<Transport*> *r) {
 					}
 				}
 			}
-		}
 
-		;;;;;;;;;;;
+			;;;;;;;;;;;;;;;;;;;;
+			printf("some data send to me\n");
+			;;;;;;;;;;;;;;;;;;;;
+
+		}
 
 	} while (0);
 	return ret;
@@ -251,12 +256,41 @@ int task_r(std::queue<Transport*> *r) {
 
 int task_w(std::queue<Transport*> *w) {
 	int ret = 0;
-	;
+
+	printf("w = %p\n", w);
+	if (w == NULL) {
+		return ret;
+	}
+
+	;;;;;;;;;;;;;;;;;;;;
+	/**
+	 *  Returns true if the %queue is empty.
+	 */
+	while (!w->empty()) {
+		printf("i should send data to some one\n");
+	}
+	;;;;;;;;;;;;;;;;;;;;
+
 	return ret;
 }
 
 int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<std::string, Transport*> *m) {
 	int ret = 0;
-	;
+
+	printf("r = %p, w = %p, m = %p\n", r, w, m);
+	if (r == NULL) {
+		return ret;
+	}
+
+	;;;;;;;;;;;;;;;;;;;;
+	/**
+	 *  Returns true if the %queue is empty.
+	 */
+	while (!r->empty()) {
+		printf("i should handle data\n");
+		printf("i should handle data, size = %d\n", r->size());
+	}
+	;;;;;;;;;;;;;;;;;;;;
+
 	return ret;
 }
