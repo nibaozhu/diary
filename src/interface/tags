@@ -1,0 +1,31 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+CXXFLAGS	Makefile	/^CXXFLAGS=-O0 -g$/;"	m
+LDFLAGS	Makefile	/^LDFLAGS=-D1$/;"	m
+MAX_EVENTS	task.cc	17;"	d	file:
+TASK_H	task.h	2;"	d
+Transport	transport.h	/^	Transport() {$/;"	f	class:Transport
+Transport	transport.h	/^class Transport {$/;"	c
+alive	transport.h	/^	bool alive; \/* true: live; false: die *\/$/;"	m	class:Transport
+conn_sock	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
+created	transport.h	/^	time_t created; \/* the first communication time *\/$/;"	m	class:Transport
+data	transport.h	/^	void *data; \/* transport data *\/$/;"	m	class:Transport
+epollfd	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
+ev	task.cc	/^struct epoll_event ev, events[MAX_EVENTS];$/;"	v	typeref:struct:epoll_event
+events	task.cc	/^struct epoll_event ev, events[MAX_EVENTS];$/;"	v	typeref:struct:
+fd	transport.h	/^	int fd; \/* file descriptor *\/$/;"	m	class:Transport
+init	task.cc	/^int init(int argc, argv) {$/;"	f
+listen_sock	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
+main	main.cc	/^int main(int argc, char **argv) {$/;"	f
+nfds	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
+speed	transport.h	/^	double speed; \/* bytes per second *\/$/;"	m	class:Transport
+task	task.cc	/^int task(int argc, char **argv) {$/;"	f
+task_r	task.cc	/^int task_r(std::queue<Transport*> *r) {$/;"	f
+task_w	task.cc	/^int task_w(std::queue<Transport*> *w) {$/;"	f
+task_x	task.cc	/^int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<std::string, Transport*> *m) {$/;"	f
+updated	transport.h	/^	time_t updated; \/* the lastest communication time *\/$/;"	m	class:Transport
+~Transport	transport.h	/^	~Transport() {$/;"	f	class:Transport
