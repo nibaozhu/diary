@@ -39,10 +39,19 @@ int setnonblocking(int fd) {
 	return ret;
 }
 
-int reads(int fd) {
-	printf("%s:%d:%s\n", __FILE__, __LINE__, __func__);
+// int reads(int fd) {
+int reads(Transport *t) {
 	int ret = 0;
+
+	printf("t = %p\n", t);
+	if (t == NULL) {
+		return ret;
+	}
+
+	printf("%s:%d:%s\n", __FILE__, __LINE__, __func__);
 	do {
+		int fd = t->get_fd();
+
 		char buffer[BUFFER_LENGTH];
 		memset(buffer, 0, sizeof buffer);
 		ret = read(fd, buffer, BUFFER_LENGTH);
@@ -55,10 +64,19 @@ int reads(int fd) {
 	return ret;
 }
 
-int writes(int fd) {
-	printf("%s:%d:%s\n", __FILE__, __LINE__, __func__);
+// int writes(int fd) {
+int writes(Transport *t) {
 	int ret = 0;
+
+	printf("t = %p\n", t);
+	if (t == NULL) {
+		return ret;
+	}
+
+	printf("%s:%d:%s\n", __FILE__, __LINE__, __func__);
 	do {
+		int fd = t->get_fd();
+
 		char buffer[BUFFER_LENGTH];
 		memset(buffer, 0, sizeof buffer);
 		sprintf(buffer, "send");
@@ -200,8 +218,7 @@ int task_r(std::queue<Transport*> *r) {
 					printf("events[%d].events = 0x%03x\n", n, events[n].events);
 					puts("Hang up happened on the associated file descriptor."); // my message
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
-					if (ret == -1)
-					{
+					if (ret == -1) {
 						printf("%s\n", strerror(errno));
 						break;
 					}
@@ -228,7 +245,12 @@ int task_r(std::queue<Transport*> *r) {
 				if (events[n].events & EPOLLIN) {
 					printf("events[%d].events = 0x%03x\n", n, events[n].events);
 					puts("The associated file is available for read(2) operations."); // my message
-					ret = reads(events[n].data.fd);
+
+					// ret = reads(events[n].data.fd);
+					Transport *t = new Transport();
+					t->set_fd(events[n].data.fd);
+
+					ret = reads(t);
 					if (ret < 0) {
 						break;
 					}
@@ -237,7 +259,12 @@ int task_r(std::queue<Transport*> *r) {
 				if (events[n].events & EPOLLOUT) {
 					printf("events[%d].events = 0x%03x\n", n, events[n].events);
 					puts("The associated file is available for write(2) operations."); // my message
-					ret = writes(events[n].data.fd);
+
+					// ret = writes(events[n].data.fd);
+					Transport *t = new Transport();
+					t->set_fd(events[n].data.fd);
+
+					ret = writes(t);
 					if (ret < 0) {
 						break;
 					}
