@@ -260,6 +260,9 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 					if (ret < 0) {
 						break;
 					}
+
+					/* Now, we need push to queue. */
+					r->push(t);
 				}
 
 				if (events[n].events & EPOLLOUT) {
@@ -323,8 +326,12 @@ int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, T
 	 *  Returns true if the %queue is empty.
 	 */
 	while (!r->empty()) {
-		printf("i should handle data\n");
 		printf("i should handle data, size = %d\n", r->size());
+
+		Transport *t = r->front();
+		r->pop();
+
+		printf("i am handling data\n");
 	}
 	;;;;;;;;;;;;;;;;;;;;
 
