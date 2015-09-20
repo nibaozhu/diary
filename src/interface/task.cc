@@ -43,10 +43,6 @@ int reads(Transport *t) {
 			printf("%s(%d)\n", strerror(errno), errno);
 			break;
 		}
-		else if (ret == 0) {
-			;;;;
-			break;
-		}
 		printf("[%s]\n", buffer);
 
 		if (ret > 0) {
@@ -54,6 +50,9 @@ int reads(Transport *t) {
 			memset(buffer, 0, ret + 1);
 		}
 
+		if (ret >= 0 && ret < BUFFER_LENGTH) {
+			break;
+		}
 	} while (1);
 	return ret;
 }
