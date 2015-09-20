@@ -5,12 +5,12 @@
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
 BUFFER_LENGTH	task.cc	4;"	d	file:
-CXXFLAGS	Makefile	/^CXXFLAGS=-O0 -g -DD$/;"	m
+CXXFLAGS	Makefile	/^CXXFLAGS=-O0 -g -DD -Wno-pointer-arith$/;"	m
 LDFLAGS	Makefile	/^LDFLAGS=$/;"	m
 MAIN_H	main.h	2;"	d
 MAX_EVENTS	task.cc	3;"	d	file:
 TASK_H	task.h	2;"	d
-Transport	transport.h	/^	Transport(int fd) {$/;"	f	class:Transport
+Transport	transport.h	/^	Transport(int fd, int size = 1024 * 1024) {$/;"	f	class:Transport
 Transport	transport.h	/^class Transport {$/;"	c
 alive	transport.h	/^	bool alive; \/* true: live; false: die *\/$/;"	m	class:Transport
 conn_sock	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
@@ -20,14 +20,18 @@ epollfd	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
 ev	task.cc	/^struct epoll_event ev, events[MAX_EVENTS];$/;"	v	typeref:struct:epoll_event
 events	task.cc	/^struct epoll_event ev, events[MAX_EVENTS];$/;"	v	typeref:struct:
 fd	transport.h	/^	int fd; \/* file descriptor *\/$/;"	m	class:Transport
+get_data	transport.h	/^	void *get_data(void) {$/;"	f	class:Transport
 get_fd	transport.h	/^	int get_fd(void) {$/;"	f	class:Transport
+get_size	transport.h	/^	int get_size(void) {$/;"	f	class:Transport
 init	task.cc	/^int init(int argc, char **argv) {$/;"	f
 listen_sock	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
 main	main.cc	/^int main(int argc, char **argv) {$/;"	f
 nfds	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
 position	transport.h	/^	int position; \/* transport data pointer position *\/$/;"	m	class:Transport
 reads	task.cc	/^int reads(Transport *t) {$/;"	f
+set_data	transport.h	/^	void *set_data(void *data, int size) {$/;"	f	class:Transport
 set_fd	transport.h	/^	int set_fd(int fd) {$/;"	f	class:Transport
+set_size	transport.h	/^	int set_size(int size) {$/;"	f	class:Transport
 setnonblocking	task.cc	/^int setnonblocking(int fd) {$/;"	f
 size	transport.h	/^	int size; \/* transport data size *\/$/;"	m	class:Transport
 speed	transport.h	/^	double speed; \/* bytes per second *\/$/;"	m	class:Transport

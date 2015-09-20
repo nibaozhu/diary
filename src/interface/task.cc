@@ -12,13 +12,13 @@ int setnonblocking(int fd) {
 		int flags = fcntl(fd, F_GETFL);    
 		if (flags == -1) {
 			ret = flags;
-			printf("%s\n", strerror(errno));
+			printf("%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 		flags |= O_NONBLOCK; //non block
 		ret = fcntl(fd, F_SETFL, flags);
 		if (ret == -1) {
-			printf("%s\n", strerror(errno));
+			printf("%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 	} while (0);
@@ -28,51 +28,57 @@ int setnonblocking(int fd) {
 // int reads(int fd) {
 int reads(Transport *t) {
 	int ret = 0;
-
-	printf("t = %p\n", t);
+	int fd = t->get_fd();
 	if (t == NULL) {
+		printf("t = %p\n", t);
 		return ret;
 	}
 
-	printf("%s:%d:%s\n", __FILE__, __LINE__, __func__);
+	printf("fd = %d, %s\n", fd, __func__);
 	do {
-		int fd = t->get_fd();
-
 		char buffer[BUFFER_LENGTH];
 		memset(buffer, 0, sizeof buffer);
 		ret = read(fd, buffer, BUFFER_LENGTH);
 		if (ret < 0) {
-			printf("%s\n", strerror(errno));
+			printf("%s(%d)\n", strerror(errno), errno);
 			break;
 		}
-		printf("fd = %d, READ [%s]\n", fd, buffer);
-	} while (0);
+		else if (ret == 0) {
+			;;;;
+			break;
+		}
+		printf("[%s]\n", buffer);
+
+		if (ret > 0) {
+			t->set_data(buffer, ret + 1);
+			memset(buffer, 0, ret + 1);
+		}
+
+	} while (1);
 	return ret;
 }
 
 // int writes(int fd) {
 int writes(Transport *t) {
 	int ret = 0;
-
-	printf("t = %p\n", t);
+	int fd = t->get_fd();
 	if (t == NULL) {
+		printf("t = %p\n", t);
 		return ret;
 	}
 
-	printf("%s:%d:%s\n", __FILE__, __LINE__, __func__);
+	printf("fd = %d, %s\n", fd, __func__);
 	do {
-		int fd = t->get_fd();
-
 		char buffer[BUFFER_LENGTH];
 		memset(buffer, 0, sizeof buffer);
 		sprintf(buffer, "send");
 		size_t length = strlen(buffer);
 		ret = write(fd, buffer, length);
 		if (ret < 0) {
-			printf("%s\n", strerror(errno));
+			printf("%s(%d)\n", strerror(errno), errno);
 			break;
 		}
-		printf("fd = %d, write [%s]\n", fd, buffer);
+		printf("[%s]\n", buffer);
 	} while (0);
 	return ret;
 }
@@ -82,7 +88,7 @@ int init(int argc, char **argv) {
 	do {
 		listen_sock = socket(AF_INET, SOCK_STREAM, 0);
 		if (listen_sock < 0) {
-			printf("%s\n", strerror(errno));
+			printf("%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 
@@ -102,27 +108,27 @@ int init(int argc, char **argv) {
 #endif
 
 		if (ret != 1) {
-			printf("%s\n", strerror(errno));
+			printf("%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 
 		socklen_t addrlen = sizeof (struct sockaddr_in);
 		ret = bind(listen_sock, (struct sockaddr *) &addr, addrlen);
 		if (ret == -1) {
-			printf("%s\n", strerror(errno));
+			printf("%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 
 		int backlog = 5; /* may be wrong */
 		ret = listen(listen_sock, backlog);
 		if (ret == -1) {
-			printf("%s\n", strerror(errno));
+			printf("%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 
 		epollfd = epoll_create(MAX_EVENTS);
 		if (epollfd == -1) {
-			printf("%s\n", strerror(errno));
+			printf("%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 		printf("epollfd = %d\n", epollfd);
@@ -131,7 +137,7 @@ int init(int argc, char **argv) {
 		ev.data.fd = listen_sock; /* bind & listen's fd */
 		ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, listen_sock, &ev);
 		if (ret == -1) {
-			printf("%s\n", strerror(errno));
+			printf("%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 	} while (0);
@@ -164,9 +170,9 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 		socklen_t peer_addrlen = sizeof (struct sockaddr_in);
 		memset(&peer_addr, 0, sizeof (struct sockaddr_in));
 
-		nfds = epoll_wait(epollfd, events, MAX_EVENTS, 100);
+		nfds = epoll_wait(epollfd, events, MAX_EVENTS, 1000);
 		if (nfds == -1) {
-			printf("%s\n", strerror(errno));
+			printf("%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 
@@ -174,7 +180,7 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 			if (events[n].data.fd == listen_sock) {
 				int acceptfd = accept(listen_sock, (struct sockaddr *) &peer_addr, &peer_addrlen);
 				if (acceptfd == -1) {
-					printf("%s\n", strerror(errno));
+					printf("%s(%d)\n", strerror(errno), errno);
 					break;
 				}
 
@@ -191,7 +197,7 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 				ev.data.fd = acceptfd;
 				ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, acceptfd, &ev);
 				if (ret == -1) {
-					printf("%s\n", strerror(errno));
+					printf("%s(%d)\n", strerror(errno), errno);
 					break;
 				}
 
@@ -208,7 +214,7 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 					puts("Hang up happened on the associated file descriptor."); // my message
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
-						printf("%s\n", strerror(errno));
+						printf("%s(%d)\n", strerror(errno), errno);
 						break;
 					}
 					close(events[n].data.fd);
@@ -224,7 +230,7 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 						"epoll_wait(2) will always wait for this event; it is not necessary to set it in events."); // my message
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
-						printf("%s\n", strerror(errno));
+						printf("%s(%d)\n", strerror(errno), errno);
 						break;
 					}
 					close(events[n].data.fd);
@@ -239,8 +245,10 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 					// Transport *t = new Transport();
 					// t->set_fd(events[n].data.fd);
 
-					printf ("m = %p\n", m);
-					if (m == NULL) { return ret; }
+					if (m == NULL) {
+						printf("m = %p\n", m);
+						return ret;
+					}
 					Transport *t = (*m)[events[n].data.fd];
 					ret = reads(t);
 					if (ret < 0) {
@@ -259,8 +267,10 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 					// Transport *t = new Transport();
 					// t->set_fd(events[n].data.fd);
 
-					printf ("m = %p\n", m);
-					if (m == NULL) { return ret; }
+					if (m == NULL) {
+						printf("m = %p\n", m);
+						return ret;
+					}
 					Transport *t = (*m)[events[n].data.fd];
 					ret = writes(t);
 					if (ret < 0) {
@@ -281,9 +291,8 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 
 int task_w(std::queue<Transport*> *w) {
 	int ret = 0;
-
-	printf("w = %p\n", w);
 	if (w == NULL) {
+		printf("w = %p\n", w);
 		return ret;
 	}
 
@@ -301,9 +310,8 @@ int task_w(std::queue<Transport*> *w) {
 
 int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, Transport*> *m) {
 	int ret = 0;
-
-	printf("r = %p, w = %p, m = %p\n", r, w, m);
 	if (r == NULL) {
+		printf("r = %p, w = %p, m = %p\n", r, w, m);
 		return ret;
 	}
 
@@ -315,8 +323,9 @@ int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, T
 		printf("i should handle data, size = %d\n", r->size());
 
 		Transport *t = r->front();
-		r->pop();
+		printf("data = %s\n", t->get_data());
 
+		r->pop();
 		printf("i am handling data\n");
 	}
 	;;;;;;;;;;;;;;;;;;;;
