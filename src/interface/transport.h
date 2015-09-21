@@ -36,12 +36,11 @@ public:
 	}
 
 	void *set_data(void *data, int size) {
-		void *p = NULL;
 		while (size >= this->size - this->position) {
 			printf("realloc %p %d\n", this->data, this->size);
-			p = realloc(this->data, this->size * 2);
-			if (p == NULL) {
-				return p;
+			this->data = realloc(this->data, this->size * 2);
+			if (this->data == NULL) {
+				return this->data;
 			} else {
 				this->size *= 2;
 				memset(this->data + this->position, 0, this->size - this->position);
@@ -95,7 +94,7 @@ public:
 
 	~Transport() {
 		free(this->data);
-		printf("Free %p, %f%%\n", this->data, 100. * this->position / this->size);
+		printf("fd = %d, Free %p, %f%% (%d / %d)\n", this->fd, this->data, 100. * this->position / this->size, this->position, this->size);
 		memset(this, 0, sizeof *this);
 	}
 };
