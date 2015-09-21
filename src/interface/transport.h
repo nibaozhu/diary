@@ -35,6 +35,14 @@ public:
 		return this->fd;
 	}
 
+	int set_position(int position) {
+		return this->position = position;
+	}
+
+	int get_position(void) {
+		return this->position;
+	}
+
 	void *set_data(void *data, int size) {
 		while (size >= this->size - this->position) {
 			printf("realloc %p %d\n", this->data, this->size);

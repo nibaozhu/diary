@@ -4,9 +4,6 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
-APPLICATION_H	application.h	2;"	d
-Application	application.h	/^	Application(enum Type t = kv) {$/;"	f	class:Application
-Application	application.h	/^class Application {$/;"	c
 BUFFER_LENGTH	task.cc	4;"	d	file:
 CXXFLAGS	Makefile	/^CXXFLAGS=-O0 -g -DD -Wno-pointer-arith$/;"	m
 HANDLE_H	handle.h	2;"	d
@@ -16,7 +13,6 @@ MAX_EVENTS	task.cc	3;"	d	file:
 TASK_H	task.h	2;"	d
 Transport	transport.h	/^	Transport(int fd, int size = 1024 * 1024) {$/;"	f	class:Transport
 Transport	transport.h	/^class Transport {$/;"	c
-Type	application.h	/^enum Type {$/;"	g
 alive	transport.h	/^	bool alive; \/* true: live; false: die *\/$/;"	m	class:Transport
 conn_sock	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
 created	transport.h	/^	time_t created; \/* the first communication time *\/$/;"	m	class:Transport
@@ -28,35 +24,27 @@ fd	transport.h	/^	int fd; \/* file descriptor *\/$/;"	m	class:Transport
 get_alive	transport.h	/^	bool get_alive(void) {$/;"	f	class:Transport
 get_data	transport.h	/^	void *get_data(void) {$/;"	f	class:Transport
 get_fd	transport.h	/^	int get_fd(void) {$/;"	f	class:Transport
+get_position	transport.h	/^	int get_position(void) {$/;"	f	class:Transport
 get_size	transport.h	/^	int get_size(void) {$/;"	f	class:Transport
-handle	handle.cc	/^int handle(enum Type t, void *message, int size) {$/;"	f
-handle_json	handle.cc	/^int handle_json() {$/;"	f
-handle_kv	handle.cc	/^int handle_kv() {$/;"	f
-handle_protobuf	handle.cc	/^int handle_protobuf() {$/;"	f
-handle_xml	handle.cc	/^int handle_xml() {$/;"	f
+handle	handle.cc	/^int handle(void *message, int size) {$/;"	f
 handler	task.cc	/^void handler(int signum) {$/;"	f
 init	task.cc	/^int init(int argc, char **argv) {$/;"	f
 is_quit	task.cc	/^bool is_quit;$/;"	v
-json	application.h	/^	json,$/;"	e	enum:Type
-kv	application.h	/^	kv,$/;"	e	enum:Type
 listen_sock	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
 main	main.cc	/^int main(int argc, char **argv) {$/;"	f
-message	application.h	/^	void *message;$/;"	m	class:Application
 nfds	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
 position	transport.h	/^	int position; \/* transport data pointer position *\/$/;"	m	class:Transport
 print	transport.h	/^	void print(int width = 16) {$/;"	f	class:Transport
-protobuf	application.h	/^	protobuf,$/;"	e	enum:Type
 reads	task.cc	/^int reads(Transport *t) {$/;"	f
 set_alive	transport.h	/^	bool set_alive(bool alive) {$/;"	f	class:Transport
 set_data	transport.h	/^	void *set_data(void *data, int size) {$/;"	f	class:Transport
 set_disposition	task.cc	/^void set_disposition(void) {$/;"	f
 set_fd	transport.h	/^	int set_fd(int fd) {$/;"	f	class:Transport
+set_position	transport.h	/^	int set_position(int position) {$/;"	f	class:Transport
 set_size	transport.h	/^	int set_size(int size) {$/;"	f	class:Transport
 setnonblocking	task.cc	/^int setnonblocking(int fd) {$/;"	f
-size	application.h	/^	int size;$/;"	m	class:Application
 size	transport.h	/^	int size; \/* transport data size *\/$/;"	m	class:Transport
 speed	transport.h	/^	double speed; \/* bytes per second *\/$/;"	m	class:Transport
-t	application.h	/^	enum Type t;$/;"	m	class:Application	typeref:enum:Application::Type
 task	task.cc	/^int task(int argc, char **argv) {$/;"	f
 task_r	task.cc	/^int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {$/;"	f
 task_w	task.cc	/^int task_w(std::queue<Transport*> *w) {$/;"	f
@@ -64,6 +52,4 @@ task_x	task.cc	/^int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w
 uninit	task.cc	/^int uninit(std::map<int, Transport*> *m) {$/;"	f
 updated	transport.h	/^	time_t updated; \/* the lastest communication time *\/$/;"	m	class:Transport
 writes	task.cc	/^int writes(Transport *t) {$/;"	f
-xml	application.h	/^	xml,$/;"	e	enum:Type
-~Application	application.h	/^	~Application() {$/;"	f	class:Application
 ~Transport	transport.h	/^	~Transport() {$/;"	f	class:Transport

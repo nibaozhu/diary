@@ -62,24 +62,27 @@ int reads(Transport *t) {
 
 int writes(Transport *t) {
 	int ret = 0;
-	int fd = t->get_fd();
 	if (t == NULL) {
 		printf("t = %p\n", t);
 		return ret;
 	}
 
-	printf("fd = %d, %s\n", fd, __func__);
 	do {
-		char buffer[BUFFER_LENGTH + 1];
-		memset(buffer, 0, sizeof buffer);
-		sprintf(buffer, "send");
-		size_t length = strlen(buffer);
-		ret = write(fd, buffer, length);
+		int fd = t->get_fd();
+		printf("fd = %d, %s\n", fd, __func__);
+		t->print();
+
+		ret = write(fd, t->get_data(), t->get_position());
 		if (ret < 0) {
 			printf("%s(%d)\n", strerror(errno), errno);
 			break;
+		} else if (ret >= 0 && ret <= t->get_position()) {
+
+			;;;;;;;;;;;;;;;;;;;;
+			memset(t->get_data(), 0, ret);
+			t->set_position(t->get_position() - ret);
+			;;;;;;;;;;;;;;;;;;;;
 		}
-		printf("[%s]\n", buffer);
 	} while (0);
 	return ret;
 }
@@ -263,7 +266,7 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 				}
 
 				printf("accept: acceptfd = %d\n", acceptfd);
-				//set non blocking
+				/* set non blocking */
 				ret = setnonblocking(acceptfd);
 				if (ret == -1) {
 					break;
@@ -271,7 +274,7 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 
 				ev.events = EPOLLET | EPOLLIN | EPOLLRDHUP; /* edge triggered */
 				// ev.events = EPOLLET | EPOLLIN | EPOLLOUT | EPOLLRDHUP; /* edge triggered */
-				// ev.events = EPOLLIN | EPOLLOUT; //epoll level triggered (default)
+				// ev.events = EPOLLIN | EPOLLOUT; // epoll level triggered (default)
 				ev.data.fd = acceptfd;
 				ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, acceptfd, &ev);
 				if (ret == -1) {
@@ -294,12 +297,12 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
 						printf("%s(%d)\n", strerror(errno), errno);
-						break;
+						continue;
 					}
 					ret = close(events[n].data.fd);
 					if (ret == -1) {
 						printf("%s(%d)\n", strerror(errno), errno);
-						break; //???
+						continue;
 					}
 
 					;;;;;;;;;;;
@@ -315,12 +318,12 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
 						printf("%s(%d)\n", strerror(errno), errno);
-						break; //???
+						continue;
 					}
 					ret = close(events[n].data.fd);
 					if (ret == -1) {
 						printf("%s(%d)\n", strerror(errno), errno);
-						break; //???
+						continue;
 					}
 
 					;;;;;;;;;;;
@@ -336,12 +339,12 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
 						printf("%s(%d)\n", strerror(errno), errno);
-						break; //???
+						continue;
 					}
 					ret = close(events[n].data.fd);
 					if (ret == -1) {
 						printf("%s(%d)\n", strerror(errno), errno);
-						break; //???
+						continue;
 					}
 
 					;;;;;;;;;;;
@@ -370,6 +373,7 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 					r->push(t);
 				}
 
+/*
 				if (events[n].events & EPOLLOUT) {
 					puts("The associated file is available for write(2) operations.");
 					if (m == NULL) {
@@ -382,6 +386,7 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 						break;
 					}
 				}
+*/
 			}
 
 			;;;;;;;;;;;;;;;;;;;;
@@ -406,13 +411,15 @@ int task_w(std::queue<Transport*> *w) {
 	 *  Returns true if the %queue is empty.
 	 */
 	while (!w->empty()) {
-		printf("I should send data to some one.\n");
 		Transport *t = w->front();
-		printf("[OUT]: data = %p\n", t->get_data());
+		printf("[OUT]: data = %p, position = %d\n", t->get_data(), t->get_position());
 		t->print();
 
-		w->pop();
-		printf("I am writing data.\n");
+		ret = writes(t);
+		if (t->get_position() == 0) {
+			w->pop();
+		}
+		printf("Wrote %d bytes\n", ret);
 	}
 	;;;;;;;;;;;;;;;;;;;;
 
@@ -422,7 +429,6 @@ int task_w(std::queue<Transport*> *w) {
 int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, Transport*> *m) {
 	int ret = 0;
 	Transport *t = NULL;
-	Type t0 = kv;
 	if (r == NULL) {
 		printf("r = %p, w = %p, m = %p\n", r, w, m);
 		return ret;
@@ -433,15 +439,16 @@ int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, T
 	 *  Returns true if the %queue is empty.
 	 */
 	while (!r->empty()) {
-		printf("I should handle data, size = %d.\n", r->size());
 		t = r->front();
-		printf("[IN]: data = %p\n", t->get_data());
+		printf("[IN]: data = %p, position = %d\n", t->get_data(), t->get_position());
 		t->print();
 
-		/////////////////////////////
-		//memset(&t0, t->get_data(), sizeof (Type));
-		handle(t0, 0, 0);
-		/////////////////////////////
+		////////////////////////////
+		handle(0, 0);
+		////////////////////////////
+
+		/* Now, we need push to queue. */
+		w->push(t);
 
 		r->pop();
 		printf("I am handling data.\n");
