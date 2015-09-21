@@ -9,6 +9,7 @@
 
 class Transport {
 private:
+	int identification; /* auth token */
 	time_t created; /* the first communication time */
 	time_t updated; /* the lastest communication time */
 	bool alive; /* true: live; false: die */
