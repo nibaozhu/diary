@@ -269,8 +269,8 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 					break;
 				}
 
-				// ev.events = EPOLLET | EPOLLIN | EPOLLRDHUP; /* edge triggered */
-				ev.events = EPOLLET | EPOLLIN | EPOLLOUT | EPOLLRDHUP; /* edge triggered */
+				ev.events = EPOLLET | EPOLLIN | EPOLLRDHUP; /* edge triggered */
+				// ev.events = EPOLLET | EPOLLIN | EPOLLOUT | EPOLLRDHUP; /* edge triggered */
 				// ev.events = EPOLLIN | EPOLLOUT; //epoll level triggered (default)
 				ev.data.fd = acceptfd;
 				ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, acceptfd, &ev);
