@@ -421,6 +421,8 @@ int task_w(std::queue<Transport*> *w) {
 
 int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, Transport*> *m) {
 	int ret = 0;
+	Transport *t = NULL;
+	Type t0 = kv;
 	if (r == NULL) {
 		printf("r = %p, w = %p, m = %p\n", r, w, m);
 		return ret;
@@ -432,9 +434,14 @@ int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, T
 	 */
 	while (!r->empty()) {
 		printf("I should handle data, size = %d.\n", r->size());
-		Transport *t = r->front();
+		t = r->front();
 		printf("[IN]: data = %p\n", t->get_data());
 		t->print();
+
+		/////////////////////////////
+		//memset(&t0, t->get_data(), sizeof (Type));
+		handle(t0, 0, 0);
+		/////////////////////////////
 
 		r->pop();
 		printf("I am handling data.\n");
