@@ -32,6 +32,7 @@ listen_sock	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
 main	main.cc	/^int main(int argc, char **argv) {$/;"	f
 nfds	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
 position	transport.h	/^	int position; \/* transport data pointer position *\/$/;"	m	class:Transport
+print	transport.h	/^	void print(int width = 16) {$/;"	f	class:Transport
 reads	task.cc	/^int reads(Transport *t) {$/;"	f
 set_alive	transport.h	/^	bool set_alive(bool alive) {$/;"	f	class:Transport
 set_data	transport.h	/^	void *set_data(void *data, int size) {$/;"	f	class:Transport

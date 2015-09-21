@@ -28,7 +28,6 @@ int setnonblocking(int fd) {
 	return ret;
 }
 
-// int reads(int fd) {
 int reads(Transport *t) {
 	int ret = 0;
 	int fd = t->get_fd();
@@ -51,8 +50,8 @@ int reads(Transport *t) {
 			break;
 		} else if (ret > 0 && ret <= BUFFER_LENGTH) {
 			printf("[%s]\n", buffer);
-			t->set_data(buffer, ret + 1);
-			memset(buffer, 0, ret + 1);
+			t->set_data(buffer, ret);
+			memset(buffer, 0, ret);
 			if (ret != BUFFER_LENGTH) {
 				break;
 			}
@@ -61,7 +60,6 @@ int reads(Transport *t) {
 	return ret;
 }
 
-// int writes(int fd) {
 int writes(Transport *t) {
 	int ret = 0;
 	int fd = t->get_fd();
@@ -271,9 +269,9 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 					break;
 				}
 
-				ev.events = EPOLLET | EPOLLIN | EPOLLRDHUP; //epoll edge triggered
-				//                  ev.events = EPOLLIN | EPOLLOUT | EPOLLET; //epoll edge triggered
-				//                  ev.events = EPOLLIN | EPOLLOUT; //epoll level triggered (default)
+				// ev.events = EPOLLET | EPOLLIN | EPOLLRDHUP; /* edge triggered */
+				ev.events = EPOLLET | EPOLLIN | EPOLLOUT | EPOLLRDHUP; /* edge triggered */
+				// ev.events = EPOLLIN | EPOLLOUT; //epoll level triggered (default)
 				ev.data.fd = acceptfd;
 				ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, acceptfd, &ev);
 				if (ret == -1) {
@@ -424,7 +422,8 @@ int task_w(std::queue<Transport*> *w) {
 	while (!w->empty()) {
 		printf("I should send data to some one.\n");
 		Transport *t = w->front();
-		printf("[OUT] data = %s\n", t->get_data());
+		printf("[OUT]: data = %p\n", t->get_data());
+		t->print();
 
 		w->pop();
 		printf("I am writing data.\n");
@@ -447,9 +446,9 @@ int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, T
 	 */
 	while (!r->empty()) {
 		printf("I should handle data, size = %d.\n", r->size());
-
 		Transport *t = r->front();
-		printf("[IN] data = %s\n", t->get_data());
+		printf("[IN]: data = %p\n", t->get_data());
+		t->print();
 
 		r->pop();
 		printf("I am handling data.\n");

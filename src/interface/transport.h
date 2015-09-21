@@ -64,6 +64,27 @@ public:
 		return this->alive;
 	}
 
+	void print(int width = 16) {
+		int i = 0;
+		if (width < 1) {
+			width = 16;
+		}
+
+		puts("--- begin (hex) ---");
+		while (i < this->position) {
+			if (i % width == 0) {
+				printf("%p ", this->data + i);
+			}
+			printf(" %02x", *(char*)(this->data + i));
+			i++;
+			if (i % width == 0) {
+				puts("");
+			}
+		}
+		puts("\n--- end (hex) ---");
+		return ;
+	}
+
 	~Transport() {
 		free(this->data);
 		memset(this, 0, sizeof *this);
