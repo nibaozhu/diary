@@ -11,39 +11,47 @@ LDFLAGS	Makefile	/^LDFLAGS=$/;"	m
 MAIN_H	main.h	2;"	d
 MAX_EVENTS	task.cc	3;"	d	file:
 TASK_H	task.h	2;"	d
+TRANSPORT_H	transport.h	2;"	d
 Transport	transport.h	/^	Transport(int fd, int size = 1024 * 1024) {$/;"	f	class:Transport
 Transport	transport.h	/^class Transport {$/;"	c
 alive	transport.h	/^	bool alive; \/* true: live; false: die *\/$/;"	m	class:Transport
 conn_sock	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
 created	transport.h	/^	time_t created; \/* the first communication time *\/$/;"	m	class:Transport
-data	transport.h	/^	void *data; \/* transport data *\/$/;"	m	class:Transport
 epollfd	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
 ev	task.cc	/^struct epoll_event ev, events[MAX_EVENTS];$/;"	v	typeref:struct:epoll_event
 events	task.cc	/^struct epoll_event ev, events[MAX_EVENTS];$/;"	v	typeref:struct:
 fd	transport.h	/^	int fd; \/* file descriptor *\/$/;"	m	class:Transport
 get_alive	transport.h	/^	bool get_alive(void) {$/;"	f	class:Transport
-get_data	transport.h	/^	void *get_data(void) {$/;"	f	class:Transport
 get_fd	transport.h	/^	int get_fd(void) {$/;"	f	class:Transport
-get_position	transport.h	/^	int get_position(void) {$/;"	f	class:Transport
-get_size	transport.h	/^	int get_size(void) {$/;"	f	class:Transport
-handle	handle.cc	/^int handle(void *message, int size) {$/;"	f
+get_rp	transport.h	/^	int get_rp(void) {$/;"	f	class:Transport
+get_rs	transport.h	/^	int get_rs(void) {$/;"	f	class:Transport
+get_rx	transport.h	/^	void *get_rx(void) {$/;"	f	class:Transport
+get_wp	transport.h	/^	int get_wp(void) {$/;"	f	class:Transport
+get_ws	transport.h	/^	int get_ws(void) {$/;"	f	class:Transport
+get_wx	transport.h	/^	void *get_wx(void) {$/;"	f	class:Transport
+handle	handle.cc	/^int handle(Transport *t, Transport *t2) {$/;"	f
 handler	task.cc	/^void handler(int signum) {$/;"	f
 init	task.cc	/^int init(int argc, char **argv) {$/;"	f
 is_quit	task.cc	/^bool is_quit;$/;"	v
 listen_sock	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
 main	main.cc	/^int main(int argc, char **argv) {$/;"	f
 nfds	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
-position	transport.h	/^	int position; \/* transport data pointer position *\/$/;"	m	class:Transport
-print	transport.h	/^	void print(int width = 16) {$/;"	f	class:Transport
+pr	transport.h	/^	void pr(int width = 16) {$/;"	f	class:Transport
+pw	transport.h	/^	void pw(int width = 16) {$/;"	f	class:Transport
 reads	task.cc	/^int reads(Transport *t) {$/;"	f
+rp	transport.h	/^	int rp; \/* transport data `Read' pointer position *\/$/;"	m	class:Transport
+rs	transport.h	/^	int rs; \/* transport data `Read' size  *\/$/;"	m	class:Transport
+rx	transport.h	/^	void *rx; \/* transport data `Read'  *\/$/;"	m	class:Transport
 set_alive	transport.h	/^	bool set_alive(bool alive) {$/;"	f	class:Transport
-set_data	transport.h	/^	void *set_data(void *data, int size) {$/;"	f	class:Transport
 set_disposition	task.cc	/^void set_disposition(void) {$/;"	f
 set_fd	transport.h	/^	int set_fd(int fd) {$/;"	f	class:Transport
-set_position	transport.h	/^	int set_position(int position) {$/;"	f	class:Transport
-set_size	transport.h	/^	int set_size(int size) {$/;"	f	class:Transport
+set_rp	transport.h	/^	int set_rp(int rp) {$/;"	f	class:Transport
+set_rs	transport.h	/^	int set_rs(int rs) {$/;"	f	class:Transport
+set_rx	transport.h	/^	void *set_rx(void *rx, int rs) {$/;"	f	class:Transport
+set_wp	transport.h	/^	int set_wp(int wp) {$/;"	f	class:Transport
+set_ws	transport.h	/^	int set_ws(int ws) {$/;"	f	class:Transport
+set_wx	transport.h	/^	void *set_wx(void *wx, int ws) {$/;"	f	class:Transport
 setnonblocking	task.cc	/^int setnonblocking(int fd) {$/;"	f
-size	transport.h	/^	int size; \/* transport data size *\/$/;"	m	class:Transport
 speed	transport.h	/^	double speed; \/* bytes per second *\/$/;"	m	class:Transport
 task	task.cc	/^int task(int argc, char **argv) {$/;"	f
 task_r	task.cc	/^int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {$/;"	f
@@ -51,5 +59,8 @@ task_w	task.cc	/^int task_w(std::queue<Transport*> *w) {$/;"	f
 task_x	task.cc	/^int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, Transport*> *m) {$/;"	f
 uninit	task.cc	/^int uninit(std::map<int, Transport*> *m) {$/;"	f
 updated	transport.h	/^	time_t updated; \/* the lastest communication time *\/$/;"	m	class:Transport
+wp	transport.h	/^	int wp; \/* transport data `Write' pointer position *\/$/;"	m	class:Transport
 writes	task.cc	/^int writes(Transport *t) {$/;"	f
+ws	transport.h	/^	int ws; \/* transport data `Write' size *\/$/;"	m	class:Transport
+wx	transport.h	/^	void *wx; \/* transport data `Write' *\/$/;"	m	class:Transport
 ~Transport	transport.h	/^	~Transport() {$/;"	f	class:Transport

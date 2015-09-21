@@ -1,3 +1,6 @@
+#ifndef TRANSPORT_H
+#define TRANSPORT_H
+
 #include <csignal>
 #include <cstdio>
 #include <cstdlib>
@@ -10,9 +13,12 @@ private:
 	time_t updated; /* the lastest communication time */
 	bool alive; /* true: live; false: die */
 	int fd; /* file descriptor */
-	void *data; /* transport data */
-	int position; /* transport data pointer position */
-	int size; /* transport data size */
+	void *rx; /* transport data `Read'  */
+	void *wx; /* transport data `Write' */
+	int rp; /* transport data `Read' pointer position */
+	int wp; /* transport data `Write' pointer position */
+	int rs; /* transport data `Read' size  */
+	int ws; /* transport data `Write' size */
 	double speed; /* bytes per second */
 
 public:
@@ -22,9 +28,12 @@ public:
 		if (size <= 0) {
 			size = 1024 * 1024; /* default 1024 * 1024 bytes (1 MB) */
 		}
-		this->size = size;
-		this->data = malloc(this->size);
-		memset(data, 0, this->size);
+		this->rs = size;
+		this->ws = size;
+		this->rx = malloc(this->rs);
+		this->wx = malloc(this->ws);
+		memset(this->rx, 0, this->rs);
+		memset(this->wx, 0, this->ws);
 	}
 
 	int set_fd(int fd) {
@@ -35,40 +44,76 @@ public:
 		return this->fd;
 	}
 
-	int set_position(int position) {
-		return this->position = position;
+	int set_rp(int rp) {
+		return this->rp = rp;
 	}
 
-	int get_position(void) {
-		return this->position;
+	int get_rp(void) {
+		return this->rp;
 	}
 
-	void *set_data(void *data, int size) {
-		while (size >= this->size - this->position) {
-			printf("realloc %p %d\n", this->data, this->size);
-			this->data = realloc(this->data, this->size * 2);
-			if (this->data == NULL) {
-				return this->data;
+	int set_wp(int wp) {
+		return this->wp = wp;
+	}
+
+	int get_wp(void) {
+		return this->wp;
+	}
+
+	void *set_rx(void *rx, int rs) {
+		while (rs >= this->rs - this->rp) {
+			printf("realloc %p %d\n", this->rx, this->rs);
+			this->rx = realloc(this->rx, this->rs * 2);
+			if (this->rx == NULL) {
+				return this->rx;
 			} else {
-				this->size *= 2;
-				memset(this->data + this->position, 0, this->size - this->position);
+				this->rs *= 2;
+				memset(this->rx + this->rp, 0, this->rs - this->rp);
 			}
 		}
-		memcpy(this->data + this->position, data, size);
-		this->position += size;
-		return this->data + this->position;
+		memcpy(this->rx + this->rp, rx, rs);
+		this->rp += rs;
+		return this->rx + this->rp;
 	}
 
-	void *get_data(void) {
-		return this->data;
+	void *get_rx(void) {
+		return this->rx;
 	}
 
-	int set_size(int size) {
-		return this->size = size;
+	void *set_wx(void *wx, int ws) {
+		while (ws >= this->ws - this->wp) {
+			printf("realloc %p %d\n", this->wx, this->ws);
+			this->wx = realloc(this->wx, this->ws * 2);
+			if (this->wx == NULL) {
+				return this->wx;
+			} else {
+				this->ws *= 2;
+				memset(this->wx + this->wp, 0, this->ws - this->wp);
+			}
+		}
+		memcpy(this->wx + this->wp, wx, ws);
+		this->ws += ws;
+		return this->wx + this->wp;
 	}
 
-	int get_size(void) {
-		return this->size;
+	void *get_wx(void) {
+		return this->wx;
+	}
+
+	int set_rs(int rs) {
+		return this->rs = rs;
+	}
+
+	int get_rs(void) {
+		return this->rs;
+	}
+
+	int set_ws(int ws) {
+		return this->ws = ws;
+	}
+
+	int get_ws(void) {
+		return this->ws;
 	}
 
 	bool set_alive(bool alive) {
@@ -79,18 +124,39 @@ public:
 		return this->alive;
 	}
 
-	void print(int width = 16) {
+	void pr(int width = 16) {
 		int i = 0;
 		if (width < 1) {
 			width = 16;
 		}
 
 		puts("--- begin (hex) ---");
-		while (i < this->position) {
+		while (i < this->rp) {
 			if (i % width == 0) {
-				printf("%p ", this->data + i);
+				printf("%p ", this->rx + i);
 			}
-			printf(" %02x", *(char*)(this->data + i));
+			printf(" %02x", *(char*)(this->rx + i));
+			i++;
+			if (i % width == 0) {
+				puts("");
+			}
+		}
+		puts("\n--- end (hex) ---");
+		return ;
+	}
+
+	void pw(int width = 16) {
+		int i = 0;
+		if (width < 1) {
+			width = 16;
+		}
+
+		puts("--- begin (hex) ---");
+		while (i < this->wp) {
+			if (i % width == 0) {
+				printf("%p ", this->wx + i);
+			}
+			printf(" %02x", *(char*)(this->wx + i));
 			i++;
 			if (i % width == 0) {
 				puts("");
@@ -101,9 +167,16 @@ public:
 	}
 
 	~Transport() {
-		free(this->data);
-		printf("fd = %d, Free %p, %f%% (%d / %d)\n", this->fd, this->data, 100. * this->position / this->size, this->position, this->size);
+		free(this->rx);
+		free(this->wx);
+		printf( "fd = %d, %s\n"
+				"rx = %p, %f%% (%d / %d)\n"
+				"wx = %p, %f%% (%d / %d)\n", 
+				this->fd, __func__, 
+				this->rx, 100. * this->rp / this->rs, this->rp, this->rs, 
+				this->wx, 100. * this->wp / this->ws, this->wp, this->ws);
 		memset(this, 0, sizeof *this);
 	}
 };
 
+#endif

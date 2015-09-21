@@ -50,7 +50,7 @@ int reads(Transport *t) {
 			break;
 		} else if (ret > 0 && ret <= BUFFER_LENGTH) {
 			printf("[%s]\n", buffer);
-			t->set_data(buffer, ret);
+			t->set_rx(buffer, ret);
 			memset(buffer, 0, ret);
 			if (ret != BUFFER_LENGTH) {
 				break;
@@ -70,17 +70,19 @@ int writes(Transport *t) {
 	do {
 		int fd = t->get_fd();
 		printf("fd = %d, %s\n", fd, __func__);
-		t->print();
+		t->pw();
 
-		ret = write(fd, t->get_data(), t->get_position());
+		ret = write(fd, t->get_wx(), t->get_ws());
 		if (ret < 0) {
 			printf("%s(%d)\n", strerror(errno), errno);
 			break;
-		} else if (ret >= 0 && ret <= t->get_position()) {
+		} else if (ret >= 0 && ret <= t->get_wp()) {
 
 			;;;;;;;;;;;;;;;;;;;;
-			memset(t->get_data(), 0, ret);
-			t->set_position(t->get_position() - ret);
+			// maybe MEMORY MOVE
+			;;;;;;;;;;;;;;;;;;;;
+			memset(t->get_wx(), 0, ret);
+			t->set_wp(t->get_wp() - ret);
 			;;;;;;;;;;;;;;;;;;;;
 		}
 	} while (0);
@@ -412,11 +414,17 @@ int task_w(std::queue<Transport*> *w) {
 	 */
 	while (!w->empty()) {
 		Transport *t = w->front();
-		printf("[OUT]: data = %p, position = %d\n", t->get_data(), t->get_position());
-		t->print();
+		if (t == NULL) {
+			printf("I love you, and pop you.\n");
+			w->pop();
+			continue;
+		}
+
+		printf("wx = %p, wp = %d\n", t->get_wx(), t->get_wp());
+		t->pw();
 
 		ret = writes(t);
-		if (t->get_position() == 0) {
+		if (t->get_rp() == 0) {
 			w->pop();
 		}
 		printf("Wrote %d bytes\n", ret);
@@ -429,6 +437,7 @@ int task_w(std::queue<Transport*> *w) {
 int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, Transport*> *m) {
 	int ret = 0;
 	Transport *t = NULL;
+	Transport *t2 = NULL;
 	if (r == NULL) {
 		printf("r = %p, w = %p, m = %p\n", r, w, m);
 		return ret;
@@ -440,15 +449,15 @@ int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, T
 	 */
 	while (!r->empty()) {
 		t = r->front();
-		printf("[IN]: data = %p, position = %d\n", t->get_data(), t->get_position());
-		t->print();
+		printf("wx = %p, wp = %d\n", t->get_wx(), t->get_wp());
+		t->pw();
 
 		////////////////////////////
-		handle(0, 0);
+		handle(t, t2);
 		////////////////////////////
 
 		/* Now, we need push to queue. */
-		w->push(t);
+		w->push(t2);
 
 		r->pop();
 		printf("I am handling data.\n");

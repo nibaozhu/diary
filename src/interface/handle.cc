@@ -1,6 +1,6 @@
 #include "handle.h"
 
-int handle(void *message, int size) {
+int handle(Transport *t, Transport *t2) {
 	int ret = 0;
 	return ret;
 }

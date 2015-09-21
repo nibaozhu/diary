@@ -1,7 +1,9 @@
 #ifndef HANDLE_H
 #define HANDLE_H
 
-int handle(void *message, int size);
+#include "transport.h"
+
+int handle(Transport *t, Transport *t2);
 
 #endif
 
