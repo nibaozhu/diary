@@ -283,7 +283,7 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 				printf("some one connect to me\n");
 				;;;;;;;;;;;;;;;;;;;;
 
-				Transport *t = new Transport(acceptfd);
+				Transport *t = new Transport(acceptfd, 32);
 				(*m)[acceptfd] = t;
 
 			} else {
@@ -296,7 +296,11 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 						printf("%s(%d)\n", strerror(errno), errno);
 						break;
 					}
-					close(events[n].data.fd);
+					ret = close(events[n].data.fd);
+					if (ret == -1) {
+						printf("%s(%d)\n", strerror(errno), errno);
+						break; //???
+					}
 
 					;;;;;;;;;;;
 					delete (*m)[events[n].data.fd];
@@ -359,25 +363,7 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 					if (ret < 0) {
 						break;
 					} else if (ret == 0) {
-
-/*
-						ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
-						if (ret == -1) {
-							printf("%s(%d)\n", strerror(errno), errno);
-							break; //???
-						}
-						ret = close(events[n].data.fd);
-						if (ret == -1) {
-							printf("%s(%d)\n", strerror(errno), errno);
-							break; //???
-						}
-
 						;;;;;;;;;;;
-						delete (*m)[events[n].data.fd];
-						m->erase(events[n].data.fd);
-						;;;;;;;;;;;
-*/
-
 					}
 
 					/* Now, we need push to queue. */
