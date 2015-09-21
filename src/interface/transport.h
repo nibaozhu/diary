@@ -1,6 +1,8 @@
-#include <ctime>
-#include <cstring>
+#include <csignal>
+#include <cstdio>
 #include <cstdlib>
+#include <cstring>
+#include <ctime>
 
 class Transport {
 private:
@@ -21,7 +23,7 @@ public:
 			size = 1024 * 1024; /* default 1024 * 1024 bytes (1 MB) */
 		}
 		this->size = size;
-		data = malloc(this->size);
+		this->data = malloc(this->size);
 		memset(data, 0, this->size);
 	}
 
@@ -52,6 +54,14 @@ public:
 
 	int get_size(void) {
 		return this->size;
+	}
+
+	bool set_alive(bool alive) {
+		return this->alive = alive;
+	}
+
+	bool get_alive(void) {
+		return this->alive;
 	}
 
 	~Transport() {

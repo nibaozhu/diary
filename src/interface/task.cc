@@ -5,6 +5,8 @@
 struct epoll_event ev, events[MAX_EVENTS];
 int listen_sock, conn_sock, nfds, epollfd;
 
+bool is_quit;
+
 int setnonblocking(int fd) {
 	int ret = 0;
 	printf("%s:%d:%s\n", __FILE__, __LINE__, __func__);
@@ -15,7 +17,8 @@ int setnonblocking(int fd) {
 			printf("%s(%d)\n", strerror(errno), errno);
 			break;
 		}
-		flags |= O_NONBLOCK; //non block
+		flags |= O_NONBLOCK; /* If the O_NONBLOCK flag is enabled, 
+								then the system call fails with the error EAGAIN. */
 		ret = fcntl(fd, F_SETFL, flags);
 		if (ret == -1) {
 			printf("%s(%d)\n", strerror(errno), errno);
@@ -36,22 +39,23 @@ int reads(Transport *t) {
 
 	printf("fd = %d, %s\n", fd, __func__);
 	do {
-		char buffer[BUFFER_LENGTH];
+		char buffer[BUFFER_LENGTH + 1];
 		memset(buffer, 0, sizeof buffer);
 		ret = read(fd, buffer, BUFFER_LENGTH);
 		if (ret < 0) {
 			printf("%s(%d)\n", strerror(errno), errno);
 			break;
-		}
-		printf("[%s]\n", buffer);
-
-		if (ret > 0) {
+		} else if (ret == 0) {
+			t->set_alive(false);
+			printf("client close\n", fd);
+			break;
+		} else if (ret > 0 && ret <= BUFFER_LENGTH) {
+			printf("[%s]\n", buffer);
 			t->set_data(buffer, ret + 1);
 			memset(buffer, 0, ret + 1);
-		}
-
-		if (ret >= 0 && ret < BUFFER_LENGTH) {
-			break;
+			if (ret != BUFFER_LENGTH) {
+				break;
+			}
 		}
 	} while (1);
 	return ret;
@@ -68,7 +72,7 @@ int writes(Transport *t) {
 
 	printf("fd = %d, %s\n", fd, __func__);
 	do {
-		char buffer[BUFFER_LENGTH];
+		char buffer[BUFFER_LENGTH + 1];
 		memset(buffer, 0, sizeof buffer);
 		sprintf(buffer, "send");
 		size_t length = strlen(buffer);
@@ -82,9 +86,48 @@ int writes(Transport *t) {
 	return ret;
 }
 
+void handler(int signum) {
+	printf("Received signal %d\n", signum);
+
+	if (signum == SIGINT || signum == SIGTERM) {
+		is_quit = true;
+	}
+
+	switch (signum) {
+		case SIGINT :
+		case SIGTERM:
+			is_quit = true;
+			break;
+		case SIGUSR1:
+		case SIGUSR2:
+			is_quit = true;
+			break;
+		default:
+			printf("");
+	}
+	return ;
+}
+
+void set_disposition(void) {
+	int arr[] = {SIGINT, SIGUSR1, SIGUSR2, SIGTERM};
+	int i = 0;
+	int signum = 0;
+
+	for (i = 0; i < sizeof arr / sizeof (int); i++) {
+		signum = arr[i];
+		if (signal(signum, handler) == SIG_ERR) {
+			printf("set the disposition of the signal(signum = %d) to handler.\n", signum);
+		}
+	}
+	return ;
+}
+
 int init(int argc, char **argv) {
 	int ret = 0;
 	do {
+		is_quit = false;
+		set_disposition();
+
 		listen_sock = socket(AF_INET, SOCK_STREAM, 0);
 		if (listen_sock < 0) {
 			printf("%s(%d)\n", strerror(errno), errno);
@@ -100,7 +143,8 @@ int init(int argc, char **argv) {
 
 #ifdef D
 		addr.sin_port = htons(atoi("12340"));
-		ret = inet_pton(AF_INET, "127.0.0.1", (struct sockaddr *) &addr.sin_addr.s_addr);
+		// ret = inet_pton(AF_INET, "127.0.0.1", (struct sockaddr *) &addr.sin_addr.s_addr);
+		ret = inet_pton(AF_INET, "192.168.56.101", (struct sockaddr *) &addr.sin_addr.s_addr);
 #else
 		addr.sin_port = htons(atoi(argv[2]));
 		ret = inet_pton(AF_INET, argv[1], (struct sockaddr *) &addr.sin_addr.s_addr);
@@ -143,22 +187,59 @@ int init(int argc, char **argv) {
 	return ret;
 }
 
+int uninit(std::map<int, Transport*> *m) {
+	int ret = 0;
+	do {
+		if (listen_sock > 0) {
+			printf("close listen_sock\n");
+			ret = close(listen_sock);
+			if (ret == -1) {
+				printf("%s(%d)\n", strerror(errno), errno);
+			}
+		}
+
+		if (epollfd > 0) {
+			printf("close epollfd\n");
+			ret = close(epollfd);
+			if (ret == -1) {
+				printf("%s(%d)\n", strerror(errno), errno);
+			}
+		}
+
+		;;;;;;;;;;;;;;;;;;
+		std::map<int, Transport*>::iterator i = m->begin();
+		while (i != m->end()) {
+			delete (*i).second;
+			m->erase(i++);
+		}
+		;;;;;;;;;;;;;;;;;;
+
+	} while (0);
+	return ret;
+}
+
 int task(int argc, char **argv) {
 	int ret = 0;
 	std::queue<Transport*> *r = new std::queue<Transport*>();
 	std::queue<Transport*> *w = new std::queue<Transport*>();
 	std::map<int, Transport*> *m = new std::map<int, Transport*>();
 
-	ret = init(argc, argv);
-	if (ret == -1) {
-		return ret;
-	}
+	do {
+		ret = init(argc, argv);
+		if (ret == -1) {
+			break;
+		}
 
-	while (true) {
-		ret = task_r(r, m);
-		ret = task_x(r, w, m);
-		ret = task_w(w);
-	}
+		while (true) {
+			ret = task_r(r, m);
+			ret = task_x(r, w, m);
+			ret = task_w(w);
+			if (is_quit) {
+				break;
+			}
+		}
+	} while (0);
+	ret = uninit(m);
 	return ret;
 }
 
@@ -190,7 +271,7 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 					break;
 				}
 
-				ev.events = EPOLLIN | EPOLLET; //epoll edge triggered
+				ev.events = EPOLLET | EPOLLIN | EPOLLRDHUP; //epoll edge triggered
 				//                  ev.events = EPOLLIN | EPOLLOUT | EPOLLET; //epoll edge triggered
 				//                  ev.events = EPOLLIN | EPOLLOUT; //epoll level triggered (default)
 				ev.data.fd = acceptfd;
@@ -208,9 +289,10 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 				(*m)[acceptfd] = t;
 
 			} else {
-				if (events[n].events & EPOLLHUP) {
-					printf("events[%d].events = 0x%03x\n", n, events[n].events);
-					puts("Hang up happened on the associated file descriptor."); // my message
+				printf("events[%d].events = 0x%03x\n", n, events[n].events);
+				if (events[n].events & EPOLLERR) {
+					puts("Error condition happened on the associated file descriptor.  "
+						"epoll_wait(2) will always wait for this event; it is not necessary to set it in events.");
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
 						printf("%s(%d)\n", strerror(errno), errno);
@@ -219,31 +301,57 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 					close(events[n].data.fd);
 
 					;;;;;;;;;;;
+					delete (*m)[events[n].data.fd];
+					m->erase(events[n].data.fd);
+					;;;;;;;;;;;
 
 					continue;
 				}
 
-				if (events[n].events & EPOLLERR) {
-					printf("0x%03x\n", events[n].events);
-					puts("Error condition happened on the associated file descriptor.  "
-						"epoll_wait(2) will always wait for this event; it is not necessary to set it in events."); // my message
+				if (events[n].events & EPOLLHUP) {
+					puts("Hang up happened on the associated file descriptor.");
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
 						printf("%s(%d)\n", strerror(errno), errno);
-						break;
+						break; //???
 					}
-					close(events[n].data.fd);
+					ret = close(events[n].data.fd);
+					if (ret == -1) {
+						printf("%s(%d)\n", strerror(errno), errno);
+						break; //???
+					}
+
+					;;;;;;;;;;;
+					delete (*m)[events[n].data.fd];
+					m->erase(events[n].data.fd);
+					;;;;;;;;;;;
+
+					continue;
+				}
+
+				if (events[n].events & EPOLLRDHUP) {
+					puts("EPOLLRDHUP");
+					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
+					if (ret == -1) {
+						printf("%s(%d)\n", strerror(errno), errno);
+						break; //???
+					}
+					ret = close(events[n].data.fd);
+					if (ret == -1) {
+						printf("%s(%d)\n", strerror(errno), errno);
+						break; //???
+					}
+
+					;;;;;;;;;;;
+					delete (*m)[events[n].data.fd];
+					m->erase(events[n].data.fd);
+					;;;;;;;;;;;
+
 					continue;
 				}
 
 				if (events[n].events & EPOLLIN) {
-					printf("events[%d].events = 0x%03x\n", n, events[n].events);
-					puts("The associated file is available for read(2) operations."); // my message
-
-					// ret = reads(events[n].data.fd);
-					// Transport *t = new Transport();
-					// t->set_fd(events[n].data.fd);
-
+					puts("The associated file is available for read(2) operations.");
 					if (m == NULL) {
 						printf("m = %p\n", m);
 						return ret;
@@ -252,6 +360,26 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 					ret = reads(t);
 					if (ret < 0) {
 						break;
+					} else if (ret == 0) {
+
+/*
+						ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
+						if (ret == -1) {
+							printf("%s(%d)\n", strerror(errno), errno);
+							break; //???
+						}
+						ret = close(events[n].data.fd);
+						if (ret == -1) {
+							printf("%s(%d)\n", strerror(errno), errno);
+							break; //???
+						}
+
+						;;;;;;;;;;;
+						delete (*m)[events[n].data.fd];
+						m->erase(events[n].data.fd);
+						;;;;;;;;;;;
+*/
+
 					}
 
 					/* Now, we need push to queue. */
@@ -259,13 +387,7 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 				}
 
 				if (events[n].events & EPOLLOUT) {
-					printf("events[%d].events = 0x%03x\n", n, events[n].events);
-					puts("The associated file is available for write(2) operations."); // my message
-
-					// ret = writes(events[n].data.fd);
-					// Transport *t = new Transport();
-					// t->set_fd(events[n].data.fd);
-
+					puts("The associated file is available for write(2) operations.");
 					if (m == NULL) {
 						printf("m = %p\n", m);
 						return ret;
@@ -300,7 +422,12 @@ int task_w(std::queue<Transport*> *w) {
 	 *  Returns true if the %queue is empty.
 	 */
 	while (!w->empty()) {
-		printf("i should send data to some one\n");
+		printf("I should send data to some one.\n");
+		Transport *t = w->front();
+		printf("[OUT] data = %s\n", t->get_data());
+
+		w->pop();
+		printf("I am writing data.\n");
 	}
 	;;;;;;;;;;;;;;;;;;;;
 
@@ -319,13 +446,13 @@ int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, T
 	 *  Returns true if the %queue is empty.
 	 */
 	while (!r->empty()) {
-		printf("i should handle data, size = %d\n", r->size());
+		printf("I should handle data, size = %d.\n", r->size());
 
 		Transport *t = r->front();
-		printf("data = %s\n", t->get_data());
+		printf("[IN] data = %s\n", t->get_data());
 
 		r->pop();
-		printf("i am handling data\n");
+		printf("I am handling data.\n");
 	}
 	;;;;;;;;;;;;;;;;;;;;
 
