@@ -82,7 +82,7 @@ int writes(Transport *t) {
 		printf("fd = %d, %s\n", fd, __func__);
 		t->pw();
 
-		ret = write(fd, t->get_wx(), t->get_ws());
+		ret = write(fd, t->get_wx(), t->get_wp());
 		if (ret < 0) {
 			printf("%s(%d)\n", strerror(errno), errno);
 			break;

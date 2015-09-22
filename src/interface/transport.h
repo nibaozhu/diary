@@ -26,7 +26,7 @@
 
 class Transport {
 private:
-	int identification; /* auth token */
+	uint32_t identification; /* auth token */
 	time_t created; /* the first communication time */
 	time_t updated; /* the lastest communication time */
 	bool alive; /* true: live; false: die */
@@ -64,11 +64,11 @@ public:
 		memset(this->wx, 0, this->ws);
 	}
 
-	int set_identification(int identification) {
+	uint32_t set_identification(uint32_t identification) {
 		return this->identification = identification;
 	}
 
-	int get_identification(void) {
+	uint32_t get_identification(void) {
 		return this->identification;
 	}
 
@@ -112,6 +112,15 @@ public:
 		return this->rx + this->rp;
 	}
 
+	void *clear_rx(int size = SIZE) {
+		if (size <= 0) {
+			size = SIZE;
+		}
+		memset(this->rx, 0, sizeof this->rp);
+		this->rx = realloc(this->rx, size);
+		this->rp = 0;
+	}
+
 	void *get_rx(void) {
 		return this->rx;
 	}
@@ -128,8 +137,17 @@ public:
 			}
 		}
 		memcpy(this->wx + this->wp, wx, ws);
-		this->ws += ws;
+		this->wp += ws;
 		return this->wx + this->wp;
+	}
+
+	void *clear_wx(int size = SIZE) {
+		if (size <= 0) {
+			size = SIZE;
+		}
+		memset(this->wx, 0, sizeof this->wp);
+		this->wx = realloc(this->wx, size);
+		this->wp = 0;
 	}
 
 	void *get_wx(void) {
