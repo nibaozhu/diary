@@ -7,6 +7,9 @@
 #include <cstring>
 #include <ctime>
 
+/* output BYTES bytes per output line */
+#define WIDTH (8)
+
 class Transport {
 private:
 	int identification; /* auth token */
@@ -125,45 +128,45 @@ public:
 		return this->alive;
 	}
 
-	void pr(int width = 16) {
+	void pr(int width = WIDTH) {
 		int i = 0;
-		if (width < 1) {
-			width = 16;
+		if (width <= 0 || width > 1024) {
+			width = WIDTH;
 		}
 
-		puts("--- begin (hex) ---");
+		printf("--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
 		while (i < this->rp) {
 			if (i % width == 0) {
 				printf("%p ", this->rx + i);
 			}
-			printf(" %02x", *(char*)(this->rx + i));
+			printf(" 0x%02x", *(char*)(this->rx + i));
 			i++;
 			if (i % width == 0) {
 				puts("");
 			}
 		}
-		puts("\n--- end (hex) ---");
+		puts("\n--- end ---");
 		return ;
 	}
 
-	void pw(int width = 16) {
+	void pw(int width = WIDTH) {
 		int i = 0;
-		if (width < 1) {
-			width = 16;
+		if (width <= 0 || width > 1024) {
+			width = WIDTH;
 		}
 
-		puts("--- begin (hex) ---");
+		printf("--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
 		while (i < this->wp) {
 			if (i % width == 0) {
 				printf("%p ", this->wx + i);
 			}
-			printf(" %02x", *(char*)(this->wx + i));
+			printf(" 0x%02x", *(char*)(this->wx + i));
 			i++;
 			if (i % width == 0) {
 				puts("");
 			}
 		}
-		puts("\n--- end (hex) ---");
+		puts("\n--- end ---");
 		return ;
 	}
 

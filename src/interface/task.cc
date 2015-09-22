@@ -399,18 +399,17 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 int task_w(std::queue<Transport*> *w) {
 	int ret = 0;
 	if (w == NULL) {
+		is_quit = true;
 		printf("w = %p\n", w);
 		return ret;
 	}
 
-	;;;;;;;;;;;;;;;;;;;;
 	/**
 	 *  Returns true if the %queue is empty.
 	 */
 	while (!w->empty()) {
 		Transport *t = w->front();
 		if (t == NULL) {
-			printf("I love you, and pop you.\n");
 			w->pop();
 			continue;
 		}
@@ -424,8 +423,6 @@ int task_w(std::queue<Transport*> *w) {
 		}
 		printf("Wrote %d bytes\n", ret);
 	}
-	;;;;;;;;;;;;;;;;;;;;
-
 	return ret;
 }
 
@@ -434,11 +431,11 @@ int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, T
 	Transport *dt = NULL;
 	Transport *st = NULL;
 	if (r == NULL) {
+		is_quit = true;
 		printf("r = %p, w = %p, m = %p\n", r, w, m);
 		return ret;
 	}
 
-	;;;;;;;;;;;;;;;;;;;;
 	/**
 	 *  Returns true if the %queue is empty.
 	 */
@@ -453,9 +450,6 @@ int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, T
 		w->push(dt);
 
 		r->pop();
-		printf("I am handling data.\n");
 	}
-	;;;;;;;;;;;;;;;;;;;;
-
 	return ret;
 }
