@@ -91,11 +91,6 @@ int writes(Transport *t) {
 
 void handler(int signum) {
 	printf("Received signal %d\n", signum);
-
-	if (signum == SIGINT || signum == SIGTERM) {
-		is_quit = true;
-	}
-
 	switch (signum) {
 		case SIGINT :
 		case SIGTERM:
@@ -106,7 +101,7 @@ void handler(int signum) {
 			is_quit = true;
 			break;
 		default:
-			printf("");
+			printf("Undefined signal %d\n", signum);
 	}
 	return ;
 }
@@ -436,8 +431,8 @@ int task_w(std::queue<Transport*> *w) {
 
 int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, Transport*> *m) {
 	int ret = 0;
-	Transport *t = NULL;
-	Transport *t2 = NULL;
+	Transport *dt = NULL;
+	Transport *st = NULL;
 	if (r == NULL) {
 		printf("r = %p, w = %p, m = %p\n", r, w, m);
 		return ret;
@@ -448,16 +443,14 @@ int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, T
 	 *  Returns true if the %queue is empty.
 	 */
 	while (!r->empty()) {
-		t = r->front();
-		printf("wx = %p, wp = %d\n", t->get_wx(), t->get_wp());
-		t->pw();
+		st = r->front();
+		printf("rx = %p, rp = %d\n", st->get_rx(), st->get_rp());
+		st->pr();
 
-		////////////////////////////
-		handle(t, t2);
-		////////////////////////////
+		handle(dt, st);
 
 		/* Now, we need push to queue. */
-		w->push(t2);
+		w->push(dt);
 
 		r->pop();
 		printf("I am handling data.\n");

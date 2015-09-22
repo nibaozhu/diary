@@ -3,7 +3,7 @@
 
 #include "transport.h"
 
-int handle(Transport *t, Transport *t2);
+int handle(Transport *dt, Transport *st);
 
 #endif
 

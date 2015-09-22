@@ -1,7 +1,10 @@
 #include "handle.h"
 
-int handle(Transport *t, Transport *t2) {
+/*
+ * dt: destination transport
+ * st: source transport
+ */
+int handle(Transport *dt, Transport *st) {
 	int ret = 0;
 	return ret;
 }
-
