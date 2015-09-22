@@ -10,6 +10,13 @@
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
+#include <stdint.h>
+
+#include <queue>
+#include <string>
+#include <map>
+
+#include <arpa/inet.h>
 
 /* output BYTES bytes per output line */
 #define WIDTH (8)
@@ -42,6 +49,14 @@ public:
 		this->wx = malloc(this->ws);
 		memset(this->rx, 0, this->rs);
 		memset(this->wx, 0, this->ws);
+	}
+
+	int set_identification(int identification) {
+		return this->identification = identification;
+	}
+
+	int get_identification(void) {
+		return this->identification;
 	}
 
 	int set_fd(int fd) {

@@ -7,7 +7,10 @@
 
 #include "transport.h"
 
-int handle(Transport *dt, Transport *st);
+int handle(Transport *t, std::queue<Transport*> *w);
+int md5sum(const char *ptr, int size);
+
+#define MD5SUM_LENGTH (32)
 
 #endif
 

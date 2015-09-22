@@ -449,8 +449,7 @@ int task_w(std::queue<Transport*> *w) {
 
 int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, Transport*> *m) {
 	int ret = 0;
-	Transport *dt = NULL;
-	Transport *st = NULL;
+	Transport *t = NULL;
 	if (r == NULL) {
 		is_quit = true;
 		printf("r = %p, w = %p, m = %p\n", r, w, m);
@@ -461,15 +460,11 @@ int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, T
 	 *  Returns true if the %queue is empty.
 	 */
 	while (!r->empty()) {
-		st = r->front();
-		printf("rx = %p, rp = %d\n", st->get_rx(), st->get_rp());
-		st->pr();
-
-		handle(dt, st);
-
-		/* Now, we need push to queue. */
-		w->push(dt);
-
+		t = r->front();
+		ret = handle(t, w);
+		if (ret == -1) {
+			continue;
+		}
 		r->pop();
 	}
 	return ret;

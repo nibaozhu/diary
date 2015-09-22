@@ -5,10 +5,6 @@
 #ifndef TASK_H
 #define TASK_H
 
-#include <queue>
-#include <string>
-#include <map>
-
 #include "transport.h"
 #include "handle.h"
 
