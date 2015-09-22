@@ -4,16 +4,17 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
-BUFFER_LENGTH	task.cc	4;"	d	file:
+BUFFER_LENGTH	task.cc	5;"	d	file:
 CXXFLAGS	Makefile	/^CXXFLAGS=-O0 -g -DD -Wno-pointer-arith$/;"	m
 HANDLE_H	handle.h	2;"	d
 LDFLAGS	Makefile	/^LDFLAGS=$/;"	m
 MAIN_H	main.h	2;"	d
-MAX_EVENTS	task.cc	3;"	d	file:
+MAX_EVENTS	task.cc	4;"	d	file:
 TASK_H	task.h	2;"	d
 TRANSPORT_H	transport.h	2;"	d
 Transport	transport.h	/^	Transport(int fd, int size = 1024 * 1024) {$/;"	f	class:Transport
 Transport	transport.h	/^class Transport {$/;"	c
+VERSION_H	version.h	2;"	d
 WIDTH	transport.h	11;"	d
 alive	transport.h	/^	bool alive; \/* true: live; false: die *\/$/;"	m	class:Transport
 conn_sock	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
@@ -34,10 +35,12 @@ handle	handle.cc	/^int handle(Transport *dt, Transport *st) {$/;"	f
 handler	task.cc	/^void handler(int signum) {$/;"	f
 identification	transport.h	/^	int identification; \/* auth token *\/$/;"	m	class:Transport
 init	task.cc	/^int init(int argc, char **argv) {$/;"	f
+ip	task.cc	/^char ip[3 + 1 + 3 + 1 + 3 + 1 + 3 + 1] = "0.0.0.0";$/;"	v
 is_quit	task.cc	/^bool is_quit;$/;"	v
 listen_sock	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
 main	main.cc	/^int main(int argc, char **argv) {$/;"	f
 nfds	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
+port	task.cc	/^short int port = 12340;$/;"	v
 pr	transport.h	/^	void pr(int width = WIDTH) {$/;"	f	class:Transport
 pw	transport.h	/^	void pw(int width = WIDTH) {$/;"	f	class:Transport
 reads	task.cc	/^int reads(Transport *t) {$/;"	f
@@ -61,6 +64,7 @@ task_w	task.cc	/^int task_w(std::queue<Transport*> *w) {$/;"	f
 task_x	task.cc	/^int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, Transport*> *m) {$/;"	f
 uninit	task.cc	/^int uninit(std::map<int, Transport*> *m) {$/;"	f
 updated	transport.h	/^	time_t updated; \/* the lastest communication time *\/$/;"	m	class:Transport
+version	version.h	/^const char *version = {$/;"	v
 wp	transport.h	/^	int wp; \/* transport data `Write' pointer position *\/$/;"	m	class:Transport
 writes	task.cc	/^int writes(Transport *t) {$/;"	f
 ws	transport.h	/^	int ws; \/* transport data `Write' size *\/$/;"	m	class:Transport

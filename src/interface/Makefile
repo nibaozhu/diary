@@ -7,7 +7,7 @@ i1: handle.o main.o task.o
 	$(CXX) -o $@ $^ $(LDFLAGS) && ctags *
 
 main.o: main.cc main.h
-task.o: task.cc task.h transport.h
+task.o: task.cc task.h transport.h version.h
 handle.o: handle.cc handle.h
 
 CXXFLAGS=-O0 -g -DD -Wno-pointer-arith

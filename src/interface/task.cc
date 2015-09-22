@@ -1,11 +1,17 @@
 #include "task.h"
+#include "version.h"
 
 #define MAX_EVENTS (0xff)
 #define BUFFER_LENGTH (0xff)
 struct epoll_event ev, events[MAX_EVENTS];
 int listen_sock, conn_sock, nfds, epollfd;
 
+extern char *optarg;
+extern int optind, opterr, optopt;
 bool is_quit;
+
+short int port = 12340;
+char ip[3 + 1 + 3 + 1 + 3 + 1 + 3 + 1] = "0.0.0.0";
 
 int setnonblocking(int fd) {
 	int ret = 0;
@@ -123,31 +129,42 @@ void set_disposition(void) {
 int init(int argc, char **argv) {
 	int ret = 0;
 	do {
+		const char *optstring = "hvi:p:";
+		int opt;
+
+		while ((opt = getopt(argc, argv, optstring)) != -1) {
+			switch (opt) {
+				case 'v':
+					puts(version);
+					exit(0);
+				case 'i':
+					memcpy(ip, optarg, sizeof ip);
+					break;
+				case 'p':
+					port = atoi(optarg);
+					break;
+				case 'h':
+				default: /* ? */
+					printf("Usage: %s [-hv] [-i IP] [-p PORT]\n", argv[0]);
+					printf("Example: IP = %s, PORT = %d\n", ip, port);
+					exit(0);
+			}
+		}
+
 		is_quit = false;
 		set_disposition();
-
 		listen_sock = socket(AF_INET, SOCK_STREAM, 0);
 		if (listen_sock < 0) {
 			printf("%s(%d)\n", strerror(errno), errno);
 			break;
 		}
-
 		printf("listen_sock = %d\n", listen_sock);
 
 		struct sockaddr_in addr;
 		memset(&addr, 0, sizeof (struct sockaddr_in));
-
 		addr.sin_family = AF_INET;
-
-#ifdef D
-		addr.sin_port = htons(atoi("12340"));
-		// ret = inet_pton(AF_INET, "127.0.0.1", (struct sockaddr *) &addr.sin_addr.s_addr);
-		ret = inet_pton(AF_INET, "192.168.56.101", (struct sockaddr *) &addr.sin_addr.s_addr);
-#else
-		addr.sin_port = htons(atoi(argv[2]));
-		ret = inet_pton(AF_INET, argv[1], (struct sockaddr *) &addr.sin_addr.s_addr);
-#endif
-
+		addr.sin_port = htons(port);
+		ret = inet_pton(AF_INET, ip, (struct sockaddr *) &addr.sin_addr.s_addr);
 		if (ret != 1) {
 			printf("%s(%d)\n", strerror(errno), errno);
 			break;
