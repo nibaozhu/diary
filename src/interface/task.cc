@@ -108,8 +108,6 @@ void handler(int signum) {
 			break;
 		case SIGUSR1:
 		case SIGUSR2:
-			is_quit = true;
-			break;
 		default:
 			printf("Undefined signal %d\n", signum);
 	}
@@ -139,7 +137,7 @@ int init(int argc, char **argv) {
 		while ((opt = getopt(argc, argv, optstring)) != -1) {
 			switch (opt) {
 				case 'v':
-					puts(version);
+					printf("%s %s %s\n", version, __DATE__, __TIME__);
 					exit(0);
 				case 'i':
 					memcpy(ip, optarg, sizeof ip);
@@ -149,8 +147,8 @@ int init(int argc, char **argv) {
 					break;
 				case 'h':
 				default: /* ? */
-					printf("Usage: %s [-hv] [-i IP] [-p PORT]\n", argv[0]);
-					printf("Example: IP = %s, PORT = %d\n", ip, port);
+					printf("Usage: %s [-hv] [-i ip] [-p port]\n", argv[0]);
+					printf("Example: ip = %s, port = %d\n", ip, port);
 					exit(0);
 			}
 		}
@@ -283,6 +281,7 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 					break;
 				}
 
+				time_t created = time(NULL);
 				printf("accept: acceptfd = %d\n", acceptfd);
 				/* set non blocking */
 				ret = setnonblocking(acceptfd);
@@ -304,7 +303,7 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 				printf("some one connect to me\n");
 				;;;;;;;;;;;;;;;;;;;;
 
-				Transport *t = new Transport(acceptfd, 32);
+				Transport *t = new Transport(acceptfd, created, peer_addr, peer_addrlen, 32);
 				(*m)[acceptfd] = t;
 
 			} else {

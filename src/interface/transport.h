@@ -21,6 +21,9 @@
 /* output BYTES bytes per output line */
 #define WIDTH (8)
 
+/* 1024 * 1024 bytes = 1MB */
+#define SIZE (1024*1024)
+
 class Transport {
 private:
 	int identification; /* auth token */
@@ -36,12 +39,22 @@ private:
 	int ws; /* transport data `Write' size */
 	double speed; /* bytes per second */
 
+	struct sockaddr_in peer_addr;
+	socklen_t peer_addrlen;
+
 public:
-	Transport(int fd, int size = 1024 * 1024) {
+	Transport(int fd, time_t created, struct sockaddr_in peer_addr, socklen_t peer_addrlen, int size = SIZE) {
 		memset(this, 0, sizeof *this);
+
+		this->created = created;
+		this->updated = this->created;
+
 		this->fd = fd;
+		this->peer_addr = peer_addr;
+		this->peer_addrlen = peer_addrlen;
+
 		if (size <= 0) {
-			size = 1024 * 1024; /* default 1024 * 1024 bytes (1 MB) */
+			size = SIZE;
 		}
 		this->rs = size;
 		this->ws = size;

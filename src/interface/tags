@@ -11,9 +11,10 @@ LDFLAGS	Makefile	/^LDFLAGS=$/;"	m
 MAIN_H	main.h	6;"	d
 MAX_EVENTS	task.cc	8;"	d	file:
 MD5SUM_LENGTH	handle.h	13;"	d
+SIZE	transport.h	25;"	d
 TASK_H	task.h	6;"	d
 TRANSPORT_H	transport.h	6;"	d
-Transport	transport.h	/^	Transport(int fd, int size = 1024 * 1024) {$/;"	f	class:Transport
+Transport	transport.h	/^	Transport(int fd, time_t created, struct sockaddr_in peer_addr, socklen_t peer_addrlen, int size = SIZE) {$/;"	f	class:Transport
 Transport	transport.h	/^class Transport {$/;"	c
 WIDTH	transport.h	22;"	d
 alive	transport.h	/^	bool alive; \/* true: live; false: die *\/$/;"	m	class:Transport
@@ -42,6 +43,8 @@ listen_sock	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
 main	main.cc	/^int main(int argc, char **argv) {$/;"	f
 md5sum	handle.cc	/^int md5sum(const char *ptr, int size) {$/;"	f
 nfds	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
+peer_addr	transport.h	/^	struct sockaddr_in peer_addr;$/;"	m	class:Transport	typeref:struct:Transport::sockaddr_in
+peer_addrlen	transport.h	/^	socklen_t peer_addrlen;$/;"	m	class:Transport
 port	task.cc	/^short int port = 12340;$/;"	v
 pr	transport.h	/^	void pr(int width = WIDTH) {$/;"	f	class:Transport
 pw	transport.h	/^	void pw(int width = WIDTH) {$/;"	f	class:Transport
@@ -67,7 +70,7 @@ task_w	task.cc	/^int task_w(std::queue<Transport*> *w) {$/;"	f
 task_x	task.cc	/^int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, Transport*> *m) {$/;"	f
 uninit	task.cc	/^int uninit(std::map<int, Transport*> *m) {$/;"	f
 updated	transport.h	/^	time_t updated; \/* the lastest communication time *\/$/;"	m	class:Transport
-version	version.h	/^const char *version = "Version: 0.01(unstable)";$/;"	v
+version	version.h	/^const char *version = "Version: 0.01(experimental)";$/;"	v
 wp	transport.h	/^	int wp; \/* transport data `Write' pointer position *\/$/;"	m	class:Transport
 writes	task.cc	/^int writes(Transport *t) {$/;"	f
 ws	transport.h	/^	int ws; \/* transport data `Write' size *\/$/;"	m	class:Transport
