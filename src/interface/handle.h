@@ -7,7 +7,7 @@
 
 #include "transport.h"
 
-int handle(Transport *t, std::queue<Transport*> *w);
+int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w);
 int md5sum(const char *ptr, int size);
 
 #define LENGTH (8)

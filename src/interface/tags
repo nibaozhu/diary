@@ -37,7 +37,7 @@ get_rx	transport.h	/^	void *get_rx(void) {$/;"	f	class:Transport
 get_wp	transport.h	/^	int get_wp(void) {$/;"	f	class:Transport
 get_ws	transport.h	/^	int get_ws(void) {$/;"	f	class:Transport
 get_wx	transport.h	/^	void *get_wx(void) {$/;"	f	class:Transport
-handle	handle.cc	/^int handle(Transport *t, std::queue<Transport*> *w) {$/;"	f
+handle	handle.cc	/^int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w) {$/;"	f
 handler	task.cc	/^void handler(int signum) {$/;"	f
 identification	transport.h	/^	int identification; \/* auth token *\/$/;"	m	class:Transport
 init	task.cc	/^int init(int argc, char **argv) {$/;"	f

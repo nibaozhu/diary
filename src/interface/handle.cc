@@ -7,7 +7,7 @@
 /*
  * %t: ....
  */
-int handle(Transport *t, std::queue<Transport*> *w) {
+int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w) {
 	int ret = 0;
 	unsigned int length = 0;
 	int width = 0;
@@ -16,6 +16,7 @@ int handle(Transport *t, std::queue<Transport*> *w) {
 	int identification1 = 0;
 	int i = 0;
 	char c = 0;
+	static std::map<int, int> *interface = new std::map<int, int>(); // should use multimap
 
 	printf("rx = %p, rp = %d\n", t->get_rx(), t->get_rp());
 	t->pr();
@@ -90,10 +91,17 @@ int handle(Transport *t, std::queue<Transport*> *w) {
 		}
 
 		if (identification0 == identification1 && identification0 != 0) {
-			printf("Echo\n");
+
+			/* Remove Old identification. */
+			interface->erase(t->get_identification());
+
+			/* Insert into interface. */
+			(*interface)[identification0] = t->get_fd();
+
 			/* This is Register Message. */
 			t->set_identification(identification0);
 
+			printf("Echo\n");
 			if (t->get_rp() >= width) {
 				t->set_wx(t->get_rx(), t->get_rp());
 
@@ -111,22 +119,34 @@ int handle(Transport *t, std::queue<Transport*> *w) {
 			;;;;;;;;;;;;;;;;;;;;
 			// maybe memory move
 			;;;;;;;;;;;;;;;;;;;;
-		} else if (t->get_rp() >= length + LENGTH + IDENTIFICATION_LENGTH * 2 + MD5SUM_LENGTH) {
+		} else if (t->get_rp() >= LENGTH + IDENTIFICATION_LENGTH * 2 + MD5SUM_LENGTH + length) {
 			printf("Message complete, %d, %d\n", length + LENGTH + IDENTIFICATION_LENGTH * 2 + MD5SUM_LENGTH, t->get_rp());
 			/* This is complete Message. */
 
 			/* Find transport, according to identification1. */
 			// temporarily ignore
-			t->set_identification(identification1); // maybe wrong
+			// t->set_identification(identification1); // maybe wrong
+
+			// fd = (*interface)[identification1];
+			Transport *t2 = (*m)[(*interface)[identification1]];
+			if (t2 == NULL) {
+				printf("Waiting identification = 0x%08x\n", identification1);
+				break; // maybe wrong
+			}
 
 			if (t->get_rp() >= width) {
-				t->set_wx(t->get_rx(), t->get_rp());
+				// t->set_wx(t->get_rx(), t->get_rp());
+				t2->set_wx(t->get_rx(), LENGTH + IDENTIFICATION_LENGTH * 2 + MD5SUM_LENGTH + length);
 
 				/* WARNING: reset memory */
-				t->clear_rx();
+				// t->clear_rx();
+				memmove(t->get_rx(), 
+					t->get_rx() + LENGTH + IDENTIFICATION_LENGTH * 2 + MD5SUM_LENGTH + length, 
+					t->get_rp() - LENGTH + IDENTIFICATION_LENGTH * 2 + MD5SUM_LENGTH + length);
+				t->set_rp(t->get_rp() - LENGTH + IDENTIFICATION_LENGTH * 2 + MD5SUM_LENGTH + length);
 
 				/* WARNING: push w */
-				w->push(t);
+				w->push(t2);
 
 				// t->set_wp(t->get_wp() + width);
 			} else {
