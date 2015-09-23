@@ -160,7 +160,6 @@ int init(int argc, char **argv) {
 			printf("%s(%d)\n", strerror(errno), errno);
 			break;
 		}
-		printf("listen_sock = %d\n", listen_sock);
 
 		struct sockaddr_in addr;
 		memset(&addr, 0, sizeof (struct sockaddr_in));
@@ -191,7 +190,6 @@ int init(int argc, char **argv) {
 			printf("%s(%d)\n", strerror(errno), errno);
 			break;
 		}
-		printf("epollfd = %d\n", epollfd);
 
 		ev.events = EPOLLIN | EPOLLET; /* epoll edge triggered */
 		ev.data.fd = listen_sock; /* bind & listen's fd */
@@ -200,6 +198,10 @@ int init(int argc, char **argv) {
 			printf("%s(%d)\n", strerror(errno), errno);
 			break;
 		}
+
+		printf("Assigning address %s:%u\n", ip, port);
+		printf("Refer to by sockfd = %d as a passive socket\n", listen_sock);
+		printf("Epoll file descriptor = %d\n", epollfd);
 	} while (0);
 	return ret;
 }
