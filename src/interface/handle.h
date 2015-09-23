@@ -10,7 +10,9 @@
 int handle(Transport *t, std::queue<Transport*> *w);
 int md5sum(const char *ptr, int size);
 
+#define LENGTH (8)
 #define MD5SUM_LENGTH (32)
+#define IDENTIFICATION_LENGTH (8)
 
 #endif
 

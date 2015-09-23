@@ -26,7 +26,7 @@
 
 class Transport {
 private:
-	uint32_t identification; /* auth token */
+	int identification; /* auth token */
 	time_t created; /* the first communication time */
 	time_t updated; /* the lastest communication time */
 	bool alive; /* true: live; false: die */
@@ -64,11 +64,11 @@ public:
 		memset(this->wx, 0, this->ws);
 	}
 
-	uint32_t set_identification(uint32_t identification) {
+	int set_identification(int identification) {
 		return this->identification = identification;
 	}
 
-	uint32_t get_identification(void) {
+	int get_identification(void) {
 		return this->identification;
 	}
 

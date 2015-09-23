@@ -10,5 +10,5 @@ main.o: main.cc main.h
 task.o: task.cc task.h transport.h version.h
 handle.o: handle.cc handle.h
 
-CXXFLAGS=-O0 -g -DD -Wno-pointer-arith
+CXXFLAGS=-O0 -g3 -DD -Wno-pointer-arith
 LDFLAGS=
