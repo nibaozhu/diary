@@ -8,6 +8,6 @@
 
 Notes:
 Every client has an identification.
-`length', `identification0', `identification1' are hexadecimal-8byte.
+`length', `identification0', `identification1' are hexadecimal-character.
 
 ----------------------------------------------------------------------
