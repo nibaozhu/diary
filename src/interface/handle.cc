@@ -12,8 +12,8 @@ int handle(Transport *t, std::queue<Transport*> *w) {
 	unsigned int length = 0;
 	int width = 0;
 	char md5sum[MD5SUM_LENGTH + 1];
-	int identification0;
-	int identification1;
+	int identification0 = 0;
+	int identification1 = 0;
 	int i = 0;
 	char c = 0;
 
