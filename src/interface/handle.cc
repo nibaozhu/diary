@@ -111,8 +111,8 @@ int handle(Transport *t, std::queue<Transport*> *w) {
 			;;;;;;;;;;;;;;;;;;;;
 			// maybe memory move
 			;;;;;;;;;;;;;;;;;;;;
-		} else if (length + LENGTH + IDENTIFICATION_LENGTH * 2 + MD5SUM_LENGTH < t->get_rp()) {
-			printf("Message complete, %d, %d\n", length + LENGTH + IDENTIFICATION_LENGTH * 2 + MD5SUM_LENGTH, t->get_rp() );
+		} else if (t->get_rp() >= length + LENGTH + IDENTIFICATION_LENGTH * 2 + MD5SUM_LENGTH) {
+			printf("Message complete, %d, %d\n", length + LENGTH + IDENTIFICATION_LENGTH * 2 + MD5SUM_LENGTH, t->get_rp());
 			/* This is complete Message. */
 
 			/* Find transport, according to identification1. */
