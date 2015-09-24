@@ -189,9 +189,9 @@ public:
 			if (i % width == 0) {
 				printf("%p ", this->rx + i);
 			}
-			printf(" 0x%02x", *(unsigned char*)(this->rx + i));
+			printf(" 0x%02x", *(char*)(this->rx + i));
 			if (b0) {
-				printf(" %c", *(unsigned char*)(this->rx + i));
+				printf(" %c", *(char*)(this->rx + i));
 			}
 
 			i++;
@@ -214,9 +214,9 @@ public:
 			if (i % width == 0) {
 				printf("%p ", this->wx + i);
 			}
-			printf(" 0x%02x", *(unsigned char*)(this->wx + i));
+			printf(" 0x%02x", *(char*)(this->wx + i));
 			if (b0) {
-				printf(" %c", *(unsigned char*)(this->rx + i));
+				printf(" %c", *(char*)(this->rx + i));
 			}
 
 			i++;
