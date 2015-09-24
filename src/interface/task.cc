@@ -6,7 +6,7 @@
 #include "version.h"
 
 #define MAX_EVENTS (0xff)
-#define BUFFER_LENGTH (0x04)
+#define BUFFER_LENGTH (0x1<<0x0a)
 struct epoll_event ev, events[MAX_EVENTS];
 int listen_sock, conn_sock, nfds, epollfd;
 
