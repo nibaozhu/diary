@@ -198,9 +198,10 @@ int checksum(const void *ptr, int size, char *md_value_0, char *digestname) {
 	EVP_DigestFinal_ex(mdctx, md_value, (unsigned int *)&md_len);
 	EVP_MD_CTX_destroy(mdctx);
 
-	puts("string");
+#ifdef D
 	for (i = 0; i < size; i++) printf("%c", *(char *)((char *)ptr + i));
 	puts("");
+#endif
 
 	printf("Original Digest is: {");
 	for (i = 0; i < strlen(md_value_0); i++) printf("%c", md_value_0[i]);

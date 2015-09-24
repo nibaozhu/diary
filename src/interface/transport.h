@@ -98,9 +98,11 @@ public:
 
 	void *set_rx(void *rx, int rs) {
 		while (rs >= this->rs - this->rp) {
-			printf("realloc %p %d\n", this->rx, this->rs);
+			static int x1 = 0;
+			printf("realloc %p %d, x1 = %d\n", this->rx, this->rs, x1++);
 			this->rx = realloc(this->rx, this->rs * 2);
 			if (this->rx == NULL) {
+				printf("MAYBE Out of memory.\n");
 				return this->rx;
 			} else {
 				this->rs *= 2;
@@ -184,6 +186,7 @@ public:
 			width = WIDTH;
 		}
 
+#ifdef D
 		printf("--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
 		while (i < this->rp) {
 			if (i % width == 0) {
@@ -200,6 +203,7 @@ public:
 			}
 		}
 		puts("\n--- end ---");
+#endif
 		return ;
 	}
 

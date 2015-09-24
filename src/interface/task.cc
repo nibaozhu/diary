@@ -6,7 +6,7 @@
 #include "version.h"
 
 #define MAX_EVENTS (0xff)
-#define BUFFER_LENGTH (0x1<<0x0a)
+#define BUFFER_LENGTH (0xff)
 struct epoll_event ev, events[MAX_EVENTS];
 int listen_sock, conn_sock, nfds, epollfd;
 
@@ -47,8 +47,8 @@ int reads(Transport *t) {
 	}
 
 	printf("fd = %d, %s\n", fd, __func__);
+	void *buffer = malloc(SIZE + 1);
 	do {
-		char buffer[BUFFER_LENGTH + 1];
 		memset(buffer, 0, sizeof buffer);
 		ret = read(fd, buffer, BUFFER_LENGTH);
 		if (ret < 0) {
@@ -59,14 +59,24 @@ int reads(Transport *t) {
 			printf("Client active closed.(End of file)\n", fd);
 			break;
 		} else if (ret > 0 && ret <= BUFFER_LENGTH) {
-			printf("{%s}\n", buffer);
-			t->set_rx(buffer, ret);
+
+#ifdef D
+			printf("{%s}\n", (char *)buffer);
+#endif
+			void *ret_p = t->set_rx(buffer, ret);
+			printf("ret_p = %p\n", ret_p);
 			memset(buffer, 0, ret);
 			if (ret != BUFFER_LENGTH) {
+				break;
+			} else if (t->get_rp() >= 1024 * 1024 * 128) {
+				/* GENERATE CORE, WHEN TOO LARGE(>256MB). */
+				printf("get_rp = 0x%08x\n", t->get_rp());
+				exit(1);
 				break;
 			}
 		}
 	} while (1);
+	free(buffer);
 	return ret;
 }
 
