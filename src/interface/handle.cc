@@ -172,8 +172,6 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 
 int checksum(const char *ptr, int size, char *md_value_0, char *digestname) {
 	int ret = 0;
-	printf("ptr = %p, size =%d\n", ptr, size);
-
 	EVP_MD_CTX *mdctx;
 	const EVP_MD *md;
 	unsigned char md_value[EVP_MAX_MD_SIZE];
@@ -181,7 +179,7 @@ int checksum(const char *ptr, int size, char *md_value_0, char *digestname) {
 
 	OpenSSL_add_all_digests();
 	md = EVP_get_digestbyname(digestname);
-	if(!md) {
+	if (!md) {
 		printf("Unknown message digest %s\n", digestname);
 		return -1;
 	}
@@ -192,18 +190,18 @@ int checksum(const char *ptr, int size, char *md_value_0, char *digestname) {
 	EVP_DigestFinal_ex(mdctx, md_value, (unsigned int *)&md_len);
 	EVP_MD_CTX_destroy(mdctx);
 
+	printf("ptr = %p, size = %d\n", ptr, size);
 	printf("Original Digest is: {");
-	for(i = 0; i < strlen(md_value_0); i++) printf("%c", md_value_0[i]);
+	for (i = 0; i < strlen(md_value_0); i++) printf("%c", md_value_0[i]);
 	printf("}\n");
 
 	printf("Computed Digest is: {");
-	for(i = 0; i < md_len; i++) printf("%02x", md_value[i]);
+	for (i = 0; i < md_len; i++) printf("%02x", md_value[i]);
 	printf("}\n");
 
 	if (memcmp(md_value_0, md_value, md_len) != 0) {
 		printf("Not Equal!\n");
 		ret = -1;
 	}
-
 	return ret;
 }
