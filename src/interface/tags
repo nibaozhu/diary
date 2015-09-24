@@ -50,8 +50,8 @@ nfds	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
 peer_addr	transport.h	/^	struct sockaddr_in peer_addr;$/;"	m	class:Transport	typeref:struct:Transport::sockaddr_in
 peer_addrlen	transport.h	/^	socklen_t peer_addrlen;$/;"	m	class:Transport
 port	task.cc	/^short int port = 12340;$/;"	v
-pr	transport.h	/^	void pr(int width = WIDTH) {$/;"	f	class:Transport
-pw	transport.h	/^	void pw(int width = WIDTH) {$/;"	f	class:Transport
+pr	transport.h	/^	void pr(int width = WIDTH, bool b0 = false) {$/;"	f	class:Transport
+pw	transport.h	/^	void pw(int width = WIDTH, bool b0 = false) {$/;"	f	class:Transport
 reads	task.cc	/^int reads(Transport *t) {$/;"	f
 rp	transport.h	/^	int rp; \/* transport data `Read' pointer position *\/$/;"	m	class:Transport
 rs	transport.h	/^	int rs; \/* transport data `Read' size  *\/$/;"	m	class:Transport

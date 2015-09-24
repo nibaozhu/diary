@@ -178,7 +178,7 @@ public:
 		return this->alive;
 	}
 
-	void pr(int width = WIDTH) {
+	void pr(int width = WIDTH, bool b0 = false) {
 		int i = 0;
 		if (width <= 0 || width > 1024) {
 			width = WIDTH;
@@ -189,7 +189,11 @@ public:
 			if (i % width == 0) {
 				printf("%p ", this->rx + i);
 			}
-			printf(" 0x%02x", *(char*)(this->rx + i));
+			printf(" 0x%02x", *(unsigned char*)(this->rx + i));
+			if (b0) {
+				printf(" %c", *(unsigned char*)(this->rx + i));
+			}
+
 			i++;
 			if (i % width == 0) {
 				puts("");
@@ -199,7 +203,7 @@ public:
 		return ;
 	}
 
-	void pw(int width = WIDTH) {
+	void pw(int width = WIDTH, bool b0 = false) {
 		int i = 0;
 		if (width <= 0 || width > 1024) {
 			width = WIDTH;
@@ -210,7 +214,11 @@ public:
 			if (i % width == 0) {
 				printf("%p ", this->wx + i);
 			}
-			printf(" 0x%02x", *(char*)(this->wx + i));
+			printf(" 0x%02x", *(unsigned char*)(this->wx + i));
+			if (b0) {
+				printf(" %c", *(unsigned char*)(this->rx + i));
+			}
+
 			i++;
 			if (i % width == 0) {
 				puts("");
