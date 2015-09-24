@@ -6,7 +6,7 @@
 #include "version.h"
 
 #define MAX_EVENTS (0xff)
-#define BUFFER_LENGTH (0xff)
+#define BUFFER_LENGTH (0x04)
 struct epoll_event ev, events[MAX_EVENTS];
 int listen_sock, conn_sock, nfds, epollfd;
 
@@ -56,10 +56,10 @@ int reads(Transport *t) {
 			break;
 		} else if (ret == 0) {
 			t->set_alive(false);
-			printf("Client closed.\n", fd);
+			printf("Client active closed.(End of file)\n", fd);
 			break;
 		} else if (ret > 0 && ret <= BUFFER_LENGTH) {
-			printf("[%s]\n", buffer);
+			printf("{%s}\n", buffer);
 			t->set_rx(buffer, ret);
 			memset(buffer, 0, ret);
 			if (ret != BUFFER_LENGTH) {
@@ -91,13 +91,10 @@ int writes(Transport *t) {
 			printf("%s(%d)\n", strerror(errno), errno);
 			break;
 		} else if (ret >= 0 && ret <= t->get_wp()) {
-
-			;;;;;;;;;;;;;;;;;;;;
-			// maybe MEMORY MOVE
-			;;;;;;;;;;;;;;;;;;;;
-			memset(t->get_wx(), 0, ret);
+			/* Moving forward. */
+			printf("ret = %d\n", ret);
+			memmove(t->get_wx(), t->get_wx() + ret, t->get_wp() - ret);
 			t->set_wp(t->get_wp() - ret);
-			;;;;;;;;;;;;;;;;;;;;
 		}
 	} while (0);
 	return ret;
@@ -229,14 +226,11 @@ int uninit(std::map<int, Transport*> *m) {
 			}
 		}
 
-		;;;;;;;;;;;;;;;;;;
 		std::map<int, Transport*>::iterator i = m->begin();
 		while (i != m->end()) {
 			delete (*i).second;
 			m->erase(i++);
 		}
-		;;;;;;;;;;;;;;;;;;
-
 	} while (0);
 	return ret;
 }
@@ -305,18 +299,14 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 					break;
 				}
 
-				;;;;;;;;;;;;;;;;;;;;
-				printf("some one connect to me\n");
-				;;;;;;;;;;;;;;;;;;;;
-
+				printf("Someone connected to me.\n");
 				Transport *t = new Transport(acceptfd, created, peer_addr, peer_addrlen, 32);
 				(*m)[acceptfd] = t;
 
 			} else {
 				printf("events[%d].events = 0x%03x\n", n, events[n].events);
 				if (events[n].events & EPOLLERR) {
-					puts("Error condition happened on the associated file descriptor.  "
-						"epoll_wait(2) will always wait for this event; it is not necessary to set it in events.");
+					puts("Error condition happened on the associated file descriptor.");
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
 						printf("%s(%d)\n", strerror(errno), errno);
@@ -328,11 +318,8 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 						continue;
 					}
 
-					;;;;;;;;;;;
 					delete (*m)[events[n].data.fd];
 					m->erase(events[n].data.fd);
-					;;;;;;;;;;;
-
 					continue;
 				}
 
@@ -349,16 +336,13 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 						continue;
 					}
 
-					;;;;;;;;;;;
 					delete (*m)[events[n].data.fd];
 					m->erase(events[n].data.fd);
-					;;;;;;;;;;;
-
 					continue;
 				}
 
 				if (events[n].events & EPOLLRDHUP) {
-					puts("EPOLLRDHUP");
+					puts("Client active closed.");
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
 						printf("%s(%d)\n", strerror(errno), errno);
@@ -370,11 +354,8 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 						continue;
 					}
 
-					;;;;;;;;;;;
 					delete (*m)[events[n].data.fd];
 					m->erase(events[n].data.fd);
-					;;;;;;;;;;;
-
 					continue;
 				}
 
@@ -389,10 +370,10 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 					if (ret < 0) {
 						break;
 					} else if (ret == 0) {
-						;;;;;;;;;;;
+						;
 					}
 
-					/* Now, we need push to queue. */
+					/* We need push to queue. */
 					r->push(t);
 				}
 
@@ -411,11 +392,6 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 				}
 */
 			}
-
-			;;;;;;;;;;;;;;;;;;;;
-			printf("some data send to me\n");
-			;;;;;;;;;;;;;;;;;;;;
-
 		}
 
 	} while (0);

@@ -59,11 +59,10 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 			printf("identification0 = 0x%08x, identification = 0x%08x\n", identification0, t->get_identification());
 			width += IDENTIFICATION_LENGTH;
 		} else {
-			break;
 			/* WARNING: reset memory */
 			printf("Drop the message, reset memory.\n");
 			t->clear_rx();
-			// return ret;
+			break;
 		}
 
 		if (t->get_rp() >= width + IDENTIFICATION_LENGTH) {
@@ -80,11 +79,10 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 			printf("identification1 = 0x%08x, identification = 0x%08x\n", identification1, t->get_identification());
 			width += IDENTIFICATION_LENGTH;
 		} else {
-			break;
 			/* WARNING: reset memory */
 			printf("Drop the message, reset memory.\n");
 			t->clear_rx();
-			// return ret;
+			break;
 		}
 
 		if (t->get_rp() >= width + MD5SUM_LENGTH) {
@@ -93,23 +91,24 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 			printf("i2.md5sum = {%s}\n", md5sum);
 			width += MD5SUM_LENGTH;
 		} else {
-			break;
 			/* WARNING: reset memory */
 			printf("Drop the message, reset memory.\n");
 			t->clear_rx();
-			// return ret;
+			break;
 		}
 
-		message = malloc(length + 1);
-		memset(message, 0, sizeof message);
-		memcpy(message, t->get_rx() + width, length);
-		ret = checksum(message, length, md5sum, digestname);
-		if (ret == -1) {
-			/* WARNING: reset memory */
-			printf("Drop the message, reset memory.\n");
-			t->clear_rx();
-			// return ret;
-			break;
+		if (t->get_rp() >= width + length) {
+			message = malloc(length + 1);
+			memset(message, 0, sizeof message);
+			memcpy(message, t->get_rx() + width, length);
+			ret = checksum(message, length, md5sum, digestname);
+			if (ret == -1) {
+				/* WARNING: reset memory */
+				printf("Drop the message, reset memory.\n");
+				t->clear_rx();
+				// return ret;
+				break;
+			}
 		}
 
 		if (identification0 == identification1 && identification0 != 0) {
@@ -141,8 +140,8 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 			;;;;;;;;;;;;;;;;;;;;
 			// maybe memory move
 			;;;;;;;;;;;;;;;;;;;;
-		} else if (t->get_rp() >= LENGTH + IDENTIFICATION_LENGTH * 2 + MD5SUM_LENGTH + length) {
-			printf("Message complete, %d, %d\n", length + LENGTH + IDENTIFICATION_LENGTH * 2 + MD5SUM_LENGTH, t->get_rp());
+		} else if (t->get_rp() >= width + length) {
+			printf("Message complete, %d, %d\n", width + length, t->get_rp());
 			/* This is complete Message. */
 
 			/* Find transport, according to identification1. */
@@ -158,14 +157,13 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 
 			if (t->get_rp() >= width) {
 				// t->set_wx(t->get_rx(), t->get_rp());
-				t2->set_wx(t->get_rx(), (LENGTH + IDENTIFICATION_LENGTH * 2 + MD5SUM_LENGTH + length));
+				t2->set_wx(t->get_rx(), (width + length));
 
 				/* WARNING: reset memory */
 				// t->clear_rx();
-				memmove(t->get_rx(), 
-					t->get_rx() + (LENGTH + IDENTIFICATION_LENGTH * 2 + MD5SUM_LENGTH + length), 
-					t->get_rp() - (LENGTH + IDENTIFICATION_LENGTH * 2 + MD5SUM_LENGTH + length));
-				t->set_rp(t->get_rp() - (LENGTH + IDENTIFICATION_LENGTH * 2 + MD5SUM_LENGTH + length));
+
+				memmove(t->get_rx(), t->get_rx() + (width + length), t->get_rp() - (width + length));
+				t->set_rp(t->get_rp() - (width + length));
 
 				/* WARNING: push w */
 				w->push(t2);
@@ -174,15 +172,8 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 			} else {
 				break;
 			}
-
-			;;;;;;;;;;;;;;;;;;;;
-			// maybe memory move
-			;;;;;;;;;;;;;;;;;;;;
 		}
-
-		break;
 	} while (0);
-
 	return ret;
 }
 
