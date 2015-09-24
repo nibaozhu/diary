@@ -12,11 +12,13 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 	unsigned int length = 0;
 	int width = 0;
 	char md5sum[MD5SUM_LENGTH + 1];
+	char digestname[] = "md5";
 	int identification0 = 0;
 	int identification1 = 0;
 	int i = 0;
 	char c = 0;
 	static std::map<int, int> *interface = new std::map<int, int>(); // should use multimap
+	void *message = NULL;
 
 	printf("rx = %p, rp = %d\n", t->get_rx(), t->get_rp());
 	t->pr();
@@ -82,12 +84,16 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 			break;
 		}
 
-//		message = malloc(length + 1);
-//		memset(message, 0, sizeof message);
-//		memcpy(message, t->get_rx() + width, sizeof length);
-//		ret = md5sum(message, length);
+		message = malloc(length + 1);
+		memset(message, 0, sizeof message);
+		memcpy(message, t->get_rx() + width, sizeof length);
+		ret = checksum((char *)message, length, md5sum, digestname);
 		if (ret == -1) {
-			return ret;
+			/* WARNING: reset memory */
+			printf("Drop the message, reset memory.\n");
+			t->clear_rx();
+			// return ret;
+			break;
 		}
 
 		if (identification0 == identification1 && identification0 != 0) {
@@ -101,7 +107,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 			/* This is Register Message. */
 			t->set_identification(identification0);
 
-			printf("Echo\n");
+			printf("Echo.\n");
 			if (t->get_rp() >= width) {
 				t->set_wx(t->get_rx(), t->get_rp());
 
@@ -164,10 +170,40 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 	return ret;
 }
 
-int md5sum(const char *ptr, int size) {
+int checksum(const char *ptr, int size, char *md_value_0, char *digestname) {
 	int ret = 0;
-
 	printf("ptr = %p, size =%d\n", ptr, size);
+
+	EVP_MD_CTX *mdctx;
+	const EVP_MD *md;
+	unsigned char md_value[EVP_MAX_MD_SIZE];
+	int md_len, i;
+
+	OpenSSL_add_all_digests();
+	md = EVP_get_digestbyname(digestname);
+	if(!md) {
+		printf("Unknown message digest %s\n", digestname);
+		return -1;
+	}
+
+	mdctx = EVP_MD_CTX_create();
+	EVP_DigestInit_ex(mdctx, md, NULL);
+	EVP_DigestUpdate(mdctx, ptr, size);
+	EVP_DigestFinal_ex(mdctx, md_value, (unsigned int *)&md_len);
+	EVP_MD_CTX_destroy(mdctx);
+
+	printf("Original Digest is: {");
+	for(i = 0; i < strlen(md_value_0); i++) printf("%c", md_value_0[i]);
+	printf("}\n");
+
+	printf("Computed Digest is: {");
+	for(i = 0; i < md_len; i++) printf("%02x", md_value[i]);
+	printf("}\n");
+
+	if (memcmp(md_value_0, md_value, md_len) != 0) {
+		printf("Not Equal!\n");
+		ret = -1;
+	}
 
 	return ret;
 }

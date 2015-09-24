@@ -5,10 +5,11 @@
 #ifndef HANDLE_H
 #define HANDLE_H
 
+#include <openssl/evp.h>
 #include "transport.h"
 
 int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w);
-int md5sum(const char *ptr, int size);
+int checksum(const char *ptr, int size, char *md_value_0, char *digestname);
 
 #define LENGTH (8)
 #define MD5SUM_LENGTH (32)

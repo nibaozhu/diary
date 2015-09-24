@@ -56,7 +56,7 @@ int reads(Transport *t) {
 			break;
 		} else if (ret == 0) {
 			t->set_alive(false);
-			printf("client close\n", fd);
+			printf("Client closed.\n", fd);
 			break;
 		} else if (ret > 0 && ret <= BUFFER_LENGTH) {
 			printf("[%s]\n", buffer);
@@ -199,9 +199,9 @@ int init(int argc, char **argv) {
 			break;
 		}
 
-		printf("Assigning address %s:%u\n", ip, port);
-		printf("Refer to by sockfd = %d as a passive socket\n", listen_sock);
-		printf("Epoll file descriptor = %d\n", epollfd);
+		printf("Assigning address {%s:%u}.\n", ip, port);
+		printf("Refer to by sockfd = %d as a passive socket.\n", listen_sock);
+		printf("Epoll file descriptor = %d.\n", epollfd);
 	} while (0);
 	return ret;
 }
@@ -210,7 +210,7 @@ int uninit(std::map<int, Transport*> *m) {
 	int ret = 0;
 	do {
 		if (listen_sock > 0) {
-			printf("close listen_sock\n");
+			printf("Close listen socket.\n");
 			ret = close(listen_sock);
 			if (ret == -1) {
 				printf("%s(%d)\n", strerror(errno), errno);
@@ -218,7 +218,7 @@ int uninit(std::map<int, Transport*> *m) {
 		}
 
 		if (epollfd > 0) {
-			printf("close epollfd\n");
+			printf("Close epoll socket.\n");
 			ret = close(epollfd);
 			if (ret == -1) {
 				printf("%s(%d)\n", strerror(errno), errno);

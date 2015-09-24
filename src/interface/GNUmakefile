@@ -11,4 +11,4 @@ main.o: main.cc main.h task.h transport.h handle.h
 task.o: task.cc task.h transport.h handle.h version.h
 
 CXXFLAGS=-O0 -g3 -DD -Wno-pointer-arith -funsigned-char
-LDFLAGS=
+LDFLAGS=-lssl
