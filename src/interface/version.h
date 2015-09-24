@@ -3,7 +3,5 @@
  * warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-/*
- * {experimental, unstable, stable}
- */
+/* {experimental, unstable, stable} */
 const char *version = "Version: 1.00(unstable)";
