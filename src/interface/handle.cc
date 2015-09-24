@@ -39,6 +39,10 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 			width += LENGTH;
 		} else {
 			break;
+			/* WARNING: reset memory */
+			printf("Drop the message, reset memory.\n");
+			t->clear_rx();
+			// return ret;
 		}
 
 		if (t->get_rp() >= width + IDENTIFICATION_LENGTH) {
@@ -56,6 +60,10 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 			width += IDENTIFICATION_LENGTH;
 		} else {
 			break;
+			/* WARNING: reset memory */
+			printf("Drop the message, reset memory.\n");
+			t->clear_rx();
+			// return ret;
 		}
 
 		if (t->get_rp() >= width + IDENTIFICATION_LENGTH) {
@@ -73,6 +81,10 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 			width += IDENTIFICATION_LENGTH;
 		} else {
 			break;
+			/* WARNING: reset memory */
+			printf("Drop the message, reset memory.\n");
+			t->clear_rx();
+			// return ret;
 		}
 
 		if (t->get_rp() >= width + MD5SUM_LENGTH) {
@@ -82,12 +94,16 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 			width += MD5SUM_LENGTH;
 		} else {
 			break;
+			/* WARNING: reset memory */
+			printf("Drop the message, reset memory.\n");
+			t->clear_rx();
+			// return ret;
 		}
 
 		message = malloc(length + 1);
 		memset(message, 0, sizeof message);
-		memcpy(message, t->get_rx() + width, sizeof length);
-		ret = checksum((char *)message, length, md5sum, digestname);
+		memcpy(message, t->get_rx() + width, length);
+		ret = checksum(message, length, md5sum, digestname);
 		if (ret == -1) {
 			/* WARNING: reset memory */
 			printf("Drop the message, reset memory.\n");
@@ -142,14 +158,14 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 
 			if (t->get_rp() >= width) {
 				// t->set_wx(t->get_rx(), t->get_rp());
-				t2->set_wx(t->get_rx(), LENGTH + IDENTIFICATION_LENGTH * 2 + MD5SUM_LENGTH + length);
+				t2->set_wx(t->get_rx(), (LENGTH + IDENTIFICATION_LENGTH * 2 + MD5SUM_LENGTH + length));
 
 				/* WARNING: reset memory */
 				// t->clear_rx();
 				memmove(t->get_rx(), 
-					t->get_rx() + LENGTH + IDENTIFICATION_LENGTH * 2 + MD5SUM_LENGTH + length, 
-					t->get_rp() - LENGTH + IDENTIFICATION_LENGTH * 2 + MD5SUM_LENGTH + length);
-				t->set_rp(t->get_rp() - LENGTH + IDENTIFICATION_LENGTH * 2 + MD5SUM_LENGTH + length);
+					t->get_rx() + (LENGTH + IDENTIFICATION_LENGTH * 2 + MD5SUM_LENGTH + length), 
+					t->get_rp() - (LENGTH + IDENTIFICATION_LENGTH * 2 + MD5SUM_LENGTH + length));
+				t->set_rp(t->get_rp() - (LENGTH + IDENTIFICATION_LENGTH * 2 + MD5SUM_LENGTH + length));
 
 				/* WARNING: push w */
 				w->push(t2);
@@ -170,11 +186,12 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 	return ret;
 }
 
-int checksum(const char *ptr, int size, char *md_value_0, char *digestname) {
+int checksum(const void *ptr, int size, char *md_value_0, char *digestname) {
 	int ret = 0;
 	EVP_MD_CTX *mdctx;
 	const EVP_MD *md;
 	unsigned char md_value[EVP_MAX_MD_SIZE];
+	char md_value_x;
 	int md_len, i;
 
 	OpenSSL_add_all_digests();
@@ -190,7 +207,10 @@ int checksum(const char *ptr, int size, char *md_value_0, char *digestname) {
 	EVP_DigestFinal_ex(mdctx, md_value, (unsigned int *)&md_len);
 	EVP_MD_CTX_destroy(mdctx);
 
-	printf("ptr = %p, size = %d\n", ptr, size);
+	puts("string");
+	for (i = 0; i < size; i++) printf("%c", *(char *)((char *)ptr + i));
+	puts("");
+
 	printf("Original Digest is: {");
 	for (i = 0; i < strlen(md_value_0); i++) printf("%c", md_value_0[i]);
 	printf("}\n");
@@ -199,9 +219,29 @@ int checksum(const char *ptr, int size, char *md_value_0, char *digestname) {
 	for (i = 0; i < md_len; i++) printf("%02x", md_value[i]);
 	printf("}\n");
 
-	if (memcmp(md_value_0, md_value, md_len) != 0) {
-		printf("Not Equal!\n");
-		ret = -1;
+	for (i = 0; i < md_len; i++) {
+
+		if (md_value_0[2 * i] >= '0' && md_value_0[2 * i] <= '9') {
+			md_value_0[2 * i] = md_value_0[2 * i] - '0';
+		} else if (md_value_0[2 * i] >= 'a' && md_value_0[2 * i] <= 'f') {
+			md_value_0[2 * i] = md_value_0[2 * i] - 'a' + 0x0a;
+		} else if (md_value_0[2 * i] >= 'A' && md_value_0[2 * i] <= 'F') {
+			md_value_0[2 * i] = md_value_0[2 * i] - 'A' + 0x0a;
+		}
+
+		if (md_value_0[2 * i + 1] >= '0' && md_value_0[2 * i + 1] <= '9') {
+			md_value_0[2 * i + 1] = md_value_0[2 * i + 1] - '0';
+		} else if (md_value_0[2 * i + 1] >= 'a' && md_value_0[2 * i + 1] <= 'f') {
+			md_value_0[2 * i + 1] = md_value_0[2 * i + 1] - 'a' + 0x0a;
+		} else if (md_value_0[2 * i + 1] >= 'A' && md_value_0[2 * i + 1] <= 'F') {
+			md_value_0[2 * i + 1] = md_value_0[2 * i + 1] - 'A' + 0x0a;
+		}
+
+		if (md_value[i] != md_value_0[2 * i] * 0x10 + md_value_0[2 * i + 1]) {
+			printf("Not equal");
+			ret = -1;
+			break;
+		}
 	}
 	return ret;
 }

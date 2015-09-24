@@ -9,7 +9,7 @@
 #include "transport.h"
 
 int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w);
-int checksum(const char *ptr, int size, char *md_value_0, char *digestname);
+int checksum(const void *ptr, int size, char *md_value_0, char *digestname);
 
 #define LENGTH (8)
 #define MD5SUM_LENGTH (32)

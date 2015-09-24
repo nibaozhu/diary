@@ -20,7 +20,7 @@ Transport	transport.h	/^	Transport(int fd, time_t created, struct sockaddr_in pe
 Transport	transport.h	/^class Transport {$/;"	c
 WIDTH	transport.h	22;"	d
 alive	transport.h	/^	bool alive; \/* true: live; false: die *\/$/;"	m	class:Transport
-checksum	handle.cc	/^int checksum(const char *ptr, int size, char *md_value_0, char *digestname) {$/;"	f
+checksum	handle.cc	/^int checksum(const void *ptr, int size, char *md_value_0, char *digestname) {$/;"	f
 clear_rx	transport.h	/^	void *clear_rx(int size = SIZE) {$/;"	f	class:Transport
 clear_wx	transport.h	/^	void *clear_wx(int size = SIZE) {$/;"	f	class:Transport
 conn_sock	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v

@@ -79,6 +79,10 @@ int writes(Transport *t) {
 
 	do {
 		int fd = t->get_fd();
+		if (t->get_wp() <= 0) {
+			break;
+		}
+
 		printf("fd = %d, %s\n", fd, __func__);
 		t->pw();
 
@@ -440,7 +444,7 @@ int task_w(std::queue<Transport*> *w) {
 		t->pw();
 
 		ret = writes(t);
-		if (t->get_rp() == 0) {
+		if (t->get_wp() == 0) {
 			w->pop();
 		}
 		printf("Wrote %d bytes\n", ret);
