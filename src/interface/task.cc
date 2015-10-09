@@ -5,8 +5,8 @@
 #include "task.h"
 #include "version.h"
 
-#define MAX_EVENTS (0xff)
-#define BUFFER_LENGTH (0xff)
+#define MAX_EVENTS (1<<8)
+#define BUFFER_LENGTH (1<<8)
 struct epoll_event ev, events[MAX_EVENTS];
 int listen_sock, conn_sock, nfds, epollfd;
 
@@ -41,51 +41,48 @@ int setnonblocking(int fd) {
 int reads(Transport *t) {
 	int ret = 0;
 	int fd = t->get_fd();
-	if (t == NULL) {
-		printf("t = %p\n", t);
-		return ret;
-	}
+	void *buffer = malloc(BUFFER_LENGTH + 1);
+	size_t rl = 0;
+	time_t t0 = 0, t1 = 0;
+	double speed = 0;
 
-	printf("fd = %d, %s\n", fd, __func__);
-	void *buffer = malloc(SIZE + 1);
+	assert(t != NULL);
+
+	t0 = time(NULL);
 	do {
-		memset(buffer, 0, sizeof buffer);
+		memset(buffer, 0, BUFFER_LENGTH + 1);
 		ret = read(fd, buffer, BUFFER_LENGTH);
 		if (ret < 0) {
 			printf("%s(%d)\n", strerror(errno), errno);
 			break;
 		} else if (ret == 0) {
 			t->set_alive(false);
-			printf("Client active closed.(End of file)\n", fd);
+			printf("Client active closed.(End of File)\n");
 			break;
 		} else if (ret > 0 && ret <= BUFFER_LENGTH) {
-
-#ifdef D
-			printf("{%s}\n", (char *)buffer);
-#endif
-			void *ret_p = t->set_rx(buffer, ret);
-			printf("ret_p = %p\n", ret_p);
+			rl += ret;
+			t->set_rx(buffer, ret);
 			memset(buffer, 0, ret);
-			if (ret != BUFFER_LENGTH) {
-				break;
-			} else if (t->get_rp() >= 1024 * 1024 * 128) {
-				/* GENERATE CORE, WHEN TOO LARGE(>256MB). */
-				printf("get_rp = 0x%08x\n", t->get_rp());
-				exit(1);
+
+			if (ret > 0 && ret < BUFFER_LENGTH) {
 				break;
 			}
 		}
 	} while (1);
+	t1 = time(NULL);
+	if (t1 - t0 <= 0.000001) {
+		speed = -1;
+	} else {
+		speed = rl * 1. / ((t1 - t0) * 1024 * 1024);
+		printf("speed: %0.2f M/s\n", t->set_speed(speed));
+	}
 	free(buffer);
 	return ret;
 }
 
 int writes(Transport *t) {
 	int ret = 0;
-	if (t == NULL) {
-		printf("t = %p\n", t);
-		return ret;
-	}
+	assert(t != NULL);
 
 	do {
 		int fd = t->get_fd();
@@ -103,7 +100,7 @@ int writes(Transport *t) {
 		} else if (ret >= 0 && ret <= t->get_wp()) {
 			/* Moving forward. */
 			printf("ret = %d\n", ret);
-			memmove(t->get_wx(), t->get_wx() + ret, t->get_wp() - ret);
+			memmove(t->get_wx(), (const void *)((char *)t->get_wx() + ret), t->get_wp() - ret);
 			t->set_wp(t->get_wp() - ret);
 		}
 	} while (0);
@@ -119,14 +116,17 @@ void handler(int signum) {
 			break;
 		case SIGUSR1:
 		case SIGUSR2:
+		case SIGSEGV:
+			is_quit = true;
+			break;
 		default:
-			printf("Undefined signal %d\n", signum);
+			puts("Undefined handler.");
 	}
 	return ;
 }
 
 void set_disposition(void) {
-	int arr[] = {SIGINT, SIGUSR1, SIGUSR2, SIGTERM};
+	int arr[] = {SIGINT, SIGUSR1, SIGUSR2, SIGTERM, /* SIGSEGV */ };
 	int i = 0;
 	int signum = 0;
 
@@ -189,7 +189,7 @@ int init(int argc, char **argv) {
 			break;
 		}
 
-		int backlog = 5; /* may be wrong */
+		int backlog = (1<<4);
 		ret = listen(listen_sock, backlog);
 		if (ret == -1) {
 			printf("%s(%d)\n", strerror(errno), errno);
@@ -202,7 +202,7 @@ int init(int argc, char **argv) {
 			break;
 		}
 
-		ev.events = EPOLLIN | EPOLLET; /* epoll edge triggered */
+		ev.events = EPOLLIN | EPOLLET | EPOLLRDHUP; /* epoll edge triggered */
 		ev.data.fd = listen_sock; /* bind & listen's fd */
 		ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, listen_sock, &ev);
 		if (ret == -1) {
@@ -272,6 +272,9 @@ int task(int argc, char **argv) {
 
 int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 	int ret = 0;
+	assert(r != NULL);
+	assert(m != NULL);
+
 	do {
 		struct sockaddr_in peer_addr;
 		socklen_t peer_addrlen = sizeof (struct sockaddr_in);
@@ -299,9 +302,7 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 					break;
 				}
 
-				ev.events = EPOLLET | EPOLLIN | EPOLLRDHUP; /* edge triggered */
-				// ev.events = EPOLLET | EPOLLIN | EPOLLOUT | EPOLLRDHUP; /* edge triggered */
-				// ev.events = EPOLLIN | EPOLLOUT; // epoll level triggered (default)
+				ev.events = EPOLLIN | EPOLLET | EPOLLRDHUP; /* edge triggered */
 				ev.data.fd = acceptfd;
 				ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, acceptfd, &ev);
 				if (ret == -1) {
@@ -310,7 +311,7 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 				}
 
 				printf("Someone connected to me.\n");
-				Transport *t = new Transport(acceptfd, created, peer_addr, peer_addrlen, 32);
+				Transport *t = new Transport(acceptfd, created, peer_addr, peer_addrlen);
 				(*m)[acceptfd] = t;
 
 			} else {
@@ -383,7 +384,7 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 						;
 					}
 
-					/* We need push to queue. */
+					/* Push to queue. */
 					r->push(t);
 				}
 
@@ -410,23 +411,20 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 
 int task_w(std::queue<Transport*> *w) {
 	int ret = 0;
-	if (w == NULL) {
-		is_quit = true;
-		printf("w = %p\n", w);
-		return ret;
-	}
+	Transport *t = NULL;
+	assert(w != NULL);
 
 	/**
 	 *  Returns true if the %queue is empty.
 	 */
 	while (!w->empty()) {
-		Transport *t = w->front();
+		t = w->front();
 		if (t == NULL) {
 			w->pop();
 			continue;
 		}
 
-		printf("wx = %p, wp = %d\n", t->get_wx(), t->get_wp());
+		printf("wx = %p, wp = %u\n", t->get_wx(), t->get_wp());
 		t->pw();
 
 		ret = writes(t);
@@ -441,11 +439,9 @@ int task_w(std::queue<Transport*> *w) {
 int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, Transport*> *m) {
 	int ret = 0;
 	Transport *t = NULL;
-	if (r == NULL) {
-		is_quit = true;
-		printf("r = %p, w = %p, m = %p\n", r, w, m);
-		return ret;
-	}
+	assert(r != NULL);
+	assert(w != NULL);
+	assert(m != NULL);
 
 	/**
 	 *  Returns true if the %queue is empty.

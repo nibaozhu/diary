@@ -5,9 +5,7 @@
 +-----------+-------------------+-------------------+-----------+-----
 | length    | identification0   | identification1   | md5sum    | .../
 ----------------------------------------------------------------------`
-
 Notes:
-Every client has an identification.
-`length', `identification0', `identification1' are hexadecimal-character.
-
-----------------------------------------------------------------------
+1. Every client has an identification.
+2. The `length', `identification0' and `identification1' are
+	hexadecimal-character.

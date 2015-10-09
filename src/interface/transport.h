@@ -5,45 +5,47 @@
 #ifndef TRANSPORT_H
 #define TRANSPORT_H
 
+#include <cassert>
 #include <csignal>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
-#include <stdint.h>
+#include <cstdint>
 
-#include <queue>
 #include <string>
+#include <queue>
 #include <map>
 
 #include <arpa/inet.h>
 
 /* output BYTES bytes per output line */
-#define WIDTH (8)
+#define WIDTH (1<<3)
 
-/* 1024 * 1024 bytes = 1MB */
-#define SIZE (1024*1024)
+/* 1024 bytes = 1KB */
+#define SIZE (1<<10)
 
 class Transport {
 private:
-	int identification; /* auth token */
+	int64_t identification; /* auth token */
 	time_t created; /* the first communication time */
 	time_t updated; /* the lastest communication time */
 	bool alive; /* true: live; false: die */
 	int fd; /* file descriptor */
 	void *rx; /* transport data `Read'  */
 	void *wx; /* transport data `Write' */
-	int rp; /* transport data `Read' pointer position */
-	int wp; /* transport data `Write' pointer position */
-	int rs; /* transport data `Read' size  */
-	int ws; /* transport data `Write' size */
+	size_t rp; /* transport data `Read' pointer position */
+	size_t wp; /* transport data `Write' pointer position */
+	size_t rs; /* transport data `Read' size  */
+	size_t ws; /* transport data `Write' size */
 	double speed; /* bytes per second */
 
 	struct sockaddr_in peer_addr;
 	socklen_t peer_addrlen;
 
 public:
-	Transport(int fd, time_t created, struct sockaddr_in peer_addr, socklen_t peer_addrlen, int size = SIZE) {
+	Transport(int fd, time_t created, struct sockaddr_in peer_addr, socklen_t peer_addrlen, size_t size = SIZE) {
+		assert(size > 0);
 		memset(this, 0, sizeof *this);
 
 		this->created = created;
@@ -53,22 +55,25 @@ public:
 		this->peer_addr = peer_addr;
 		this->peer_addrlen = peer_addrlen;
 
-		if (size <= 0) {
-			size = SIZE;
-		}
 		this->rs = size;
 		this->ws = size;
+
 		this->rx = malloc(this->rs);
+		assert(this->rx != NULL);
+
 		this->wx = malloc(this->ws);
+		assert(this->wx != NULL);
+
 		memset(this->rx, 0, this->rs);
 		memset(this->wx, 0, this->ws);
 	}
 
-	int set_identification(int identification) {
+	int64_t set_identification(int64_t identification) {
+		this->created = time(NULL);
 		return this->identification = identification;
 	}
 
-	int get_identification(void) {
+	int64_t get_identification(void) {
 		return this->identification;
 	}
 
@@ -80,95 +85,104 @@ public:
 		return this->fd;
 	}
 
-	int set_rp(int rp) {
+	size_t set_rp(size_t rp) {
 		return this->rp = rp;
 	}
 
-	int get_rp(void) {
+	size_t get_rp(void) {
 		return this->rp;
 	}
 
-	int set_wp(int wp) {
+	size_t set_wp(size_t wp) {
 		return this->wp = wp;
 	}
 
-	int get_wp(void) {
+	size_t get_wp(void) {
 		return this->wp;
 	}
 
-	void *set_rx(void *rx, int rs) {
+	void *set_rx(const void *rx, size_t rs) {
 		while (rs >= this->rs - this->rp) {
-			static int x1 = 0;
-			printf("realloc %p %d, x1 = %d\n", this->rx, this->rs, x1++);
-			this->rx = realloc(this->rx, this->rs * 2);
+			printf("rs = 0x%lx, this->rp = 0x%lx, this->rs = 0x%lx, this->rx = %p\n",
+				rs, this->rp, this->rs, this->rx);
+			assert(this->rs > 0);
+			this->rx = realloc(this->rx, this->rs << 1);
 			if (this->rx == NULL) {
-				printf("MAYBE Out of memory.\n");
+				printf("The request fails that changes the size of the memory block.\n");
 				return this->rx;
 			} else {
-				this->rs *= 2;
-				memset(this->rx + this->rp, 0, this->rs - this->rp);
+				this->rs <<= 1;
+				memset((void *)((char *)this->rx + this->rp), 0, this->rs - this->rp);
 			}
 		}
-		memcpy(this->rx + this->rp, rx, rs);
+		memcpy((void *)((char *)this->rx + this->rp), rx, rs);
 		this->rp += rs;
-		return this->rx + this->rp;
+		this->updated = time(NULL);
+		return (void *)((char *)this->rx + this->rp);
 	}
 
-	void *clear_rx(int size = SIZE) {
-		if (size <= 0) {
-			size = SIZE;
-		}
+	void *clear_rx(size_t size = SIZE) {
+		assert(size > 0);
 		memset(this->rx, 0, sizeof this->rp);
 		this->rx = realloc(this->rx, size);
 		this->rp = 0;
+		this->rs = size;
+		this->updated = time(NULL);
+		return this->rx;
 	}
 
 	void *get_rx(void) {
 		return this->rx;
 	}
 
-	void *set_wx(void *wx, int ws) {
+	void *set_wx(const void *wx, size_t ws) {
 		while (ws >= this->ws - this->wp) {
-			printf("realloc %p %d\n", this->wx, this->ws);
-			this->wx = realloc(this->wx, this->ws * 2);
+			printf("ws = 0x%lx, this->wp = 0x%lx, this->ws = 0x%lx, this->wx = %p\n",
+				ws, this->wp, this->ws, this->wx);
+			assert(this->ws > 0);
+			this->wx = realloc(this->wx, this->ws << 1);
 			if (this->wx == NULL) {
+				printf("The request fails that changes the size of the memory block.\n");
 				return this->wx;
 			} else {
-				this->ws *= 2;
-				memset(this->wx + this->wp, 0, this->ws - this->wp);
+				this->ws <<= 1;
+				memset((void *)((char *)this->wx + this->wp), 0, this->ws - this->wp);
 			}
 		}
-		memcpy(this->wx + this->wp, wx, ws);
+		memcpy((void *)((char *)this->wx + this->wp), wx, ws);
 		this->wp += ws;
-		return this->wx + this->wp;
+		this->updated = time(NULL);
+		return (void *)((char *)this->wx + this->wp);
 	}
 
-	void *clear_wx(int size = SIZE) {
-		if (size <= 0) {
-			size = SIZE;
-		}
+	void *clear_wx(size_t size = SIZE) {
 		memset(this->wx, 0, sizeof this->wp);
+		assert(size > 0);
 		this->wx = realloc(this->wx, size);
+		assert(this->wx != NULL);
 		this->wp = 0;
+		this->ws = size;
+		this->updated = time(NULL);
+		return this->wx;
 	}
 
 	void *get_wx(void) {
 		return this->wx;
 	}
 
-	int set_rs(int rs) {
+	size_t set_rs(size_t rs) {
 		return this->rs = rs;
 	}
 
-	int get_rs(void) {
+	size_t get_rs(void) {
 		return this->rs;
 	}
 
-	int set_ws(int ws) {
+	size_t set_ws(size_t ws) {
 		return this->ws = ws;
 	}
 
-	int get_ws(void) {
+	size_t get_ws(void) {
 		return this->ws;
 	}
 
@@ -180,21 +194,29 @@ public:
 		return this->alive;
 	}
 
-	void pr(int width = WIDTH, bool b0 = false) {
-		int i = 0;
+	double set_speed(double speed) {
+		return this->speed = speed;
+	}
+
+	double get_speed(void) {
+		return this->speed;
+	}
+
+	void pr(size_t width = WIDTH, bool b0 = false) {
+		size_t i = 0;
 		if (width <= 0 || width > 1024) {
 			width = WIDTH;
 		}
 
-#ifdef D
+#if 0
 		printf("--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
 		while (i < this->rp) {
 			if (i % width == 0) {
-				printf("%p ", this->rx + i);
+				printf("%p ", (void *)((char *)this->rx + i));
 			}
-			printf(" 0x%02x", *(char*)(this->rx + i));
+			printf(" 0x%02x", *((char*)this->rx + i));
 			if (b0) {
-				printf(" %c", *(char*)(this->rx + i));
+				printf(" %c", *((char*)this->rx + i));
 			}
 
 			i++;
@@ -207,20 +229,21 @@ public:
 		return ;
 	}
 
-	void pw(int width = WIDTH, bool b0 = false) {
-		int i = 0;
+	void pw(size_t width = WIDTH, bool b0 = false) {
+		size_t i = 0;
 		if (width <= 0 || width > 1024) {
 			width = WIDTH;
 		}
 
+#if 0
 		printf("--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
 		while (i < this->wp) {
 			if (i % width == 0) {
-				printf("%p ", this->wx + i);
+				printf("%p ", (void *)((char *)this->wx + i));
 			}
-			printf(" 0x%02x", *(char*)(this->wx + i));
+			printf(" 0x%02x", *((char*)this->wx + i));
 			if (b0) {
-				printf(" %c", *(char*)(this->rx + i));
+				printf(" %c", *((char*)this->rx + i));
 			}
 
 			i++;
@@ -229,18 +252,13 @@ public:
 			}
 		}
 		puts("\n--- end ---");
+#endif
 		return ;
 	}
 
 	~Transport() {
 		free(this->rx);
 		free(this->wx);
-		printf( "fd = %d, %s\n"
-				"rx = %p, %f%% (%d / %d)\n"
-				"wx = %p, %f%% (%d / %d)\n", 
-				this->fd, __func__, 
-				this->rx, 100. * this->rp / this->rs, this->rp, this->rs, 
-				this->wx, 100. * this->wp / this->ws, this->wp, this->ws);
 		memset(this, 0, sizeof *this);
 	}
 };
