@@ -17,6 +17,9 @@ bool is_quit;
 short int port = 12340;
 char ip[3 + 1 + 3 + 1 + 3 + 1 + 3 + 1] = "0.0.0.0";
 
+#include "logging.h"
+struct logging *l;
+
 int setnonblocking(int fd) {
 	int ret = 0;
 	printf("%s:%d:%s\n", __FILE__, __LINE__, __func__);
@@ -97,7 +100,7 @@ int writes(Transport *t) {
 		if (ret < 0) {
 			printf("%s(%d)\n", strerror(errno), errno);
 			break;
-		} else if (ret >= 0 && ret <= t->get_wp()) {
+		} else if (ret >= 0 && (size_t)ret <= t->get_wp()) {
 			/* Moving forward. */
 			printf("ret = %d\n", ret);
 			memmove(t->get_wx(), (const void *)((char *)t->get_wx() + ret), t->get_wp() - ret);
@@ -127,7 +130,7 @@ void handler(int signum) {
 
 void set_disposition(void) {
 	int arr[] = {SIGINT, SIGUSR1, SIGUSR2, SIGTERM, /* SIGSEGV */ };
-	int i = 0;
+	size_t i = 0;
 	int signum = 0;
 
 	for (i = 0; i < sizeof arr / sizeof (int); i++) {
@@ -162,6 +165,51 @@ int init(int argc, char **argv) {
 					printf("Example: ip = %s, port = %d\n", ip, port);
 					exit(0);
 			}
+		}
+
+		l = (struct logging*) malloc(sizeof (struct logging));
+		memset(l, 0, sizeof *l);
+
+		char *name;
+		name = rindex(argv[0], '/');
+		if (name == NULL)
+		{
+			strncpy(l->name, argv[0], sizeof l->name - 1);
+		}
+		else
+		{
+			strncpy(l->name, name + 1, sizeof l->name - 1);
+		}
+
+		struct timeval t0;
+		// gettimeofday() gives the number of seconds and microseconds since the Epoch (see time(2)).
+		gettimeofday(&t0, NULL);
+
+		// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
+		//	on January 1, 1970, Coordinated Universal Time (UTC).
+		localtime_r(&t0.tv_sec, &l->t0);
+
+		struct tm t2;
+		t2.tm_year = 0;
+		t2.tm_mon = 0;
+		t2.tm_mday = 0;
+		t2.tm_hour = 0;
+		t2.tm_min = 0;
+		t2.tm_sec = 5;
+
+		l->diff = t2.tm_sec + t2.tm_min * 60 + t2.tm_hour * 60 * 60 + t2.tm_mday * 60 * 60 * 24 + t2.tm_mon * 60 * 60 * 24 * 30 + t2.tm_year * 60 * 60 * 24 * 30 * 365;
+		l->pid = getpid();
+		l->cache_max = 23;
+		l->size_max = 1024*1024*1; // 1MB
+		strncpy(l->path, "../../log", sizeof l->path - 1);
+		strncpy(l->mode, "w+", sizeof l->mode - 1);
+		l->stream_level = debug;
+		l->stdout_level = debug;
+
+		ret = initializing();
+		if (ret == EXIT_FAILURE)
+		{
+			return EXIT_FAILURE;
 		}
 
 		is_quit = false;
@@ -424,7 +472,7 @@ int task_w(std::queue<Transport*> *w) {
 			continue;
 		}
 
-		printf("wx = %p, wp = %u\n", t->get_wx(), t->get_wp());
+		printf("wx = %p, wp = %lu\n", t->get_wx(), t->get_wp());
 		t->pw();
 
 		ret = writes(t);

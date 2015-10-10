@@ -216,12 +216,12 @@ public:
 	}
 
 	void pr(size_t width = WIDTH, bool b0 = false) {
-		size_t i = 0;
 		if (width <= 0 || width > 1024) {
 			width = WIDTH;
 		}
-
+		assert(b0 == false);
 #if 0
+		size_t i = 0;
 		printf("--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
 		while (i < this->rp) {
 			if (i % width == 0) {
@@ -243,12 +243,12 @@ public:
 	}
 
 	void pw(size_t width = WIDTH, bool b0 = false) {
-		size_t i = 0;
 		if (width <= 0 || width > 1024) {
 			width = WIDTH;
 		}
-
+		assert(b0 == false);
 #if 0
+		size_t i = 0;
 		printf("--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
 		while (i < this->wp) {
 			if (i % width == 0) {

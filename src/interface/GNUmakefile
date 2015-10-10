@@ -7,8 +7,11 @@ i1: handle.o main.o task.o
 	$(CXX) -o $@ $^ $(LDFLAGS) && ctags *
 
 handle.o: handle.cc handle.h transport.h
-main.o: main.cc main.h task.h transport.h handle.h
-task.o: task.cc task.h transport.h handle.h version.h
+main.o: main.cc main.h task.h transport.h handle.h \
+ ../../include/logging.h
+task.o: task.cc task.h transport.h handle.h ../../include/logging.h \
+ version.h
 
-CXXFLAGS=-O0 -UNDEBUG -funsigned-char -g -std=c++0x
+CPPFLAGS=-I ../../include
+CXXFLAGS=-O0 -UNDEBUG -funsigned-char -g -std=c++0x -Wall -Wextra
 LDFLAGS=-lssl

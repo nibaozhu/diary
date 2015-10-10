@@ -10,7 +10,7 @@
 int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w) {
 	int ret = 0;
 	unsigned int length = 0;
-	int width = 0;
+	size_t width = 0;
 	char md5sum[MD5SUM_LENGTH + 1];
 	char digestname[] = "md5";
 	char source[ID_LENGTH + 1];
@@ -130,7 +130,6 @@ int checksum(const void *ptr, int size, char *md_value_0, char *digestname) {
 	EVP_MD_CTX *mdctx;
 	const EVP_MD *md;
 	unsigned char md_value[EVP_MAX_MD_SIZE];
-	char md_value_x;
 	int md_len, i;
 
 	OpenSSL_add_all_digests();
