@@ -1,11 +1,9 @@
 ----------------------------------------------------------------------
 /* transport control layer */
-----------------------------------------------------------------------.
-| 8 byte    | 8 byte            | 8 byte            | 32 byte   | .../
-+-----------+-------------------+-------------------+-----------+-----
-| length    | identification0   | identification1   | md5sum    | .../
-----------------------------------------------------------------------`
++--------+--------+-------------+---------+---------------------------.
+| 8 byte | 8 byte | 8 byte      | 32 byte | .../
++--------+--------+-------------+---------+---------------------------
+| length | source | destination | md5sum  | .../
++--------+--------+-------------+---------+---------------------------`
 Notes:
-1. Every client has an identification.
-2. The `length', `identification0' and `identification1' are
-	hexadecimal-character.
+1. `length', `source' and `destination' are hexadecimal-character.

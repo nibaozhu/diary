@@ -13,10 +13,10 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 	int width = 0;
 	char md5sum[MD5SUM_LENGTH + 1];
 	char digestname[] = "md5";
-	char id0[ID_LENGTH + 1];
-	char id1[ID_LENGTH + 1];
-	memset(id0, 0, sizeof id0);
-	memset(id1, 0, sizeof id1);
+	char source[ID_LENGTH + 1];
+	char destination[ID_LENGTH + 1];
+	memset(source, 0, sizeof source);
+	memset(destination, 0, sizeof destination);
 	int i = 0;
 	char c = 0;
 	std::string id;
@@ -46,8 +46,8 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 		}
 
 		if (t->get_rp() >= width + ID_LENGTH) {
-			strncpy(id0, (char*)t->get_rx() + width, ID_LENGTH);
-			printf("id0 = \"%s\", id = \"%s\"\n", id0, t->get_id().c_str());
+			strncpy(source, (char*)t->get_rx() + width, ID_LENGTH);
+			printf("source = \"%s\", id = \"%s\"\n", source, t->get_id().c_str());
 			width += ID_LENGTH;
 		} else {
 			/* Back to wait message. */
@@ -56,8 +56,8 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 		}
 
 		if (t->get_rp() >= width + ID_LENGTH) {
-			strncpy(id1, (char*)t->get_rx() + width, ID_LENGTH);
-			printf("id1 = \"%s\", id = \"%s\"\n", id1, t->get_id().c_str());
+			strncpy(destination, (char*)t->get_rx() + width, ID_LENGTH);
+			printf("destination = \"%s\", id = \"%s\"\n", destination, t->get_id().c_str());
 			width += ID_LENGTH;
 		} else {
 			/* Wait message */
@@ -90,12 +90,12 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 			}
 		}
 
-		if (strncmp(id0, id1, sizeof id0) == 0 && strlen(id0) > 0) {
+		if (strncmp(source, destination, sizeof source) == 0 && strlen(source) > 0) {
 			printf("Echo.\n");
 			interface->erase(t->get_id());
-			t->set_id(id0);
+			t->set_id(source);
 			(*interface)[t->get_id()] = t->get_fd();
-			t->set_id(id0);
+			t->set_id(source);
 			if (t->get_rp() >= width) {
 				t->set_wx(t->get_rx(), t->get_rp());
 				t->clear_rx();
@@ -105,10 +105,10 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 			}
 		} else if (t->get_rp() >= width + length) {
 			printf("Message complete, width + length = 0x%lx, rp = 0x%lx\n", width + length, t->get_rp());
-			id = id1;
+			id = destination;
 			Transport *t2 = (*m)[(*interface)[id]];
 			if (t2 == NULL) {
-				printf("Back to wait id = \"%s\"\n", id1);
+				printf("Back to wait id = \"%s\"\n", destination);
 				break;
 			}
 
