@@ -5,7 +5,7 @@
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
 BUFFER_LENGTH	task.cc	9;"	d	file:
-CPPFLAGS	GNUmakefile	/^CPPFLAGS=-I ..\/..\/include$/;"	m
+CPPFLAGS	GNUmakefile	/^CPPFLAGS=$/;"	m
 CXXFLAGS	GNUmakefile	/^CXXFLAGS=-O0 -UNDEBUG -funsigned-char -g -std=c++0x -Wall -Wextra$/;"	m
 HANDLE_H	handle.h	6;"	d
 ID_LENGTH	transport.h	30;"	d
@@ -46,7 +46,6 @@ id	transport.h	/^	std::string id; \/* id.size() = ID_LENGTH *\/$/;"	m	class:Tran
 init	task.cc	/^int init(int argc, char **argv) {$/;"	f
 ip	task.cc	/^char ip[3 + 1 + 3 + 1 + 3 + 1 + 3 + 1] = "0.0.0.0";$/;"	v
 is_quit	task.cc	/^bool is_quit;$/;"	v
-l	task.cc	/^struct logging *l;$/;"	v	typeref:struct:logging
 listen_sock	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
 main	main.cc	/^int main(int argc, char **argv) {$/;"	f
 nfds	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v

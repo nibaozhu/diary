@@ -17,9 +17,6 @@ bool is_quit;
 short int port = 12340;
 char ip[3 + 1 + 3 + 1 + 3 + 1 + 3 + 1] = "0.0.0.0";
 
-#include "logging.h"
-struct logging *l;
-
 int setnonblocking(int fd) {
 	int ret = 0;
 	printf("%s:%d:%s\n", __FILE__, __LINE__, __func__);
@@ -167,57 +164,12 @@ int init(int argc, char **argv) {
 			}
 		}
 
-		l = (struct logging*) malloc(sizeof (struct logging));
-		memset(l, 0, sizeof *l);
-
-		char *name;
-		name = rindex(argv[0], '/');
-		if (name == NULL)
-		{
-			strncpy(l->name, argv[0], sizeof l->name - 1);
-		}
-		else
-		{
-			strncpy(l->name, name + 1, sizeof l->name - 1);
-		}
-
-		struct timeval t0;
-		// gettimeofday() gives the number of seconds and microseconds since the Epoch (see time(2)).
-		gettimeofday(&t0, NULL);
-
-		// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
-		//	on January 1, 1970, Coordinated Universal Time (UTC).
-		localtime_r(&t0.tv_sec, &l->t0);
-
-		struct tm t2;
-		t2.tm_year = 0;
-		t2.tm_mon = 0;
-		t2.tm_mday = 0;
-		t2.tm_hour = 0;
-		t2.tm_min = 0;
-		t2.tm_sec = 5;
-
-		l->diff = t2.tm_sec + t2.tm_min * 60 + t2.tm_hour * 60 * 60 + t2.tm_mday * 60 * 60 * 24 + t2.tm_mon * 60 * 60 * 24 * 30 + t2.tm_year * 60 * 60 * 24 * 30 * 365;
-		l->pid = getpid();
-		l->cache_max = 23;
-		l->size_max = 1024*1024*1; // 1MB
-		strncpy(l->path, "../../log", sizeof l->path - 1);
-		strncpy(l->mode, "w+", sizeof l->mode - 1);
-		l->stream_level = debug;
-		l->stdout_level = debug;
-
-		ret = initializing();
-		if (ret == EXIT_FAILURE)
-		{
-			ret = -1;
-			break;
-		}
-
 		is_quit = false;
 		set_disposition();
 		listen_sock = socket(AF_INET, SOCK_STREAM, 0);
 		if (listen_sock < 0) {
 			printf("%s(%d)\n", strerror(errno), errno);
+			ret = -1;
 			break;
 		}
 
@@ -228,6 +180,7 @@ int init(int argc, char **argv) {
 		ret = inet_pton(AF_INET, ip, (struct sockaddr *) &addr.sin_addr.s_addr);
 		if (ret != 1) {
 			printf("%s(%d)\n", strerror(errno), errno);
+			ret = -1;
 			break;
 		}
 
@@ -248,6 +201,7 @@ int init(int argc, char **argv) {
 		epollfd = epoll_create(MAX_EVENTS);
 		if (epollfd == -1) {
 			printf("%s(%d)\n", strerror(errno), errno);
+			ret = -1;
 			break;
 		}
 

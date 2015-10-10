@@ -83,11 +83,14 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 			ret = checksum(message, length, md5sum, digestname);
 			if (ret == -1) {
 				printf("checksum FAIL\n");
-
 				t->clear_rx();
-				/* Back to wait message. */
+				/* Back to wait other message. */
 				break;
 			}
+		} else {
+			/* Wait message */
+			/* Back to wait message. */
+			break;
 		}
 
 		if (strncmp(source, destination, sizeof source) == 0 && strlen(source) > 0) {
