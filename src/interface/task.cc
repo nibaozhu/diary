@@ -209,7 +209,8 @@ int init(int argc, char **argv) {
 		ret = initializing();
 		if (ret == EXIT_FAILURE)
 		{
-			return EXIT_FAILURE;
+			ret = -1;
+			break;
 		}
 
 		is_quit = false;
