@@ -8,6 +8,10 @@
 #ifndef _LOGGING_H
 #define _LOGGING_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <linux/limits.h>
 #include <sys/types.h>
 #include <sys/time.h>
@@ -82,8 +86,9 @@ struct logging {
 };
 
 extern struct logging *l;
+int sysdate(char *str);
 
-int pflush()
+int pflush(void)
 {
 #ifdef DEBUG
 	fprintf(stdout, "%s %s:%d: %s: %s, fflush, l->stream = %p, l->cache= %u, l->cache_max = %u\n",
@@ -168,7 +173,7 @@ int pflush()
 	return EXIT_SUCCESS;
 }
 
-int plog(enum elevel x, char *fmt, ...)
+int plog(enum elevel x, const char *fmt, ...)
 {
 #ifdef DEBUG
 	fprintf(stdout, "%s %s:%d: %s: %s, l = %p\n",
@@ -305,6 +310,8 @@ int initializing(void)
 	fprintf(stdout, "%s %s:%d: %s: %s\n", level[debug], __FILE__, __LINE__, __func__, "passed");
 #endif
 
+	// print the program name , pid, release
+	plog(info, "PROGRAM: %s, PID: %u, RELEASE: %s %s\n", l->name, l->pid, __DATE__, __TIME__);
 	return EXIT_SUCCESS;
 }
 
@@ -381,5 +388,9 @@ int sysdate(char *str)
 	return snprintf(str, size, "%04d-%02d-%02d %02d:%02d:%02d.%06ld", 
 				t0.tm_year + 1900, t0.tm_mon + 1, t0.tm_mday, t0.tm_hour, t0.tm_min, t0.tm_sec, t1.tv_usec);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // logging.h
