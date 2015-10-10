@@ -13,11 +13,14 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 	int width = 0;
 	char md5sum[MD5SUM_LENGTH + 1];
 	char digestname[] = "md5";
-	int identification0 = 0;
-	int identification1 = 0;
+	char id0[ID_LENGTH + 1];
+	char id1[ID_LENGTH + 1];
+	memset(id0, 0, sizeof id0);
+	memset(id1, 0, sizeof id1);
 	int i = 0;
 	char c = 0;
-	static std::map<int, int> *interface = new std::map<int, int>(); // should use multimap
+	std::string id;
+	static std::map<std::string, int> *interface = new std::map<std::string, int>(); // maybe should use multimap
 	void *message = NULL;
 
 	printf("rx = %p, rp = 0x%lx\n", t->get_rx(), t->get_rp());
@@ -35,65 +38,41 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 					length = length * 0x10 + (c - 'A' + 0x0a);
 				}
 			}
-			printf("i2.length = 0x%08x\n", length);
+			printf("i8.length = 0x%08x\n", length);
 			width += LENGTH;
 		} else {
-			break;
-			/* WARNING: reset memory */
-			printf("Drop message, reset memory.\n");
-			t->clear_rx();
-			// return ret;
-		}
-
-		if (t->get_rp() >= width + IDENTIFICATION_LENGTH) {
-			for (i = 0; i < IDENTIFICATION_LENGTH; i++) {
-				c = *((char*)t->get_rx() + width + i);
-				if (c >= '0' && c <= '9') {
-					identification0 = identification0 * 0x10 + (c - '0' + 0x00);
-				} else if (c >= 'a' && c <= 'f') {
-					identification0 = identification0 * 0x10 + (c - 'a' + 0x0a);
-				} else if (c >= 'A' && c <= 'F') {
-					identification0 = identification0 * 0x10 + (c - 'A' + 0x0a);
-				}
-			}
-			printf("identification0 = 0x%08x, identification = 0x%08x\n", identification0, t->get_identification());
-			width += IDENTIFICATION_LENGTH;
-		} else {
-			/* WARNING: reset memory */
-			printf("Drop message, reset memory.\n");
-			t->clear_rx();
+			/* Back to wait message. */
 			break;
 		}
 
-		if (t->get_rp() >= width + IDENTIFICATION_LENGTH) {
-			for (i = 0; i < IDENTIFICATION_LENGTH; i++) {
-				c = *((char*)t->get_rx() + width + i);
-				if (c >= '0' && c <= '9') {
-					identification1 = identification1 * 0x10 + (c - '0' + 0x00);
-				} else if (c >= 'a' && c <= 'f') {
-					identification1 = identification1 * 0x10 + (c - 'a' + 0x0a);
-				} else if (c >= 'A' && c <= 'F') {
-					identification1 = identification1 * 0x10 + (c - 'A' + 0x0a);
-				}
-			}
-			printf("identification1 = 0x%08x, identification = 0x%08x\n", identification1, t->get_identification());
-			width += IDENTIFICATION_LENGTH;
+		if (t->get_rp() >= width + ID_LENGTH) {
+			strncpy(id0, (char*)t->get_rx() + width, ID_LENGTH);
+			printf("id0 = \"%s\", id = \"%s\"\n", id0, t->get_id().c_str());
+			width += ID_LENGTH;
 		} else {
-			/* WARNING: reset memory */
-			printf("Drop message, reset memory.\n");
-			t->clear_rx();
+			/* Back to wait message. */
+			/* Wait message */
+			break;
+		}
+
+		if (t->get_rp() >= width + ID_LENGTH) {
+			strncpy(id1, (char*)t->get_rx() + width, ID_LENGTH);
+			printf("id1 = \"%s\", id = \"%s\"\n", id1, t->get_id().c_str());
+			width += ID_LENGTH;
+		} else {
+			/* Wait message */
+			/* Back to wait message. */
 			break;
 		}
 
 		if (t->get_rp() >= width + MD5SUM_LENGTH) {
 			memset(md5sum, 0, sizeof md5sum);
 			memcpy(md5sum, (const void *)((char *)t->get_rx() + width), MD5SUM_LENGTH);
-			printf("i2.md5sum = {%s}\n", md5sum);
+			printf("i2.md5sum = \"%s\"\n", md5sum);
 			width += MD5SUM_LENGTH;
 		} else {
-			/* WARNING: reset memory */
-			printf("Drop message, reset memory.\n");
-			t->clear_rx();
+			/* Wait message */
+			/* Back to wait message. */
 			break;
 		}
 
@@ -103,68 +82,40 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 			memcpy(message, (const void *)((char *)t->get_rx() + width), length);
 			ret = checksum(message, length, md5sum, digestname);
 			if (ret == -1) {
-				/* WARNING: reset memory */
-				printf("Drop message, reset memory.\n");
+				printf("checksum FAIL\n");
+
 				t->clear_rx();
-				// return ret;
+				/* Back to wait message. */
 				break;
 			}
 		}
 
-		if (identification0 == identification1 && identification0 != 0) {
-
-			/* Remove old identification. */
-			interface->erase(t->get_identification());
-
-			/* Insert into interface. */
-			(*interface)[identification0] = t->get_fd();
-
-			/* This is Register Message. */
-			t->set_identification(identification0);
-
+		if (strncmp(id0, id1, sizeof id0) == 0 && strlen(id0) > 0) {
 			printf("Echo.\n");
+			interface->erase(t->get_id());
+			t->set_id(id0);
+			(*interface)[t->get_id()] = t->get_fd();
+			t->set_id(id0);
 			if (t->get_rp() >= width) {
 				t->set_wx(t->get_rx(), t->get_rp());
-
-				/* WARNING: reset memory */
 				t->clear_rx();
-
-				/* WARNING: push w */
 				w->push(t);
-
-				// t->set_wp(t->get_wp() + width);
 			} else {
 				break;
 			}
-
-			;;;;;;;;;;;;;;;;;;;;
-			// maybe memory move
-			;;;;;;;;;;;;;;;;;;;;
 		} else if (t->get_rp() >= width + length) {
-			printf("Message complete, 0x%lx, 0x%lx\n", width + length, t->get_rp());
-			/* This is complete Message. */
-
-			/* Find transport, according to identification1. */
-			// temporarily ignore
-			// t->set_identification(identification1); // maybe wrong
-
-			// fd = (*interface)[identification1];
-			Transport *t2 = (*m)[(*interface)[identification1]];
+			printf("Message complete, width + length = 0x%lx, rp = 0x%lx\n", width + length, t->get_rp());
+			id = id1;
+			Transport *t2 = (*m)[(*interface)[id]];
 			if (t2 == NULL) {
-				printf("Waiting identification = 0x%lx\n", identification1);
-				break; // maybe wrong
+				printf("Back to wait id = \"%s\"\n", id1);
+				break;
 			}
 
 			if (t->get_rp() >= width) {
 				t2->set_wx(t->get_rx(), (width + length));
-
-				/* WARNING: reset memory */
-				// t->clear_rx();
-
 				memmove(t->get_rx(), (const void *)((char *)t->get_rx() + (width + length)), t->get_rp() - (width + length));
 				t->set_rp(t->get_rp() - (width + length));
-
-				/* WARNING: push w */
 				w->push(t2);
 			} else {
 				break;

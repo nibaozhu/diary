@@ -11,9 +11,5 @@
 int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w);
 int checksum(const void *ptr, int size, char *md_value_0, char *digestname);
 
-#define LENGTH (8)
-#define MD5SUM_LENGTH (32)
-#define IDENTIFICATION_LENGTH (8)
-
 #endif
 
