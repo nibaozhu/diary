@@ -144,6 +144,7 @@ void set_disposition(void) {
 }
 
 int init(int argc, char **argv) {
+	srand(getpid());
 	int ret = 0;
 	do {
 		const char *optstring = "hvi:p:";

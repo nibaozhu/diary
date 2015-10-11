@@ -110,6 +110,12 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 		} else if (t->get_rp() >= width + length) {
 			plog(notice, "Message complete, width + length = 0x%lx, rp = 0x%lx\n", width + length, t->get_rp());
 			id = destination;
+			if (t->get_id() != id) {
+				plog(error, "Non self id. (%s, %s)\n", t->get_id().c_str(), id.c_str());
+				t->clear_rx();
+				break;
+			}
+
 			Transport *t2 = (*m)[(*interface)[id]];
 			if (t2 == NULL) {
 				plog(info, "Back to wait id = \"%s\"\n", destination);

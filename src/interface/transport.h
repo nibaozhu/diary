@@ -52,7 +52,11 @@ public:
 	Transport(int fd, time_t created, struct sockaddr_in peer_addr, socklen_t peer_addrlen, size_t size = SIZE) {
 		assert(size > 0);
 
-		this->id = "12345678";
+		char id[ID_LENGTH + 1];
+		memset(id, 0, sizeof id);
+		sprintf(id, "%08x", rand());
+		this->id = id;
+
 		this->created = created;
 		this->updated = this->created;
 
