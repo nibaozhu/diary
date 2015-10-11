@@ -4,6 +4,7 @@
  */
 #include "handle.h"
 
+
 /*
  * %t: ....
  */
@@ -23,7 +24,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 	static std::map<std::string, int> *interface = new std::map<std::string, int>(); // maybe should use multimap
 	void *message = NULL;
 
-	printf("rx = %p, rp = 0x%lx\n", t->get_rx(), t->get_rp());
+	plog(debug, "rx = %p, rp = 0x%lx\n", t->get_rx(), t->get_rp());
 	t->pr();
 	do {
 
@@ -38,7 +39,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 					length = length * 0x10 + (c - 'A' + 0x0a);
 				}
 			}
-			printf("i8.length = 0x%08x\n", length);
+			plog(debug, "i8.length = 0x%08x\n", length);
 			width += LENGTH;
 		} else {
 			/* Back to wait message. */
@@ -47,7 +48,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 
 		if (t->get_rp() >= width + ID_LENGTH) {
 			strncpy(source, (char*)t->get_rx() + width, ID_LENGTH);
-			printf("source = \"%s\", id = \"%s\"\n", source, t->get_id().c_str());
+			plog(debug, "source = \"%s\", id = \"%s\"\n", source, t->get_id().c_str());
 			width += ID_LENGTH;
 		} else {
 			/* Back to wait message. */
@@ -57,7 +58,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 
 		if (t->get_rp() >= width + ID_LENGTH) {
 			strncpy(destination, (char*)t->get_rx() + width, ID_LENGTH);
-			printf("destination = \"%s\", id = \"%s\"\n", destination, t->get_id().c_str());
+			plog(debug, "destination = \"%s\", id = \"%s\"\n", destination, t->get_id().c_str());
 			width += ID_LENGTH;
 		} else {
 			/* Wait message */
@@ -68,7 +69,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 		if (t->get_rp() >= width + MD5SUM_LENGTH) {
 			memset(md5sum, 0, sizeof md5sum);
 			memcpy(md5sum, (const void *)((char *)t->get_rx() + width), MD5SUM_LENGTH);
-			printf("i2.md5sum = \"%s\"\n", md5sum);
+			plog(debug, "i2.md5sum = \"%s\"\n", md5sum);
 			width += MD5SUM_LENGTH;
 		} else {
 			/* Wait message */
@@ -82,7 +83,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 			memcpy(message, (const void *)((char *)t->get_rx() + width), length);
 			ret = checksum(message, length, md5sum, digestname);
 			if (ret == -1) {
-				printf("checksum FAIL\n");
+				plog(debug, "checksum FAIL\n");
 				t->clear_rx();
 				/* Back to wait other message. */
 				break;
@@ -94,7 +95,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 		}
 
 		if (strncmp(source, destination, sizeof source) == 0 && strlen(source) > 0) {
-			printf("Echo.\n");
+			plog(debug, "Echo.\n");
 			interface->erase(t->get_id());
 			t->set_id(source);
 			(*interface)[t->get_id()] = t->get_fd();
@@ -107,11 +108,11 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 				break;
 			}
 		} else if (t->get_rp() >= width + length) {
-			printf("Message complete, width + length = 0x%lx, rp = 0x%lx\n", width + length, t->get_rp());
+			plog(debug, "Message complete, width + length = 0x%lx, rp = 0x%lx\n", width + length, t->get_rp());
 			id = destination;
 			Transport *t2 = (*m)[(*interface)[id]];
 			if (t2 == NULL) {
-				printf("Back to wait id = \"%s\"\n", destination);
+				plog(debug, "Back to wait id = \"%s\"\n", destination);
 				break;
 			}
 
@@ -138,7 +139,7 @@ int checksum(const void *ptr, int size, char *md_value_0, char *digestname) {
 	OpenSSL_add_all_digests();
 	md = EVP_get_digestbyname(digestname);
 	if (!md) {
-		printf("Unknown message digest %s\n", digestname);
+		plog(debug, "Unknown message digest %s\n", digestname);
 		return -1;
 	}
 
@@ -149,15 +150,15 @@ int checksum(const void *ptr, int size, char *md_value_0, char *digestname) {
 	EVP_MD_CTX_destroy(mdctx);
 
 #if 0
-	for (i = 0; i < size; i++) printf("%c", *(char *)((char *)ptr + i));
+	for (i = 0; i < size; i++) plog(debug, "%c", *(char *)((char *)ptr + i));
 	puts("");
 
 	puts("Original Digest is: {");
-	for (i = 0; i < strlen(md_value_0); i++) printf("%c", md_value_0[i]);
+	for (i = 0; i < strlen(md_value_0); i++) plog(debug, "%c", md_value_0[i]);
 	puts("}");
 
 	puts("Computed Digest is: {");
-	for (i = 0; i < md_len; i++) printf("%02x", md_value[i]);
+	for (i = 0; i < md_len; i++) plog(debug, "%02x", md_value[i]);
 	puts("}");
 #endif
 

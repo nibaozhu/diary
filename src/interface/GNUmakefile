@@ -3,13 +3,14 @@ all: i1
 clean:
 	rm -f *.o core.* i1
 
-i1: handle.o main.o task.o
-	$(CXX) -o $@ $^ $(LDFLAGS) && ctags *
+i1: main.o task.o handle.o ../../include/logging.o
+	$(CXX) -o $@ $^ $(LDFLAGS) && ctags * ../../include/*
 
-handle.o: handle.cc handle.h transport.h
+handle.o: handle.cc handle.h transport.h ../../include/logging.h
 main.o: main.cc main.h task.h transport.h handle.h
 task.o: task.cc task.h transport.h handle.h version.h
+../../include/logging.o: ../../include/logging.cc ../../include/logging.h
 
-CPPFLAGS=
-CXXFLAGS=-O0 -UNDEBUG -funsigned-char -g -std=c++0x -Wall -Wextra
+CPPFLAGS=-I ../../include
+CXXFLAGS=-O0 -U NDEBUG -U DEBUG -funsigned-char -g -std=c++0x -Wall -Wextra
 LDFLAGS=-lssl

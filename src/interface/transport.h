@@ -18,6 +18,7 @@
 #include <map>
 
 #include <arpa/inet.h>
+#include "logging.h"
 
 /* output BYTES bytes per output line */
 #define WIDTH (1<<3)
