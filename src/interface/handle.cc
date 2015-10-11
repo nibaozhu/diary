@@ -39,7 +39,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 					length = length * 0x10 + (c - 'A' + 0x0a);
 				}
 			}
-			plog(debug, "i8.length = 0x%08x\n", length);
+			plog(notice, "i8.length = 0x%08x\n", length);
 			width += LENGTH;
 		} else {
 			/* Back to wait message. */
@@ -48,7 +48,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 
 		if (t->get_rp() >= width + ID_LENGTH) {
 			strncpy(source, (char*)t->get_rx() + width, ID_LENGTH);
-			plog(debug, "source = \"%s\", id = \"%s\"\n", source, t->get_id().c_str());
+			plog(notice, "source = \"%s\", id = \"%s\"\n", source, t->get_id().c_str());
 			width += ID_LENGTH;
 		} else {
 			/* Back to wait message. */
@@ -58,7 +58,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 
 		if (t->get_rp() >= width + ID_LENGTH) {
 			strncpy(destination, (char*)t->get_rx() + width, ID_LENGTH);
-			plog(debug, "destination = \"%s\", id = \"%s\"\n", destination, t->get_id().c_str());
+			plog(notice, "destination = \"%s\", id = \"%s\"\n", destination, t->get_id().c_str());
 			width += ID_LENGTH;
 		} else {
 			/* Wait message */
@@ -69,7 +69,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 		if (t->get_rp() >= width + MD5SUM_LENGTH) {
 			memset(md5sum, 0, sizeof md5sum);
 			memcpy(md5sum, (const void *)((char *)t->get_rx() + width), MD5SUM_LENGTH);
-			plog(debug, "i2.md5sum = \"%s\"\n", md5sum);
+			plog(info, "i2.md5sum = \"%s\"\n", md5sum);
 			width += MD5SUM_LENGTH;
 		} else {
 			/* Wait message */
@@ -83,7 +83,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 			memcpy(message, (const void *)((char *)t->get_rx() + width), length);
 			ret = checksum(message, length, md5sum, digestname);
 			if (ret == -1) {
-				plog(debug, "checksum FAIL\n");
+				plog(error, "checksum FAIL\n");
 				t->clear_rx();
 				/* Back to wait other message. */
 				break;
@@ -95,7 +95,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 		}
 
 		if (strncmp(source, destination, sizeof source) == 0 && strlen(source) > 0) {
-			plog(debug, "Echo.\n");
+			plog(notice, "Echo.\n");
 			interface->erase(t->get_id());
 			t->set_id(source);
 			(*interface)[t->get_id()] = t->get_fd();
@@ -108,11 +108,11 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 				break;
 			}
 		} else if (t->get_rp() >= width + length) {
-			plog(debug, "Message complete, width + length = 0x%lx, rp = 0x%lx\n", width + length, t->get_rp());
+			plog(notice, "Message complete, width + length = 0x%lx, rp = 0x%lx\n", width + length, t->get_rp());
 			id = destination;
 			Transport *t2 = (*m)[(*interface)[id]];
 			if (t2 == NULL) {
-				plog(debug, "Back to wait id = \"%s\"\n", destination);
+				plog(info, "Back to wait id = \"%s\"\n", destination);
 				break;
 			}
 
@@ -139,7 +139,7 @@ int checksum(const void *ptr, int size, char *md_value_0, char *digestname) {
 	OpenSSL_add_all_digests();
 	md = EVP_get_digestbyname(digestname);
 	if (!md) {
-		plog(debug, "Unknown message digest %s\n", digestname);
+		plog(error, "Unknown message digest %s\n", digestname);
 		return -1;
 	}
 

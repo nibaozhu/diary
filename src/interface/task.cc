@@ -26,14 +26,14 @@ int setnonblocking(int fd) {
 		int flags = fcntl(fd, F_GETFL);    
 		if (flags == -1) {
 			ret = flags;
-			plog(debug, "%s(%d)\n", strerror(errno), errno);
+			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 		flags |= O_NONBLOCK; /* If the O_NONBLOCK flag is enabled, 
 								then the system call fails with the error EAGAIN. */
 		ret = fcntl(fd, F_SETFL, flags);
 		if (ret == -1) {
-			plog(debug, "%s(%d)\n", strerror(errno), errno);
+			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 	} while (0);
@@ -55,11 +55,11 @@ int reads(Transport *t) {
 		memset(buffer, 0, BUFFER_LENGTH + 1);
 		ret = read(fd, buffer, BUFFER_LENGTH);
 		if (ret < 0) {
-			plog(debug, "%s(%d)\n", strerror(errno), errno);
+			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		} else if (ret == 0) {
 			t->set_alive(false);
-			plog(debug, "Client active closed.(End of File)\n");
+			plog(notice, "Client active closed.(End of File)\n");
 			break;
 		} else if (ret > 0 && ret <= BUFFER_LENGTH) {
 			rl += ret;
@@ -76,7 +76,7 @@ int reads(Transport *t) {
 		speed = -1;
 	} else {
 		speed = rl * 1. / ((t1 - t0) * 1024 * 1024);
-		plog(debug, "speed: %0.2f M/s\n", t->set_speed(speed));
+		plog(notice, "speed: %0.2f M/s\n", t->set_speed(speed));
 	}
 	free(buffer);
 	return ret;
@@ -97,7 +97,7 @@ int writes(Transport *t) {
 
 		ret = write(fd, t->get_wx(), t->get_wp());
 		if (ret < 0) {
-			plog(debug, "%s(%d)\n", strerror(errno), errno);
+			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		} else if (ret >= 0 && (size_t)ret <= t->get_wp()) {
 			/* Moving forward. */
@@ -110,19 +110,21 @@ int writes(Transport *t) {
 }
 
 void handler(int signum) {
-	plog(debug, "Received signal %d\n", signum);
+	plog(notice, "Received signal %d\n", signum);
 	switch (signum) {
 		case SIGINT :
 		case SIGTERM:
 			is_quit = true;
 			break;
 		case SIGUSR1:
-		case SIGUSR2:
 		case SIGSEGV:
 			is_quit = true;
 			break;
+		case SIGUSR2:
+			pflush();
+			break;
 		default:
-			puts("Undefined handler.");
+			plog(warning, "Undefined handler.");
 	}
 	return ;
 }
@@ -135,7 +137,7 @@ void set_disposition(void) {
 	for (i = 0; i < sizeof arr / sizeof (int); i++) {
 		signum = arr[i];
 		if (signal(signum, handler) == SIG_ERR) {
-			plog(debug, "set the disposition of the signal(signum = %d) to handler.\n", signum);
+			plog(error, "set the disposition of the signal(signum = %d) to handler.\n", signum);
 		}
 	}
 	return ;
@@ -171,12 +173,9 @@ int init(int argc, char **argv) {
 
 		char *name;
 		name = rindex(argv[0], '/');
-		if (name == NULL)
-		{
+		if (name == NULL) {
 			strncpy(l->name, argv[0], sizeof l->name - 1);
-		}
-		else
-		{
+		} else {
 			strncpy(l->name, name + 1, sizeof l->name - 1);
 		}
 
@@ -194,20 +193,20 @@ int init(int argc, char **argv) {
 		t2.tm_mday = 0;
 		t2.tm_hour = 0;
 		t2.tm_min = 0;
-		t2.tm_sec = 5;
+		t2.tm_sec = 1;
 
 		l->diff = t2.tm_sec + t2.tm_min * 60 + t2.tm_hour * 60 * 60 + t2.tm_mday * 60 * 60 * 24 + t2.tm_mon * 60 * 60 * 24 * 30 + t2.tm_year * 60 * 60 * 24 * 30 * 365;
 		l->pid = getpid();
-		l->cache_max = 23;
-		l->size_max = 1024*1024*1; // 1MB
+		l->cache_max = 1;
+		// l->size_max = 1024*1024*1; // 1MB
+		l->size_max = 0;
 		strncpy(l->path, "../../log", sizeof l->path - 1);
 		strncpy(l->mode, "w+", sizeof l->mode - 1);
 		l->stream_level = debug;
 		l->stdout_level = debug;
 
 		ret = initializing();
-		if (ret == EXIT_FAILURE)
-		{
+		if (ret == EXIT_FAILURE) {
 			ret = -1;
 			break;
 		}
@@ -216,7 +215,7 @@ int init(int argc, char **argv) {
 		set_disposition();
 		listen_sock = socket(AF_INET, SOCK_STREAM, 0);
 		if (listen_sock < 0) {
-			plog(debug, "%s(%d)\n", strerror(errno), errno);
+			plog(error, "%s(%d)\n", strerror(errno), errno);
 			ret = -1;
 			break;
 		}
@@ -227,7 +226,7 @@ int init(int argc, char **argv) {
 		addr.sin_port = htons(port);
 		ret = inet_pton(AF_INET, ip, (struct sockaddr *) &addr.sin_addr.s_addr);
 		if (ret != 1) {
-			plog(debug, "%s(%d)\n", strerror(errno), errno);
+			plog(error, "%s(%d)\n", strerror(errno), errno);
 			ret = -1;
 			break;
 		}
@@ -235,20 +234,20 @@ int init(int argc, char **argv) {
 		socklen_t addrlen = sizeof (struct sockaddr_in);
 		ret = bind(listen_sock, (struct sockaddr *) &addr, addrlen);
 		if (ret == -1) {
-			plog(debug, "%s(%d)\n", strerror(errno), errno);
+			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 
 		int backlog = (1<<4);
 		ret = listen(listen_sock, backlog);
 		if (ret == -1) {
-			plog(debug, "%s(%d)\n", strerror(errno), errno);
+			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 
 		epollfd = epoll_create(MAX_EVENTS);
 		if (epollfd == -1) {
-			plog(debug, "%s(%d)\n", strerror(errno), errno);
+			plog(error, "%s(%d)\n", strerror(errno), errno);
 			ret = -1;
 			break;
 		}
@@ -257,13 +256,13 @@ int init(int argc, char **argv) {
 		ev.data.fd = listen_sock; /* bind & listen's fd */
 		ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, listen_sock, &ev);
 		if (ret == -1) {
-			plog(debug, "%s(%d)\n", strerror(errno), errno);
+			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 
-		plog(debug, "Assigning address {%s:%u}.\n", ip, port);
-		plog(debug, "Refer to by sockfd = %d as a passive socket.\n", listen_sock);
-		plog(debug, "Epoll file descriptor = %d.\n", epollfd);
+		plog(info, "Assigning address {%s:%u}.\n", ip, port);
+		plog(info, "Refer to by sockfd = %d as a passive socket.\n", listen_sock);
+		plog(info, "Epoll file descriptor = %d.\n", epollfd);
 	} while (0);
 	return ret;
 }
@@ -272,18 +271,18 @@ int uninit(std::map<int, Transport*> *m) {
 	int ret = 0;
 	do {
 		if (listen_sock > 0) {
-			plog(debug, "Close listen socket.\n");
+			plog(info, "Close listen socket.\n");
 			ret = close(listen_sock);
 			if (ret == -1) {
-				plog(debug, "%s(%d)\n", strerror(errno), errno);
+				plog(error, "%s(%d)\n", strerror(errno), errno);
 			}
 		}
 
 		if (epollfd > 0) {
-			plog(debug, "Close epoll socket.\n");
+			plog(info, "Close epoll socket.\n");
 			ret = close(epollfd);
 			if (ret == -1) {
-				plog(debug, "%s(%d)\n", strerror(errno), errno);
+				plog(error, "%s(%d)\n", strerror(errno), errno);
 			}
 		}
 
@@ -337,7 +336,7 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 
 		nfds = epoll_wait(epollfd, events, MAX_EVENTS, 1000);
 		if (nfds == -1) {
-			plog(debug, "%s(%d)\n", strerror(errno), errno);
+			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 
@@ -345,12 +344,12 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 			if (events[n].data.fd == listen_sock) {
 				int acceptfd = accept(listen_sock, (struct sockaddr *) &peer_addr, &peer_addrlen);
 				if (acceptfd == -1) {
-					plog(debug, "%s(%d)\n", strerror(errno), errno);
+					plog(error, "%s(%d)\n", strerror(errno), errno);
 					break;
 				}
 
 				time_t created = time(NULL);
-				plog(debug, "accept: acceptfd = %d\n", acceptfd);
+				plog(notice, "accept: acceptfd = %d\n", acceptfd);
 				/* set non blocking */
 				ret = setnonblocking(acceptfd);
 				if (ret == -1) {
@@ -361,18 +360,18 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 				ev.data.fd = acceptfd;
 				ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, acceptfd, &ev);
 				if (ret == -1) {
-					plog(debug, "%s(%d)\n", strerror(errno), errno);
+					plog(error, "%s(%d)\n", strerror(errno), errno);
 					break;
 				}
 
-				plog(debug, "Someone connected to me.\n");
+				plog(notice, "Someone connected to me.\n");
 				Transport *t = new Transport(acceptfd, created, peer_addr, peer_addrlen);
 				(*m)[acceptfd] = t;
 
 			} else {
 				plog(debug, "events[%d].events = 0x%03x\n", n, events[n].events);
 				if (events[n].events & EPOLLERR) {
-					puts("Error condition happened on the associated file descriptor.");
+					plog(error, "Error condition happened on the associated file descriptor.\n");
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
 						plog(debug, "%s(%d)\n", strerror(errno), errno);
@@ -380,7 +379,7 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 					}
 					ret = close(events[n].data.fd);
 					if (ret == -1) {
-						plog(debug, "%s(%d)\n", strerror(errno), errno);
+						plog(error, "%s(%d)\n", strerror(errno), errno);
 						continue;
 					}
 
@@ -390,15 +389,15 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 				}
 
 				if (events[n].events & EPOLLHUP) {
-					puts("Hang up happened on the associated file descriptor.");
+					plog(debug, "Hang up happened on the associated file descriptor.\n");
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
-						plog(debug, "%s(%d)\n", strerror(errno), errno);
+						plog(error, "%s(%d)\n", strerror(errno), errno);
 						continue;
 					}
 					ret = close(events[n].data.fd);
 					if (ret == -1) {
-						plog(debug, "%s(%d)\n", strerror(errno), errno);
+						plog(error, "%s(%d)\n", strerror(errno), errno);
 						continue;
 					}
 
@@ -408,15 +407,15 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 				}
 
 				if (events[n].events & EPOLLRDHUP) {
-					puts("Client active closed.");
+					plog(notice, "Client active closed.\n");
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
-						plog(debug, "%s(%d)\n", strerror(errno), errno);
+						plog(error, "%s(%d)\n", strerror(errno), errno);
 						continue;
 					}
 					ret = close(events[n].data.fd);
 					if (ret == -1) {
-						plog(debug, "%s(%d)\n", strerror(errno), errno);
+						plog(error, "%s(%d)\n", strerror(errno), errno);
 						continue;
 					}
 
@@ -426,10 +425,10 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 				}
 
 				if (events[n].events & EPOLLIN) {
-					puts("The associated file is available for read(2) operations.");
+					plog(debug, "The associated file is available for read(2) operations.\n");
 					if (m == NULL) {
-						plog(debug, "m = %p\n", m);
-						return ret;
+						plog(error, "m = %p\n", m);
+						break;
 					}
 					Transport *t = (*m)[events[n].data.fd];
 					ret = reads(t);
@@ -445,7 +444,7 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 
 /*
 				if (events[n].events & EPOLLOUT) {
-					puts("The associated file is available for write(2) operations.");
+					plog(debug, "The associated file is available for write(2) operations.\n");
 					if (m == NULL) {
 						plog(debug, "m = %p\n", m);
 						return ret;

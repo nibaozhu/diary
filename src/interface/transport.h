@@ -117,12 +117,12 @@ public:
 
 	void *set_rx(const void *rx, size_t rs) {
 		while (rs >= this->rs - this->rp) {
-			printf("rs = 0x%lx, this->rp = 0x%lx, this->rs = 0x%lx, this->rx = %p\n",
+			plog(debug, "rs = 0x%lx, this->rp = 0x%lx, this->rs = 0x%lx, this->rx = %p\n",
 				rs, this->rp, this->rs, this->rx);
 			assert(this->rs > 0);
 			this->rx = realloc(this->rx, this->rs << 1);
 			if (this->rx == NULL) {
-				printf("The request fails that changes the size of the memory block.\n");
+				plog(debug, "The request fails that changes the size of the memory block.\n");
 				return this->rx;
 			} else {
 				this->rs <<= 1;
@@ -151,12 +151,12 @@ public:
 
 	void *set_wx(const void *wx, size_t ws) {
 		while (ws >= this->ws - this->wp) {
-			printf("ws = 0x%lx, this->wp = 0x%lx, this->ws = 0x%lx, this->wx = %p\n",
+			plog(debug, "ws = 0x%lx, this->wp = 0x%lx, this->ws = 0x%lx, this->wx = %p\n",
 				ws, this->wp, this->ws, this->wx);
 			assert(this->ws > 0);
 			this->wx = realloc(this->wx, this->ws << 1);
 			if (this->wx == NULL) {
-				printf("The request fails that changes the size of the memory block.\n");
+				plog(debug, "The request fails that changes the size of the memory block.\n");
 				return this->wx;
 			} else {
 				this->ws <<= 1;
@@ -223,14 +223,14 @@ public:
 		assert(b0 == false);
 #if 0
 		size_t i = 0;
-		printf("--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
+		plog(debug, "--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
 		while (i < this->rp) {
 			if (i % width == 0) {
-				printf("%p ", (void *)((char *)this->rx + i));
+				plog(debug, "%p ", (void *)((char *)this->rx + i));
 			}
-			printf(" 0x%02x", *((char*)this->rx + i));
+			plog(debug, " 0x%02x", *((char*)this->rx + i));
 			if (b0) {
-				printf(" %c", *((char*)this->rx + i));
+				plog(debug, " %c", *((char*)this->rx + i));
 			}
 
 			i++;
@@ -250,14 +250,14 @@ public:
 		assert(b0 == false);
 #if 0
 		size_t i = 0;
-		printf("--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
+		plog(debug, "--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
 		while (i < this->wp) {
 			if (i % width == 0) {
-				printf("%p ", (void *)((char *)this->wx + i));
+				plog(debug, "%p ", (void *)((char *)this->wx + i));
 			}
-			printf(" 0x%02x", *((char*)this->wx + i));
+			plog(debug, " 0x%02x", *((char*)this->wx + i));
 			if (b0) {
-				printf(" %c", *((char*)this->rx + i));
+				plog(debug, " %c", *((char*)this->rx + i));
 			}
 
 			i++;
