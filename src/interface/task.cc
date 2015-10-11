@@ -163,7 +163,7 @@ int init(int argc, char **argv) {
 				case 'h':
 				default: /* ? */
 					printf("Usage: %s [-hv] [-i ip] [-p port]\n", argv[0]);
-					printf("Example: ip = %s, port = %d\n", ip, port);
+					printf("ip = %s, port = %d\n", ip, port);
 					exit(0);
 			}
 		}
