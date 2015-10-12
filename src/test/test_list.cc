@@ -1,48 +1,20 @@
-#include <iostream>
-#include <cstring>
 #include <list>
+#include <iostream>
 
-class C1
-{
-private:
-	char s1[5];
-public:
-	C1(const char *s1)
-	{
-		memcpy(this->s1, s1, sizeof s1);
+int main(void) {
+	int ret = 0;
+
+	std::list<int> *r = new std::list<int>();
+
+	r->push_back(22);
+	r->push_back(11);
+	r->push_back(33);
+	std::list<int>::iterator i = r->begin();
+
+	while (i != r->end()) {
+		std::cout << "erase " << *i << std::endl;
+		i = r->erase(i);
 	}
 
-	virtual ~C1()
-	{
-	}
-};
-
-int main(int argc, char **argv)
-{
-	char s1[5];
-	memset(s1, 9, 4);
-	C1 *c1;
-	std::list<C1*> v1;
-	int i = 0;
-
-	while (1)
-	{
-		if (i > 1024*1024*10)
-		{
-			std::cerr << __func__ << ": i = " << i << std::endl;
-			break;
-		}
-		i++;
-
-		c1 = new C1(s1);
-		if (c1 == NULL)
-		{
-			std::cerr << __func__ << ": c1 = " << c1 << std::endl;
-			break;
-		}
-
-		v1.push_back(c1);
-	}
-
-	return argc;
+	return ret;
 }
