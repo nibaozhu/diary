@@ -50,7 +50,6 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w)
 
 		if (t->get_rp() >= width + ID_LENGTH) {
 			strncpy(source, (char*)t->get_rx() + width, ID_LENGTH);
-			plog(notice, "source = \"%s\", id = \"%s\"\n", source, t->get_id().c_str());
 			width += ID_LENGTH;
 		} else {
 			/* Back to wait message. */
@@ -60,18 +59,18 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w)
 
 		if (t->get_rp() >= width + ID_LENGTH) {
 			strncpy(destination, (char*)t->get_rx() + width, ID_LENGTH);
-			plog(notice, "destination = \"%s\", id = \"%s\"\n", destination, t->get_id().c_str());
 			width += ID_LENGTH;
 		} else {
 			/* Wait message */
 			/* Back to wait message. */
 			break;
 		}
+		plog(notice, "source = \"%s\", destination = \"%s\", id = \"%s\"\n", source, destination, t->get_id().c_str());
 
 		if (t->get_rp() >= width + MD5SUM_LENGTH) {
 			memset(md5sum, 0, sizeof md5sum);
 			memcpy(md5sum, (const void *)((char *)t->get_rx() + width), MD5SUM_LENGTH);
-			plog(info, "i2.md5sum = \"%s\"\n", md5sum);
+			plog(info, "md5sum = \"%s\"\n", md5sum);
 			width += MD5SUM_LENGTH;
 		} else {
 			/* Wait message */
@@ -111,13 +110,14 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w)
 			}
 		} else if (t->get_rp() >= width + length) {
 			plog(notice, "Message complete, width + length = 0x%lx, rp = 0x%lx\n", width + length, t->get_rp());
-			id = destination;
+			id = source;
 			if (t->get_id() != id) {
-				plog(error, "Non self id. (%s, %s)\n", t->get_id().c_str(), id.c_str());
+				plog(warning, "Non self id.\n");
 				t->clear_rx();
 				break;
 			}
 
+			id = destination;
 			Transport *t2 = (*m)[(*interface)[id]];
 			if (t2 == NULL) {
 				plog(info, "Back to wait id = \"%s\"\n", destination);
@@ -189,7 +189,7 @@ int checksum(const void *ptr, int size, char *md_value_0, char *digestname) {
 		}
 
 		if (md_value[i] != md_value_0[2 * i] * 0x10 + md_value_0[2 * i + 1]) {
-			puts("Warning: CHECKSUM NOT EQUAL!\n");
+			plog(warning, "CHECKSUM NOT EQUAL!\n");
 			ret = -1;
 			break;
 		}

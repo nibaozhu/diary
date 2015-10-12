@@ -12,10 +12,8 @@ int listen_sock, conn_sock, nfds, epollfd;
 
 extern char *optarg;
 extern int optind, opterr, optopt;
-bool is_quit;
-
 extern struct logging *l;
-
+bool is_quit;
 short int port = 12340;
 char ip[3 + 1 + 3 + 1 + 3 + 1 + 3 + 1] = "0.0.0.0";
 
@@ -47,9 +45,7 @@ int reads(Transport *t) {
 	size_t rl = 0;
 	time_t t0 = 0, t1 = 0;
 	double speed = 0;
-
 	assert(t != NULL);
-
 	t0 = time(NULL);
 	do {
 		memset(buffer, 0, BUFFER_LENGTH + 1);
@@ -85,23 +81,19 @@ int reads(Transport *t) {
 int writes(Transport *t) {
 	int ret = 0;
 	assert(t != NULL);
-
 	do {
 		int fd = t->get_fd();
 		if (t->get_wp() <= 0) {
 			break;
 		}
 
-		plog(debug, "fd = %d, %s\n", fd, __func__);
 		t->pw();
-
 		ret = write(fd, t->get_wx(), t->get_wp());
 		if (ret < 0) {
 			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		} else if (ret >= 0 && (size_t)ret <= t->get_wp()) {
 			/* Moving forward. */
-			plog(debug, "ret = %d\n", ret);
 			memmove(t->get_wx(), (const void *)((char *)t->get_wx() + ret), t->get_wp() - ret);
 			t->set_wp(t->get_wp() - ret);
 		}
@@ -350,7 +342,7 @@ int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 				}
 
 				time_t created = time(NULL);
-				plog(notice, "accept: acceptfd = %d\n", acceptfd);
+				plog(notice, "acceptfd = %d\n", acceptfd);
 				/* set non blocking */
 				ret = setnonblocking(acceptfd);
 				if (ret == -1) {
@@ -370,7 +362,7 @@ int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 				(*m)[acceptfd] = t;
 
 			} else {
-				plog(debug, "events[%d].events = 0x%03x\n", n, events[n].events);
+				plog(debug, "events[%d].events = 0x%04x\n", n, events[n].events);
 				if (events[n].events & EPOLLERR) {
 					plog(error, "Error condition happened on the associated file descriptor.\n");
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
@@ -390,7 +382,7 @@ int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 				}
 
 				if (events[n].events & EPOLLHUP) {
-					plog(debug, "Hang up happened on the associated file descriptor.\n");
+					plog(notice, "Hang up happened on the associated file descriptor.\n");
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
 						plog(error, "%s(%d)\n", strerror(errno), errno);
@@ -426,7 +418,7 @@ int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 				}
 
 				if (events[n].events & EPOLLIN) {
-					plog(debug, "The associated file is available for read(2) operations.\n");
+					plog(notice, "The associated file is available for read(2) operations.\n");
 					if (m == NULL) {
 						plog(error, "m = %p\n", m);
 						break;
