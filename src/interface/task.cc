@@ -281,7 +281,7 @@ int uninit(std::map<int, Transport*> *m) {
 
 		std::map<int, Transport*>::iterator i = m->begin();
 		while (i != m->end()) {
-			delete (*i).second;
+			delete i->second;
 			m->erase(i++);
 		}
 
