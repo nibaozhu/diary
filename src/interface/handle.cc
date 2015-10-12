@@ -8,9 +8,9 @@
 /*
  * %t: ....
  */
-int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w) {
+int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w) {
 	int ret = 0;
-	unsigned int length = 0;
+	size_t length = 0;
 	size_t width = 0;
 	char md5sum[MD5SUM_LENGTH + 1];
 	char digestname[] = "md5";
@@ -37,9 +37,11 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 					length = length * 0x10 + (c - 'a' + 0x0a);
 				} else if (c >= 'A' && c <= 'F') {
 					length = length * 0x10 + (c - 'A' + 0x0a);
+				} else {
+					length = length * 0x10 + 0x00;
 				}
 			}
-			plog(notice, "i8.length = 0x%08x\n", length);
+			plog(notice, "i8.length = 0x%08lx\n", length);
 			width += LENGTH;
 		} else {
 			/* Back to wait message. */
@@ -103,7 +105,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 			if (t->get_rp() >= width) {
 				t->set_wx(t->get_rx(), t->get_rp());
 				t->clear_rx();
-				w->push(t);
+				w->push_back(t);
 			} else {
 				break;
 			}
@@ -126,7 +128,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w
 				t2->set_wx(t->get_rx(), (width + length));
 				memmove(t->get_rx(), (const void *)((char *)t->get_rx() + (width + length)), t->get_rp() - (width + length));
 				t->set_rp(t->get_rp() - (width + length));
-				w->push(t2);
+				w->push_back(t2);
 			} else {
 				break;
 			}

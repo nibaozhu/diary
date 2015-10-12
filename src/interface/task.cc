@@ -112,7 +112,8 @@ int writes(Transport *t) {
 void handler(int signum) {
 	plog(notice, "Received signal %d\n", signum);
 	switch (signum) {
-		case SIGINT :
+		case SIGQUIT: /* shortcut: Ctrl + \ */
+		case SIGINT : /* shortcut: Ctrl + C */
 		case SIGTERM:
 			is_quit = true;
 			break;
@@ -130,11 +131,10 @@ void handler(int signum) {
 }
 
 void set_disposition(void) {
-	int arr[] = {SIGINT, SIGUSR1, SIGUSR2, SIGTERM, /* SIGSEGV */ };
+	int arr[] = {SIGQUIT, SIGINT, SIGUSR1, SIGUSR2, SIGTERM, SIGSEGV};
 	size_t i = 0;
 	int signum = 0;
-
-	for (i = 0; i < sizeof arr / sizeof (int); i++) {
+	for ( ; i < sizeof arr / sizeof (int); i++) {
 		signum = arr[i];
 		if (signal(signum, handler) == SIG_ERR) {
 			plog(error, "set the disposition of the signal(signum = %d) to handler.\n", signum);
@@ -302,8 +302,8 @@ int uninit(std::map<int, Transport*> *m) {
 
 int task(int argc, char **argv) {
 	int ret = 0;
-	std::queue<Transport*> *r = new std::queue<Transport*>();
-	std::queue<Transport*> *w = new std::queue<Transport*>();
+	std::list<Transport*> *r = new std::list<Transport*>();
+	std::list<Transport*> *w = new std::list<Transport*>();
 	std::map<int, Transport*> *m = new std::map<int, Transport*>();
 
 	do {
@@ -325,7 +325,7 @@ int task(int argc, char **argv) {
 	return ret;
 }
 
-int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
+int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 	int ret = 0;
 	assert(r != NULL);
 	assert(m != NULL);
@@ -439,8 +439,8 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 						;
 					}
 
-					/* Push to queue. */
-					r->push(t);
+					/* Push to list. */
+					r->push_back(t);
 				}
 
 /*
@@ -464,18 +464,19 @@ int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {
 	return ret;
 }
 
-int task_w(std::queue<Transport*> *w) {
+int task_w(std::list<Transport*> *w) {
 	int ret = 0;
 	Transport *t = NULL;
 	assert(w != NULL);
 
 	/**
-	 *  Returns true if the %queue is empty.
+	 *  Returns true if the %list is empty.
 	 */
-	while (!w->empty()) {
-		t = w->front();
+	std::list<Transport*>::iterator i = w->begin();
+	while (i != w->end()) {
+		t = *i;
 		if (t == NULL) {
-			w->pop();
+			i = w->erase(i);
 			continue;
 		}
 
@@ -484,14 +485,16 @@ int task_w(std::queue<Transport*> *w) {
 
 		ret = writes(t);
 		if (t->get_wp() == 0) {
-			w->pop();
+			i = w->erase(i);
+		} else {
+			i++;
 		}
 		plog(debug, "Wrote %d bytes\n", ret);
 	}
 	return ret;
 }
 
-int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, Transport*> *m) {
+int task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m) {
 	int ret = 0;
 	Transport *t = NULL;
 	assert(r != NULL);
@@ -499,15 +502,17 @@ int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, T
 	assert(m != NULL);
 
 	/**
-	 *  Returns true if the %queue is empty.
+	 *  Returns true if the %list is empty.
 	 */
-	while (!r->empty()) {
-		t = r->front();
+	std::list<Transport*>::iterator i = r->begin();
+	while (i != r->end()) {
+		t = *i;
 		ret = handle(t, m, w);
 		if (ret == -1) {
-			continue;
+			plog(error, "\n");
+			// continue;
 		}
-		r->pop();
+		i = r->erase(i);
 	}
 	return ret;
 }

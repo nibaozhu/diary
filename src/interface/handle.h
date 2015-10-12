@@ -8,7 +8,7 @@
 #include <openssl/evp.h>
 #include "transport.h"
 
-int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w);
+int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w);
 int checksum(const void *ptr, int size, char *md_value_0, char *digestname);
 
 #endif

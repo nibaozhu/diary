@@ -19,9 +19,9 @@ int init(int argc, char **argv);
 int uninit(std::map<int, Transport*> *m);
 
 int task(int argc, char **argv);
-int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m);
-int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, Transport*> *m);
-int task_w(std::queue<Transport*> *w);
+int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m);
+int task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m);
+int task_w(std::list<Transport*> *w);
 
 #include <arpa/inet.h>
 #include <netinet/in.h>

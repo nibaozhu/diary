@@ -6,7 +6,7 @@
 !_TAG_PROGRAM_VERSION	5.8	//
 BUFFER_LENGTH	task.cc	9;"	d	file:
 CPPFLAGS	GNUmakefile	/^CPPFLAGS=-I ..\/..\/include$/;"	m
-CXXFLAGS	GNUmakefile	/^CXXFLAGS=-O0 -U NDEBUG -U DEBUG -funsigned-char -g -std=c++0x -Wall -Wextra$/;"	m
+CXXFLAGS	GNUmakefile	/^CXXFLAGS=-O0 -U NDEBUG -D DEBUG -funsigned-char -g -std=c++0x -Wall -Wextra$/;"	m
 DATE_MAX	../../include/logging.h	38;"	d
 HANDLE_H	handle.h	6;"	d
 ID_LENGTH	transport.h	31;"	d
@@ -56,7 +56,7 @@ get_speed	transport.h	/^	double get_speed(void) {$/;"	f	class:Transport
 get_wp	transport.h	/^	size_t get_wp(void) {$/;"	f	class:Transport
 get_ws	transport.h	/^	size_t get_ws(void) {$/;"	f	class:Transport
 get_wx	transport.h	/^	void *get_wx(void) {$/;"	f	class:Transport
-handle	handle.cc	/^int handle(Transport *t, std::map<int, Transport*> *m, std::queue<Transport*> *w) {$/;"	f
+handle	handle.cc	/^int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w) {$/;"	f
 handler	task.cc	/^void handler(int signum) {$/;"	f
 id	transport.h	/^	std::string id; \/* id.size() = ID_LENGTH *\/$/;"	m	class:Transport
 info	../../include/logging.h	/^	info,			\/* informational *\/$/;"	e	enum:elevel
@@ -111,9 +111,9 @@ sysdate	../../include/logging.cc	/^int sysdate(char *str)$/;"	f
 t0	../../include/logging.h	/^	struct tm t0; \/\/ start time$/;"	m	struct:logging	typeref:struct:logging::tm
 t1	../../include/logging.h	/^	struct tm t1; \/\/ the last flush stream date\/time$/;"	m	struct:logging	typeref:struct:logging::tm
 task	task.cc	/^int task(int argc, char **argv) {$/;"	f
-task_r	task.cc	/^int task_r(std::queue<Transport*> *r, std::map<int, Transport*> *m) {$/;"	f
-task_w	task.cc	/^int task_w(std::queue<Transport*> *w) {$/;"	f
-task_x	task.cc	/^int task_x(std::queue<Transport*> *r, std::queue<Transport*> *w, std::map<int, Transport*> *m) {$/;"	f
+task_r	task.cc	/^int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {$/;"	f
+task_w	task.cc	/^int task_w(std::list<Transport*> *w) {$/;"	f
+task_x	task.cc	/^int task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m) {$/;"	f
 uninit	task.cc	/^int uninit(std::map<int, Transport*> *m) {$/;"	f
 uninitialized	../../include/logging.cc	/^int uninitialized(void)$/;"	f
 updated	transport.h	/^	time_t updated; \/* the lastest communication time *\/$/;"	m	class:Transport
