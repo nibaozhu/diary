@@ -9,6 +9,7 @@
 #define BUFFER_LENGTH (1<<8)
 struct epoll_event ev, events[MAX_EVENTS];
 int listen_sock, conn_sock, nfds, epollfd;
+struct sockaddr_in addr;
 
 extern char *optarg;
 extern int optind, opterr, optopt;
@@ -213,7 +214,7 @@ int init(int argc, char **argv) {
 			break;
 		}
 
-		struct sockaddr_in addr;
+	//	struct sockaddr_in addr;
 		memset(&addr, 0, sizeof (struct sockaddr_in));
 		addr.sin_family = AF_INET;
 		addr.sin_port = htons(port);
@@ -346,7 +347,7 @@ int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 					break;
 				}
 
-				ev.events = EPOLLIN | EPOLLET | EPOLLRDHUP; /* edge triggered */
+				ev.events = EPOLLIN | EPOLLOUT | EPOLLET | EPOLLRDHUP; /* edge triggered */
 				ev.data.fd = acceptfd;
 				ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, acceptfd, &ev);
 				if (ret == -1) {
@@ -354,7 +355,9 @@ int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 					break;
 				}
 
-				plog(notice, "Someone connected to me.\n");
+				printf("%s\n", inet_ntoa(peer_addr.sin_addr));
+				plog(notice, "[%s]:[%d] -> [%s]:[%d]\n", inet_ntoa(addr.sin_addr), htons(addr.sin_port), inet_ntoa(peer_addr.sin_addr), htons(peer_addr.sin_port));
+
 				Transport *t = new Transport(acceptfd, created, peer_addr, peer_addrlen);
 				(*m)[acceptfd] = t;
 
@@ -432,7 +435,6 @@ int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 					r->push_back(t);
 				}
 
-/*
 				if (events[n].events & EPOLLOUT) {
 					plog(debug, "The associated file is available for write(2) operations.\n");
 					if (m == NULL) {
@@ -445,7 +447,6 @@ int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 						break;
 					}
 				}
-*/
 			}
 		}
 
