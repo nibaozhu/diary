@@ -304,13 +304,10 @@ int task(int argc, char **argv) {
 			break;
 		}
 
-		while (true) {
+		while (!is_quit) {
 			ret = task_r(r, m);
 			ret = task_x(r, w, m);
 			ret = task_w(w);
-			if (is_quit) {
-				break;
-			}
 		}
 	} while (0);
 	ret = uninit(m);
