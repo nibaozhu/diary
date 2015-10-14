@@ -16,7 +16,6 @@ extern "C" {
 #  define SIZE_MAX      (18446744073709551615UL)
 # else
 #  define SIZE_MAX      (4294967295U)
-
 # endif
 
 #endif

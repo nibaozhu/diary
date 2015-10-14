@@ -26,7 +26,7 @@ const char *color[debug + 1] = {
 	"\e[36;1m", // cyan
 	"\e[32;1m", // green
 	"\e[37;1m", // white(gray)
-	"\e[37;0m", // white(gray, 'no highlight')
+	"\e[37;0m", // 
 };
 
 const char *clear_color = "\e[0m";
@@ -41,12 +41,12 @@ int pflush(void)
 	if (l == NULL)
 	{
 		fprintf(stderr, "%s %s:%d: %s: l = %p\n", level[error], __FILE__, __LINE__, __func__, l);
-		return EXIT_FAILURE;
+		return -1;
 	}
 
 	if (l->stream_level == none)
 	{
-		return EXIT_SUCCESS;
+		return 0;
 	}
 
 	// The function fflush() forces a write of all user-space buffered data for the given output or update stream via the stream’s
@@ -55,7 +55,7 @@ int pflush(void)
 	if (retval == EOF)
 	{
 		fprintf(stderr, "%s %s:%d: %s: %s(%u)\n", level[error], __FILE__, __LINE__, __func__, strerror(errno), errno);
-		return EXIT_FAILURE;
+		return -1;
 	}
 
 	// Clean cache when fflush is success.
@@ -67,7 +67,7 @@ int pflush(void)
 	if (size == -1)
 	{
 		fprintf(stderr, "%s %s:%d: %s: %s(%u)\n", level[error], __FILE__, __LINE__, __func__, strerror(errno), errno);
-		return EXIT_FAILURE;
+		return -1;
 	}
 
 	l->size = size;
@@ -77,14 +77,14 @@ int pflush(void)
 #endif
 	if (l->size < l->size_max)
 	{
-		return EXIT_SUCCESS;
+		return 0;
 	}
 
 	retval = fclose(l->stream);
 	if (retval == EOF)
 	{
 		fprintf(stderr, "%s %s:%d: %s: %s(%u)\n", level[error], __FILE__, __LINE__, __func__, strerror(errno), errno);
-		return EXIT_FAILURE;
+		return -1;
 	}
 
 	char oldpath[PATH_MAX];
@@ -98,7 +98,7 @@ int pflush(void)
 	if (retval == -1)
 	{
 		fprintf(stderr, "%s %s:%d: %s: %s(%u)\n", level[error], __FILE__, __LINE__, __func__, strerror(errno), errno);
-		return EXIT_FAILURE;
+		return -1;
 	}
 
 	char path[PATH_MAX]; // logging file's path
@@ -110,11 +110,11 @@ int pflush(void)
 	{
 		fprintf(stderr, "%s %s:%d: %s: path = \"%s\", %s(%u)\n",
 			level[error], __FILE__, __LINE__, __func__, path, strerror(errno), errno);
-		return EXIT_FAILURE;
+		return -1;
 	}
 	l->stream = fp;
 
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 int plog(enum elevel x, const char *fmt, ...)
@@ -126,7 +126,7 @@ int plog(enum elevel x, const char *fmt, ...)
 	if (l == NULL)
 	{
 		fprintf(stderr, "%s %s:%d: %s: l == NULL\n", level[error], __FILE__, __LINE__, __func__);
-		return EXIT_FAILURE;
+		return -1;
 	}
 
 	char str[DATE_MAX];
@@ -167,7 +167,7 @@ int plog(enum elevel x, const char *fmt, ...)
 		fprintf(stdout, "%s %s:%d: %s: %s, l->cache = %u, l->cache_max = %u\n",
 			level[debug], __FILE__, __LINE__, __func__, "tracing", l->cache, l->cache_max);
 #endif
-		return EXIT_SUCCESS;
+		return 0;
 	}
 
 	struct tm t0;
@@ -190,13 +190,13 @@ int plog(enum elevel x, const char *fmt, ...)
 #endif
 	if (diff < l->diff)
 	{
-		return EXIT_SUCCESS; // no flush
+		return 0; // no flush
 	}
 
 	int retval = 0;
 	retval = pflush();
 
-	assert(retval == EXIT_SUCCESS);
+	assert(retval == 0);
 	// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
 	//	on January 1, 1970, Coordinated Universal Time (UTC).
 	localtime_r(&t1.tv_sec, &l->t1);
@@ -212,12 +212,12 @@ int initializing(void)
 	if (l == NULL)
 	{
 		fprintf(stderr, "%s %s:%d: %s: l == NULL\n", level[error], __FILE__, __LINE__, __func__);
-		return EXIT_FAILURE;
+		return -1;
 	}
 
 	if (l->stream_level == none)
 	{
-		return EXIT_SUCCESS;
+		return 0;
 	}
 
 	if (l->size_max == 0)
@@ -233,7 +233,7 @@ int initializing(void)
 	{
 		fprintf(stderr, "%s %s:%d: %s: path = \"%s\", %s(%u)\n",
 			level[error], __FILE__, __LINE__, __func__, l->path, strerror(errno), errno);
-		return EXIT_FAILURE;
+		return -1;
 	}
 
 	char path[PATH_MAX];
@@ -246,7 +246,7 @@ int initializing(void)
 	{
 		fprintf(stderr, "%s %s:%d: %s: path = \"%s\", %s(%u)\n",
 			level[error], __FILE__, __LINE__, __func__, path, strerror(errno), errno);
-		return EXIT_FAILURE;
+		return -1;
 	}
 	l->stream = fp;
 
@@ -256,7 +256,7 @@ int initializing(void)
 
 	// print the program name , pid, release
 	plog(info, "PROGRAM: %s, PID: %u, RELEASE: %s %s\n", l->name, l->pid, __DATE__, __TIME__);
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 int uninitialized(void)
@@ -268,7 +268,7 @@ int uninitialized(void)
 	if (l == NULL)
 	{
 		fprintf(stderr, "%s %s:%d: %s: l = %p\n", level[error], __FILE__, __LINE__, __func__, l);
-		return EXIT_FAILURE;
+		return -1;
 	}
 
 	int retval = 0;
@@ -279,7 +279,7 @@ int uninitialized(void)
 	if (retval == EOF)
 	{
 		fprintf(stderr, "%s %s:%d: %s: %s(%u)\n", level[error], __FILE__, __LINE__, __func__, strerror(errno), errno);
-		return EXIT_FAILURE;
+		return -1;
 	}
 
 	// The fclose() function will flushes the stream pointed to by fp (writing any buffered output data using fflush(3)) and closes
@@ -288,7 +288,7 @@ int uninitialized(void)
 	if (retval == EOF)
 	{
 		fprintf(stderr, "%s %s:%d: %s: %s(%u)\n", level[error], __FILE__, __LINE__, __func__, strerror(errno), errno);
-		return EXIT_FAILURE;
+		return -1;
 	}
 
 	char oldpath[PATH_MAX];
@@ -302,13 +302,13 @@ int uninitialized(void)
 	if (retval == -1)
 	{
 		fprintf(stderr, "%s %s:%d: %s: %s(%u)\n", level[error], __FILE__, __LINE__, __func__, strerror(errno), errno);
-		return EXIT_FAILURE;
+		return -1;
 	}
 
 #ifdef DEBUG
 	fprintf(stdout, "%s %s:%d: %s: %s\n", level[debug], __FILE__, __LINE__, __func__, "passed");
 #endif
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 int sysdate(char *str)
