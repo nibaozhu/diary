@@ -137,7 +137,6 @@ void set_disposition(void) {
 }
 
 int init(int argc, char **argv) {
-	srand(getpid());
 	int ret = 0;
 	do {
 		const char *optstring = "hvi:p:";
@@ -192,8 +191,7 @@ int init(int argc, char **argv) {
 		l->diff = t2.tm_sec + t2.tm_min * 60 + t2.tm_hour * 60 * 60 + t2.tm_mday * 60 * 60 * 24 + t2.tm_mon * 60 * 60 * 24 * 30 + t2.tm_year * 60 * 60 * 24 * 30 * 365;
 		l->pid = getpid();
 		l->cache_max = 1;
-		// l->size_max = 1024*1024*1; // 1MB
-		l->size_max = 0;
+		l->size_max = 1024; // 1KB
 		strncpy(l->path, "../../log", sizeof l->path - 1);
 		strncpy(l->mode, "w+", sizeof l->mode - 1);
 		l->stream_level = debug;
@@ -214,7 +212,6 @@ int init(int argc, char **argv) {
 			break;
 		}
 
-	//	struct sockaddr_in addr;
 		memset(&addr, 0, sizeof (struct sockaddr_in));
 		addr.sin_family = AF_INET;
 		addr.sin_port = htons(port);
@@ -246,7 +243,7 @@ int init(int argc, char **argv) {
 			break;
 		}
 
-		ev.events = EPOLLIN | EPOLLET | EPOLLRDHUP; /* epoll edge triggered */
+		ev.events = EPOLLIN | EPOLLOUT | EPOLLET | EPOLLRDHUP; /* Edge Triggered */
 		ev.data.fd = listen_sock; /* bind & listen's fd */
 		ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, listen_sock, &ev);
 		if (ret == -1) {
@@ -261,7 +258,7 @@ int init(int argc, char **argv) {
 	return ret;
 }
 
-int uninit(std::map<int, Transport*> *m) {
+int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m) {
 	int ret = 0;
 	do {
 		if (listen_sock > 0) {
@@ -280,6 +277,9 @@ int uninit(std::map<int, Transport*> *m) {
 			}
 		}
 
+		r->clear();
+		w->clear();
+
 		std::map<int, Transport*>::iterator i = m->begin();
 		while (i != m->end()) {
 			delete i->second;
@@ -288,7 +288,6 @@ int uninit(std::map<int, Transport*> *m) {
 
 		ret = uninitialized();
 		free(l);
-
 	} while (0);
 	return ret;
 }
@@ -298,8 +297,8 @@ int task(int argc, char **argv) {
 	std::list<Transport*> *r = new std::list<Transport*>();
 	std::list<Transport*> *w = new std::list<Transport*>();
 	std::map<int, Transport*> *m = new std::map<int, Transport*>();
-
 	do {
+		srand(getpid());
 		ret = init(argc, argv);
 		if (ret == -1) {
 			break;
@@ -311,15 +310,13 @@ int task(int argc, char **argv) {
 			ret = task_w(w);
 		}
 	} while (0);
-	ret = uninit(m);
+	ret = uninit(r, w, m);
 	return ret;
 }
 
 int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
+	assert(r != NULL && m != NULL);
 	int ret = 0;
-	assert(r != NULL);
-	assert(m != NULL);
-
 	do {
 		struct sockaddr_in peer_addr;
 		socklen_t peer_addrlen = sizeof (struct sockaddr_in);
@@ -341,13 +338,13 @@ int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 
 				time_t created = time(NULL);
 				plog(notice, "acceptfd = %d\n", acceptfd);
-				/* set non blocking */
-				ret = setnonblocking(acceptfd);
+
+				ret = setnonblocking(acceptfd); /* Set Non Blocking */
 				if (ret == -1) {
 					break;
 				}
 
-				ev.events = EPOLLIN | EPOLLOUT | EPOLLET | EPOLLRDHUP; /* edge triggered */
+				ev.events = EPOLLIN | EPOLLOUT | EPOLLET | EPOLLRDHUP; /* Edge Triggered */
 				ev.data.fd = acceptfd;
 				ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, acceptfd, &ev);
 				if (ret == -1) {
@@ -355,12 +352,13 @@ int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 					break;
 				}
 
-				printf("%s\n", inet_ntoa(peer_addr.sin_addr));
-				plog(notice, "[%s]:[%d] -> [%s]:[%d]\n", inet_ntoa(addr.sin_addr), htons(addr.sin_port), inet_ntoa(peer_addr.sin_addr), htons(peer_addr.sin_port));
+				char peer_ip[3 + 1 + 3 + 1 + 3 + 1 + 3 + 1];
+				memset(peer_ip, 0, sizeof ip);
+				strcpy(peer_ip, inet_ntoa(peer_addr.sin_addr));
+				plog(notice, "NAME %s:%d->%s:%d\n", ip, htons(addr.sin_port), peer_ip, htons(peer_addr.sin_port));
 
 				Transport *t = new Transport(acceptfd, created, peer_addr, peer_addrlen);
 				(*m)[acceptfd] = t;
-
 			} else {
 				plog(debug, "events[%d].events = 0x%04x\n", n, events[n].events);
 				if (events[n].events & EPOLLERR) {
@@ -430,16 +428,14 @@ int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 					} else if (ret == 0) {
 						;
 					}
-
-					/* Push to list. */
 					r->push_back(t);
 				}
 
 				if (events[n].events & EPOLLOUT) {
 					plog(debug, "The associated file is available for write(2) operations.\n");
 					if (m == NULL) {
-						plog(debug, "m = %p\n", m);
-						return ret;
+						plog(info, "m = %p\n", m);
+						break;
 					}
 					Transport *t = (*m)[events[n].data.fd];
 					ret = writes(t);
@@ -455,24 +451,17 @@ int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 }
 
 int task_w(std::list<Transport*> *w) {
-	int ret = 0;
-	Transport *t = NULL;
 	assert(w != NULL);
-
-	/**
-	 *  Returns true if the %list is empty.
-	 */
+	int ret = 0;
 	std::list<Transport*>::iterator i = w->begin();
 	while (i != w->end()) {
-		t = *i;
+		Transport *t = *i;
 		if (t == NULL) {
 			i = w->erase(i);
 			continue;
 		}
-
 		plog(debug, "wx = %p, wp = %lu\n", t->get_wx(), t->get_wp());
 		t->pw();
-
 		ret = writes(t);
 		if (t->get_wp() == 0) {
 			i = w->erase(i);
@@ -485,24 +474,17 @@ int task_w(std::list<Transport*> *w) {
 }
 
 int task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m) {
+	assert(r != NULL && w != NULL && m != NULL);
 	int ret = 0;
-	Transport *t = NULL;
-	assert(r != NULL);
-	assert(w != NULL);
-	assert(m != NULL);
-
-	/**
-	 *  Returns true if the %list is empty.
-	 */
 	std::list<Transport*>::iterator i = r->begin();
 	while (i != r->end()) {
-		t = *i;
+		Transport *t = *i;
 		ret = handle(t, m, w);
 		if (ret == -1) {
 			plog(error, "\n");
-			// continue;
 		}
 		i = r->erase(i);
 	}
 	return ret;
 }
+

@@ -7,7 +7,7 @@
 BUFFER_LENGTH	task.cc	9;"	d	file:
 CPPFLAGS	GNUmakefile	/^CPPFLAGS=-I ..\/..\/include$/;"	m
 CXXFLAGS	GNUmakefile	/^CXXFLAGS=-O0 -U NDEBUG -U DEBUG -funsigned-char -g3 -std=c++0x -Wall -Wextra$/;"	m
-DATE_MAX	../../include/logging.h	38;"	d
+DATE_MAX	../../include/logging.h	37;"	d
 HANDLE_H	handle.h	6;"	d
 ID_LENGTH	transport.h	31;"	d
 LDFLAGS	GNUmakefile	/^LDFLAGS=-lssl$/;"	m
@@ -16,7 +16,7 @@ LOGGING_H	../../include/logging.h	9;"	d
 MAIN_H	main.h	6;"	d
 MAX_EVENTS	task.cc	8;"	d	file:
 MD5SUM_LENGTH	transport.h	30;"	d
-MODE_MAX	../../include/logging.h	37;"	d
+MODE_MAX	../../include/logging.h	36;"	d
 SIZE	transport.h	27;"	d
 SIZE_MAX	../../include/logging.h	16;"	d
 SIZE_MAX	../../include/logging.h	18;"	d
@@ -115,7 +115,7 @@ task	task.cc	/^int task(int argc, char **argv) {$/;"	f
 task_r	task.cc	/^int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {$/;"	f
 task_w	task.cc	/^int task_w(std::list<Transport*> *w) {$/;"	f
 task_x	task.cc	/^int task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m) {$/;"	f
-uninit	task.cc	/^int uninit(std::map<int, Transport*> *m) {$/;"	f
+uninit	task.cc	/^int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m) {$/;"	f
 uninitialized	../../include/logging.cc	/^int uninitialized(void)$/;"	f
 updated	transport.h	/^	time_t updated; \/* the lastest communication time *\/$/;"	m	class:Transport
 version	version.h	/^const char *version = "Version: 1.1.0(stable)";$/;"	v

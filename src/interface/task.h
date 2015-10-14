@@ -16,7 +16,7 @@ void handler(int signum);
 void set_disposition(void);
 
 int init(int argc, char **argv);
-int uninit(std::map<int, Transport*> *m);
+int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m);
 
 int task(int argc, char **argv);
 int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m);
