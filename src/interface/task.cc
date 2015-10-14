@@ -198,8 +198,7 @@ int init(int argc, char **argv) {
 		l->stdout_level = debug;
 
 		ret = initializing();
-		if (ret == EXIT_FAILURE) {
-			ret = -1;
+		if (ret == -1) {
 			break;
 		}
 

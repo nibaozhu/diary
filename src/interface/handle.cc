@@ -5,9 +5,6 @@
 #include "handle.h"
 
 
-/*
- * %t: ....
- */
 int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w) {
 	int ret = 0;
 	size_t length = 0;
@@ -27,7 +24,6 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w)
 	plog(debug, "rx = %p, rp = 0x%lx\n", t->get_rx(), t->get_rp());
 	t->pr();
 	do {
-
 		if (t->get_rp() >= LENGTH) {
 			for (i = 0; i < LENGTH; i++) {
 				c = *((char*)t->get_rx() + i);
@@ -53,7 +49,6 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w)
 			width += ID_LENGTH;
 		} else {
 			/* Back to wait message. */
-			/* Wait message */
 			break;
 		}
 
@@ -61,7 +56,6 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w)
 			strncpy(destination, (char*)t->get_rx() + width, ID_LENGTH);
 			width += ID_LENGTH;
 		} else {
-			/* Wait message */
 			/* Back to wait message. */
 			break;
 		}
@@ -73,7 +67,6 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w)
 			plog(info, "md5sum = \"%s\"\n", md5sum);
 			width += MD5SUM_LENGTH;
 		} else {
-			/* Wait message */
 			/* Back to wait message. */
 			break;
 		}
@@ -90,7 +83,6 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w)
 				break;
 			}
 		} else {
-			/* Wait message */
 			/* Back to wait message. */
 			break;
 		}
