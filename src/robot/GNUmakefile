@@ -1,7 +1,7 @@
 all: robot
 
 robot: robot.o ../../include/logging.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
+	$(CXX) -o $@ $^ $(LDFLAGS) && ctags *
 
 install: robot
 	cp robot ../../bin

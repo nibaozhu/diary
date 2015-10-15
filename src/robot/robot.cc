@@ -26,7 +26,7 @@ extern int h_errno;
 #include <sqlite3.h>
 sqlite3 *db;
 
-int initializing_sqlite3(const char *argv4);
+int initializing_sqlite3(const char *argv2);
 int insert_it(const char *url, const char *title);
 int callback(void *NotUsed, int argc, char **argv, char **colname);
 
@@ -63,7 +63,7 @@ struct epoll_event ev, events[MAX_EVENTS];
 
 int usage(const char *argv0)
 {
-	return plog(notice, "%s www.nibaozhu.cn 80 \"/project/index.html\"\n", argv0);
+	return plog(notice, "%s www.nibaozhu.cn m1\n", argv0);
 }
 
 void handler(int signum)
@@ -174,17 +174,17 @@ int main(int argc, char **argv)
 	plog(info, "PROGRAM: %s, PID: %u, RELEASE: %s %s\n", l->name, l->pid, __DATE__, __TIME__);
 
 	do {
-		if (argc < 2)
+		if (argc < 3)
 		{
 			usage(argv[0]);
 			break;
 		}
-		initializing_sqlite3(argv[3]);
+		initializing_sqlite3(argv[2]);
 
 		char sub_url[1024];
 		memset(sub_url, 0, sizeof sub_url);
 
-		snprintf(sub_url, sizeof sub_url, "http://%s/%s", argv[1], argv[2]);
+		snprintf(sub_url, sizeof sub_url, "http://%s", argv[1]);
 		let_us_go_this_new_url(sub_url);
 
 
@@ -559,14 +559,14 @@ int decoding_chunked_content(const char *content_body, int length, char *end_of_
 }
 
 
-int initializing_sqlite3(const char *argv4)
+int initializing_sqlite3(const char *argv2)
 {
 //	sqlite3 *db;
 	char filename[PATH_MAX];
 	int retval = 0;
 
 	memset(filename, 0, sizeof filename);
-	strncpy(filename, argv4, sizeof filename - 1);
+	strncpy(filename, argv2, sizeof filename - 1);
 
 	retval = sqlite3_open(filename, &db);
 	if (retval != 0)
@@ -579,7 +579,7 @@ int initializing_sqlite3(const char *argv4)
 	char sql[1024];
 	memset(sql, 0, sizeof sql);
 	char *errmsg = NULL;
-	strcpy(sql, "create table t1(url text)");
+	strcpy(sql, "create table t1(url text, title text)");
 
 	retval = sqlite3_exec(db, sql, callback, 0, &errmsg);
 	if (retval != SQLITE_OK)
