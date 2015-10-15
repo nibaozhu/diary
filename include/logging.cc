@@ -181,11 +181,11 @@ int plog(enum elevel x, const char *fmt, ...)
 	localtime_r(&t1.tv_sec, &t0);
 	time_t diff = mktime(&t0) - mktime(&l->t1);
 #ifdef DEBUG
-	fprintf(stdout, "%s%-10s%s %s:%d: %s: %s, diff = %lu seconds, %04d-%02d-%02d %02d:%02d:%02d ->- %04d-%02d-%02d %02d:%02d:%02d\n",
+	fprintf(stdout, "%s%-10s%s %s:%d: %s: %s, %04d-%02d-%02d %02d:%02d:%02d => %04d-%02d-%02d %02d:%02d:%02d, diff = %lu seconds\n",
 			color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", 
-			diff,
-			t0.tm_year + 1900, t0.tm_mon + 1, t0.tm_mday, t0.tm_hour, t0.tm_min, t0.tm_sec,
-			l->t1.tm_year + 1900, l->t1.tm_mon + 1, l->t1.tm_mday, l->t1.tm_hour, l->t1.tm_min, l->t1.tm_sec
+			l->t1.tm_year + 1900, l->t1.tm_mon + 1, l->t1.tm_mday, l->t1.tm_hour, l->t1.tm_min, l->t1.tm_sec, 
+			t0.tm_year + 1900, t0.tm_mon + 1, t0.tm_mday, t0.tm_hour, t0.tm_min, t0.tm_sec, 
+			diff
 		);
 #endif
 	if (diff < l->diff)
@@ -317,7 +317,7 @@ int uninitialized(void)
 
 int sysdate(char *str)
 {
-	// format: year-month-day hour:minute:second microsecond
+	// format: year-month-day hour:minute:second.microsecond
 	struct tm t0;
 	struct timeval t1;
 	size_t size = DATE_MAX;
