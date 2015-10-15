@@ -191,7 +191,7 @@ int init(int argc, char **argv) {
 		l->diff = t2.tm_sec + t2.tm_min * 60 + t2.tm_hour * 60 * 60 + t2.tm_mday * 60 * 60 * 24 + t2.tm_mon * 60 * 60 * 24 * 30 + t2.tm_year * 60 * 60 * 24 * 30 * 365;
 		l->pid = getpid();
 		l->cache_max = 1;
-		l->size_max = 1024; // 1KB
+		l->size_max = 1024 * 1024 * 1; // 1 MB
 		strncpy(l->path, "../../log", sizeof l->path - 1);
 		strncpy(l->mode, "w+", sizeof l->mode - 1);
 		l->stream_level = debug;
@@ -206,7 +206,7 @@ int init(int argc, char **argv) {
 		set_disposition();
 		listen_sock = socket(AF_INET, SOCK_STREAM, 0);
 		if (listen_sock < 0) {
-			plog(error, "%s(%d)\n", strerror(errno), errno);
+			plog(emergency, "%s(%d)\n", strerror(errno), errno);
 			ret = -1;
 			break;
 		}
@@ -216,7 +216,7 @@ int init(int argc, char **argv) {
 		addr.sin_port = htons(port);
 		ret = inet_pton(AF_INET, ip, (struct sockaddr *) &addr.sin_addr.s_addr);
 		if (ret != 1) {
-			plog(error, "%s(%d)\n", strerror(errno), errno);
+			plog(emergency, "%s(%d)\n", strerror(errno), errno);
 			ret = -1;
 			break;
 		}
@@ -224,29 +224,29 @@ int init(int argc, char **argv) {
 		socklen_t addrlen = sizeof (struct sockaddr_in);
 		ret = bind(listen_sock, (struct sockaddr *) &addr, addrlen);
 		if (ret == -1) {
-			plog(error, "%s(%d)\n", strerror(errno), errno);
+			plog(emergency, "%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 
 		int backlog = (1<<4);
 		ret = listen(listen_sock, backlog);
 		if (ret == -1) {
-			plog(error, "%s(%d)\n", strerror(errno), errno);
+			plog(emergency, "%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 
 		epollfd = epoll_create(MAX_EVENTS);
 		if (epollfd == -1) {
-			plog(error, "%s(%d)\n", strerror(errno), errno);
+			plog(emergency, "%s(%d)\n", strerror(errno), errno);
 			ret = -1;
 			break;
 		}
 
-		ev.events = EPOLLIN | EPOLLOUT | EPOLLET | EPOLLRDHUP; /* Edge Triggered */
+		ev.events = EPOLLIN | EPOLLET | EPOLLRDHUP; /* Edge Triggered */
 		ev.data.fd = listen_sock; /* bind & listen's fd */
 		ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, listen_sock, &ev);
 		if (ret == -1) {
-			plog(error, "%s(%d)\n", strerror(errno), errno);
+			plog(emergency, "%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 
@@ -343,7 +343,7 @@ int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 					break;
 				}
 
-				ev.events = EPOLLIN | EPOLLOUT | EPOLLET | EPOLLRDHUP; /* Edge Triggered */
+				ev.events = EPOLLIN | EPOLLET | EPOLLRDHUP; /* Edge Triggered */
 				ev.data.fd = acceptfd;
 				ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, acceptfd, &ev);
 				if (ret == -1) {
@@ -430,6 +430,7 @@ int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 					r->push_back(t);
 				}
 
+#if 0
 				if (events[n].events & EPOLLOUT) {
 					plog(debug, "The associated file is available for write(2) operations.\n");
 					if (m == NULL) {
@@ -442,6 +443,7 @@ int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 						break;
 					}
 				}
+#endif
 			}
 		}
 
