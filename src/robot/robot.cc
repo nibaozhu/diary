@@ -35,7 +35,7 @@ int callback(void *NotUsed, int argc, char **argv, char **colname);
 #define BUFFER_LENGTH (0xffff)
 
 #include "logging.h"
-struct logging *l;
+extern struct logging *l;
 
 int setnonblocking(int fd);
 int reads(int fd);
@@ -108,8 +108,9 @@ int set_logging(int argc, const char **argv)
 	l = (struct logging*) malloc(sizeof (struct logging));
 	memset(l, 0, sizeof *l);
 
-	char *name;
-	name = rindex(argv[0], '/');
+	char name[FILENAME_MAX];
+	memset(name, 0, sizeof name);
+	strcpy(name, rindex(argv[0], '/'));
 	if (name == NULL)
 	{
 		strncpy(l->name, argv[0], sizeof l->name - 1);
@@ -154,7 +155,7 @@ int unset_logging()
 
 int main(int argc, char **argv)
 {
-	content = malloc(1024 * 1024 * 10);
+	content = (char *)malloc(1024 * 1024 * 10);
 	memset(content, 0, sizeof content);
 
 	int retval = set_logging(argc, (const char**)argv);
