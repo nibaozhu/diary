@@ -56,14 +56,13 @@ int reads(Transport *t) {
 			break;
 		} else if (ret == 0) {
 			t->set_alive(false);
-			plog(notice, "Client active closed.(End of File)\n");
+			plog(notice, "Stream socket peer = %d closed connection, or shut down writing half of connection.\n", fd);
 			break;
 		} else if (ret > 0 && ret <= BUFFER_LENGTH) {
 			rl += ret;
 			t->set_rx(buffer, ret);
 			memset(buffer, 0, ret);
-
-			if (ret > 0 && ret < BUFFER_LENGTH) {
+			if (ret != BUFFER_LENGTH) {
 				break;
 			}
 		}
@@ -261,7 +260,7 @@ int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 	int ret = 0;
 	do {
 		if (listen_sock > 0) {
-			plog(info, "Close listen socket.\n");
+			plog(info, "Close a listen file descriptor = %d.\n", listen_sock);
 			ret = close(listen_sock);
 			if (ret == -1) {
 				plog(error, "%s(%d)\n", strerror(errno), errno);
@@ -269,7 +268,7 @@ int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 		}
 
 		if (epollfd > 0) {
-			plog(info, "Close epoll socket.\n");
+			plog(info, "Close an epoll file descriptor = %d.\n", epollfd);
 			ret = close(epollfd);
 			if (ret == -1) {
 				plog(error, "%s(%d)\n", strerror(errno), errno);
@@ -361,7 +360,7 @@ int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 			} else {
 				plog(debug, "events[%d].events = 0x%04x\n", n, events[n].events);
 				if (events[n].events & EPOLLERR) {
-					plog(error, "Error condition happened on the associated file descriptor.\n");
+					plog(error, "Error condition happened on the associated file descriptor = %d.\n", events[n].data.fd);
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
 						plog(debug, "%s(%d)\n", strerror(errno), errno);
@@ -379,7 +378,7 @@ int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 				}
 
 				if (events[n].events & EPOLLHUP) {
-					plog(notice, "Hang up happened on the associated file descriptor.\n");
+					plog(notice, "Hang up happened on the associated file descriptor = %d.\n", events[n].data.fd);
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
 						plog(error, "%s(%d)\n", strerror(errno), errno);
@@ -397,7 +396,7 @@ int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 				}
 
 				if (events[n].events & EPOLLRDHUP) {
-					plog(notice, "Client active closed.\n");
+					plog(notice, "Stream socket peer = %d closed connection, or shut down writing half of connection.\n", events[n].data.fd);
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
 						plog(error, "%s(%d)\n", strerror(errno), errno);
@@ -415,7 +414,7 @@ int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 				}
 
 				if (events[n].events & EPOLLIN) {
-					plog(notice, "The associated file is available for read(2) operations.\n");
+					plog(notice, "The associated file = %d is available for read(2) operations.\n", events[n].data.fd);
 					if (m == NULL) {
 						plog(error, "m = %p\n", m);
 						break;
