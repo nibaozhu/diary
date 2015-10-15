@@ -52,8 +52,8 @@ int pflush(void)
 
 	// The function fflush() forces a write of all user-space buffered data for the given output or update stream via the stream’s
 	//        underlying write function.
-	int retval = fflush(l->stream);
-	if (retval == EOF)
+	int ret = fflush(l->stream);
+	if (ret == EOF)
 	{
 		fprintf(stderr, "%s %s:%d: %s: %s(%u)\n", level[error], __FILE__, __LINE__, __func__, strerror(errno), errno);
 		return -1;
@@ -81,8 +81,8 @@ int pflush(void)
 		return 0;
 	}
 
-	retval = fclose(l->stream);
-	if (retval == EOF)
+	ret = fclose(l->stream);
+	if (ret == EOF)
 	{
 		fprintf(stderr, "%s %s:%d: %s: %s(%u)\n", level[error], __FILE__, __LINE__, __func__, strerror(errno), errno);
 		return -1;
@@ -95,8 +95,8 @@ int pflush(void)
 	snprintf(oldpath, sizeof oldpath, "%s/%s_%u.log.%u.tmp", l->path, l->name, l->pid, l->number);
 	snprintf(newpath, sizeof newpath, "%s/%s_%u.log.%u", l->path, l->name, l->pid, l->number);
 
-	retval = rename(oldpath, newpath);
-	if (retval == -1)
+	ret = rename(oldpath, newpath);
+	if (ret == -1)
 	{
 		fprintf(stderr, "%s %s:%d: %s: %s(%u)\n", level[error], __FILE__, __LINE__, __func__, strerror(errno), errno);
 		return -1;
@@ -194,14 +194,14 @@ int plog(enum elevel x, const char *fmt, ...)
 		return 0; // no flush
 	}
 
-	int retval = 0;
-	retval = pflush();
+	int ret = 0;
+	ret = pflush();
 
-	assert(retval == 0);
+	assert(ret == 0);
 	// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
 	//	on January 1, 1970, Coordinated Universal Time (UTC).
 	localtime_r(&t1.tv_sec, &l->t1);
-	return retval;
+	return ret;
 }
 
 int initializing(void)
@@ -226,11 +226,11 @@ int initializing(void)
 		l->size_max = SIZE_MAX;
 	}
 
-	int retval = 0;
+	int ret = 0;
 	// F_OK, R_OK, W_OK, X_OK test whether the file exists and grants read, write, and execute permissions.
 	// Warning: R_OK maybe not needed.
-	retval = access(l->path, F_OK | W_OK | X_OK);
-	if (retval == -1)
+	ret = access(l->path, F_OK | W_OK | X_OK);
+	if (ret == -1)
 	{
 		fprintf(stderr, "%s %s:%d: %s: path = \"%s\", %s(%u)\n",
 			level[emergency], __FILE__, __LINE__, __func__, l->path, strerror(errno), errno);
@@ -268,16 +268,20 @@ int uninitialized(void)
 #endif
 	if (l == NULL)
 	{
-		fprintf(stderr, "%s %s:%d: %s: l = %p\n", level[error], __FILE__, __LINE__, __func__, l);
-		return -1;
+		return 0;
 	}
 
-	int retval = 0;
+	if (l->stream == 0)
+	{
+		return 0;
+	}
+
+	int ret = 0;
 
 	// The function fflush() forces a write of all user-space buffered data for the given output or update stream via the stream’s
 	//        underlying write function.
-	retval = fflush(l->stream);
-	if (retval == EOF)
+	ret = fflush(l->stream);
+	if (ret == EOF)
 	{
 		fprintf(stderr, "%s %s:%d: %s: %s(%u)\n", level[error], __FILE__, __LINE__, __func__, strerror(errno), errno);
 		return -1;
@@ -285,8 +289,8 @@ int uninitialized(void)
 
 	// The fclose() function will flushes the stream pointed to by fp (writing any buffered output data using fflush(3)) and closes
 	//        the underlying file descriptor.
-	retval = fclose(l->stream);
-	if (retval == EOF)
+	ret = fclose(l->stream);
+	if (ret == EOF)
 	{
 		fprintf(stderr, "%s %s:%d: %s: %s(%u)\n", level[error], __FILE__, __LINE__, __func__, strerror(errno), errno);
 		return -1;
@@ -299,8 +303,8 @@ int uninitialized(void)
 	snprintf(oldpath, sizeof oldpath, "%s/%s_%u.log.%u.tmp", l->path, l->name, l->pid, l->number);
 	snprintf(newpath, sizeof newpath, "%s/%s_%u.log.%u", l->path, l->name, l->pid, l->number);
 
-	retval = rename(oldpath, newpath);
-	if (retval == -1)
+	ret = rename(oldpath, newpath);
+	if (ret == -1)
 	{
 		fprintf(stderr, "%s %s:%d: %s: %s(%u)\n", level[error], __FILE__, __LINE__, __func__, strerror(errno), errno);
 		return -1;
