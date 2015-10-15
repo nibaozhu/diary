@@ -7,15 +7,16 @@
 
 #include "logging.h"
 
+/* Number stands for level. */
 const char *level[debug + 1] = {
-	"EMERGENCY",
-	"ALERT    ",
-	"CRITICAL ",
-	"ERROR    ",
-	"WARNING  ",
-	"NOTICE   ",
-	"INFO     ",
-	"DEBUG    ",
+	"[EMERGENCY=0]",
+	"[ALERT=11111]",
+	"[CRITICAL=22]",
+	"[ERROR=33333]",
+	"[WARNING=444]",
+	"[NOTICE=5555]",
+	"[INFO=666666]",
+	"[DEBUG=77777]",
 };
 
 const char *color[debug + 1] = {
@@ -26,7 +27,7 @@ const char *color[debug + 1] = {
 	"\e[36;1m", // cyan
 	"\e[32;1m", // green
 	"\e[37;1m", // white(gray)
-	"\e[37;0m", // 
+	"\e[37;0m", // white(gray, no highlight)
 };
 
 const char *clear_color = "\e[0m";
@@ -211,7 +212,7 @@ int initializing(void)
 #endif
 	if (l == NULL)
 	{
-		fprintf(stderr, "%s %s:%d: %s: l == NULL\n", level[error], __FILE__, __LINE__, __func__);
+		fprintf(stderr, "%s %s:%d: %s: l == NULL\n", level[emergency], __FILE__, __LINE__, __func__);
 		return -1;
 	}
 
@@ -232,7 +233,7 @@ int initializing(void)
 	if (retval == -1)
 	{
 		fprintf(stderr, "%s %s:%d: %s: path = \"%s\", %s(%u)\n",
-			level[error], __FILE__, __LINE__, __func__, l->path, strerror(errno), errno);
+			level[emergency], __FILE__, __LINE__, __func__, l->path, strerror(errno), errno);
 		return -1;
 	}
 
@@ -245,7 +246,7 @@ int initializing(void)
 	if (fp == NULL)
 	{
 		fprintf(stderr, "%s %s:%d: %s: path = \"%s\", %s(%u)\n",
-			level[error], __FILE__, __LINE__, __func__, path, strerror(errno), errno);
+			level[emergency], __FILE__, __LINE__, __func__, path, strerror(errno), errno);
 		return -1;
 	}
 	l->stream = fp;
@@ -254,7 +255,7 @@ int initializing(void)
 	fprintf(stdout, "%s %s:%d: %s: %s\n", level[debug], __FILE__, __LINE__, __func__, "passed");
 #endif
 
-	// print the program name , pid, release
+	// print the program name, pid, release
 	plog(info, "PROGRAM: %s, PID: %u, RELEASE: %s %s\n", l->name, l->pid, __DATE__, __TIME__);
 	return 0;
 }
