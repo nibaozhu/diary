@@ -4,4 +4,4 @@
  */
 
 /* {experimental, unstable, stable} */
-const char *version = "Version: 1.1.0(stable)";
+const char *version = "Version: 1.1.1(stable)";
