@@ -74,6 +74,7 @@ int reads(Transport *t) {
 		speed = rl * 1. / ((t1 - t0) * 1024 * 1024);
 		plog(notice, "speed: %0.2f M/s\n", t->set_speed(speed));
 	}
+	plog(debug, "rx = %p, rp = 0x%lx\n", t->get_rx(), t->get_rp());
 	free(buffer);
 	return ret;
 }
@@ -82,13 +83,8 @@ int writes(Transport *t) {
 	int ret = 0;
 	assert(t != NULL);
 	do {
-		int fd = t->get_fd();
-		if (t->get_wp() <= 0) {
-			break;
-		}
-
 		t->pw();
-		ret = write(fd, t->get_wx(), t->get_wp());
+		ret = write(t->get_fd(), t->get_wx(), t->get_wp());
 		if (ret == -1) {
 			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
@@ -123,7 +119,7 @@ void handler(int signum) {
 }
 
 void set_disposition(void) {
-	int arr[] = {SIGQUIT, SIGINT, SIGUSR1, SIGUSR2, SIGTERM, SIGSEGV};
+	int arr[] = {SIGQUIT, SIGINT, SIGUSR1, SIGUSR2, SIGTERM, /* SIGSEGV */ };
 	size_t i = 0;
 	int signum = 0;
 	for ( ; i < sizeof arr / sizeof (int); i++) {
@@ -303,7 +299,7 @@ int task(int argc, char **argv) {
 		}
 
 		while (!is_quit) {
-			ret = task_r(r, m);
+			ret = task_r(r, w, m);
 			ret = task_x(r, w, m);
 			ret = task_w(w);
 		}
@@ -312,7 +308,7 @@ int task(int argc, char **argv) {
 	return ret;
 }
 
-int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
+int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m) {
 	assert(r != NULL && m != NULL);
 	int ret = 0;
 	do {
@@ -320,7 +316,7 @@ int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 		socklen_t peer_addrlen = sizeof (struct sockaddr_in);
 		memset(&peer_addr, 0, sizeof (struct sockaddr_in));
 
-		nfds = epoll_wait(epollfd, events, MAX_EVENTS, 1000);
+		nfds = epoll_wait(epollfd, events, MAX_EVENTS, 1);
 		if (nfds == -1) {
 			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
@@ -336,7 +332,6 @@ int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 
 				time_t created = time(NULL);
 				plog(notice, "acceptfd = %d\n", acceptfd);
-
 				ret = setnonblocking(acceptfd); /* Set Non Blocking */
 				if (ret == -1) {
 					break;
@@ -356,7 +351,8 @@ int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 				plog(notice, "NAME %s:%d->%s:%d\n", ip, htons(addr.sin_port), peer_ip, htons(peer_addr.sin_port));
 
 				Transport *t = new Transport(acceptfd, created, peer_addr, peer_addrlen);
-				(*m)[acceptfd] = t;
+				// (*m)[acceptfd] = t;
+				m->insert(std::make_pair(acceptfd, t));
 			} else {
 				plog(debug, "events[%d].events = 0x%04x\n", n, events[n].events);
 				if (events[n].events & EPOLLERR) {
@@ -372,6 +368,7 @@ int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 						continue;
 					}
 
+					w->remove((*m)[events[n].data.fd]);
 					delete (*m)[events[n].data.fd];
 					m->erase(events[n].data.fd);
 					continue;
@@ -390,6 +387,7 @@ int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 						continue;
 					}
 
+					w->remove((*m)[events[n].data.fd]);
 					delete (*m)[events[n].data.fd];
 					m->erase(events[n].data.fd);
 					continue;
@@ -408,6 +406,7 @@ int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m) {
 						continue;
 					}
 
+					w->remove((*m)[events[n].data.fd]);
 					delete (*m)[events[n].data.fd];
 					m->erase(events[n].data.fd);
 					continue;
@@ -460,7 +459,7 @@ int task_w(std::list<Transport*> *w) {
 			i = w->erase(i);
 			continue;
 		}
-		plog(debug, "wx = %p, wp = %lu\n", t->get_wx(), t->get_wp());
+		plog(debug, "wx = %p, wp = 0x%lx\n", t->get_wx(), t->get_wp());
 		t->pw();
 		ret = writes(t);
 		if (t->get_wp() == 0) {

@@ -21,7 +21,6 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w)
 	static std::map<std::string, int> *interface = new std::map<std::string, int>(); // maybe should use multimap
 	void *message = NULL;
 
-	plog(debug, "rx = %p, rp = 0x%lx\n", t->get_rx(), t->get_rp());
 	t->pr();
 	do {
 		if (t->get_rp() >= LENGTH) {
@@ -88,12 +87,13 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w)
 		}
 
 		if (strncmp(source, destination, sizeof source) == 0 && strlen(source) > 0) {
-			plog(notice, "Echo.\n");
+			t->set_alive(true);
 			interface->erase(t->get_id());
 			t->set_id(source);
 			(*interface)[t->get_id()] = t->get_fd();
 			t->set_id(source);
 			if (t->get_rp() >= width) {
+				plog(notice, "Echo\n");
 				t->set_wx(t->get_rx(), t->get_rp());
 				t->clear_rx();
 				w->push_back(t);

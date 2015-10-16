@@ -19,7 +19,7 @@ int init(int argc, char **argv);
 int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m);
 
 int task(int argc, char **argv);
-int task_r(std::list<Transport*> *r, std::map<int, Transport*> *m);
+int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m);
 int task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m);
 int task_w(std::list<Transport*> *w);
 
