@@ -51,7 +51,7 @@ int reads(Transport *t) {
 	do {
 		memset(buffer, 0, BUFFER_LENGTH + 1);
 		ret = read(fd, buffer, BUFFER_LENGTH);
-		if (ret < 0) {
+		if (ret == -1) {
 			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		} else if (ret == 0) {
@@ -89,10 +89,10 @@ int writes(Transport *t) {
 
 		t->pw();
 		ret = write(fd, t->get_wx(), t->get_wp());
-		if (ret < 0) {
+		if (ret == -1) {
 			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
-		} else if (ret >= 0 && (size_t)ret <= t->get_wp()) {
+		} else if (ret >= 0 && ret <= (ssize_t)t->get_wp()) {
 			/* Moving forward. */
 			memmove(t->get_wx(), (const void *)((char *)t->get_wx() + ret), t->get_wp() - ret);
 			t->set_wp(t->get_wp() - ret);
