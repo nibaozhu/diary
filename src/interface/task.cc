@@ -352,7 +352,7 @@ int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 				// (*m)[acceptfd] = t;
 				m->insert(std::make_pair(acceptfd, t));
 			} else {
-				plog(debug, "events[%d].events = 0x%04x\n", n, events[n].events);
+				plog(debug, "events[%d].events = 0x%03x\n", n, events[n].events);
 				if (events[n].events & EPOLLERR) {
 					plog(error, "Error condition happened on the associated file descriptor = %d.\n", events[n].data.fd);
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
