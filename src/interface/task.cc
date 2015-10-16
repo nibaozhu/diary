@@ -20,16 +20,15 @@ char ip[3 + 1 + 3 + 1 + 3 + 1 + 3 + 1] = "0.0.0.0";
 
 int setnonblocking(int fd) {
 	int ret = 0;
-	plog(debug, "%s:%d:%s\n", __FILE__, __LINE__, __func__);
 	do {
 		int flags = fcntl(fd, F_GETFL);    
 		if (flags == -1) {
-			ret = flags;
+			ret = -1;
 			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		}
-		flags |= O_NONBLOCK; /* If the O_NONBLOCK flag is enabled, 
-								then the system call fails with the error EAGAIN. */
+		flags |= O_NONBLOCK; /* If the O_NONBLOCK flag is enabled, then the system call fails with the error EAGAIN. */
+		plog(info, "Set the file = %d status flags to the value = 0%o.\n", fd, flags);
 		ret = fcntl(fd, F_SETFL, flags);
 		if (ret == -1) {
 			plog(error, "%s(%d)\n", strerror(errno), errno);
@@ -40,23 +39,22 @@ int setnonblocking(int fd) {
 }
 
 int reads(Transport *t) {
+	assert(t != NULL);
 	int ret = 0;
-	int fd = t->get_fd();
 	void *buffer = malloc(BUFFER_LENGTH + 1);
 	size_t rl = 0;
 	time_t t0 = 0, t1 = 0;
 	double speed = 0;
-	assert(t != NULL);
 	t0 = time(NULL);
 	do {
 		memset(buffer, 0, BUFFER_LENGTH + 1);
-		ret = read(fd, buffer, BUFFER_LENGTH);
+		ret = read(t->get_fd(), buffer, BUFFER_LENGTH);
 		if (ret == -1) {
 			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		} else if (ret == 0) {
 			t->set_alive(false);
-			plog(notice, "Stream socket peer = %d closed connection, or shut down writing half of connection.\n", fd);
+			plog(notice, "Stream socket peer = %d closed connection, or shut down writing half of connection.\n", t->get_fd());
 			break;
 		} else if (ret > 0 && ret <= BUFFER_LENGTH) {
 			rl += ret;
