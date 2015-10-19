@@ -314,7 +314,10 @@ int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 		socklen_t peer_addrlen = sizeof (struct sockaddr_in);
 		memset(&peer_addr, 0, sizeof (struct sockaddr_in));
 
-		nfds = epoll_wait(epollfd, events, MAX_EVENTS, 1);
+		/* The call waits for a maximum time of timeout milliseconds.  Specifying a timeout of -1 makes epoll_wait() wait indefinitely, while specifying a
+		 * timeout equal to zero makes epoll_wait() to return immediately even if no events are available (return code equal to zero). */
+		int timeout = 1000;
+		nfds = epoll_wait(epollfd, events, MAX_EVENTS, timeout);
 		if (nfds == -1) {
 			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
