@@ -10,24 +10,24 @@
 /* Number stands for level. */
 const char *level[debug + 1] = {
 	"[EMERGENCY=0]",
-	"[ALERT=11111]",
-	"[CRITICAL=22]",
-	"[ERROR=33333]",
-	"[WARNING=444]",
-	"[NOTICE=5555]",
-	"[INFO=666666]",
-	"[DEBUG=77777]",
+	"[ALERT=1....]",
+	"[CRITICAL=2.]",
+	"[ERROR=3....]",
+	"[WARNING=4..]",
+	"[NOTICE=5...]",
+	"[INFO=6.....]",
+	"[DEBUG=7....]",
 };
 
 const char *color[debug + 1] = {
-	"\e[31;1m", // red
-	"\e[35;1m", // purple
-	"\e[33;1m", // yellow
-	"\e[34;1m", // blue
-	"\e[36;1m", // cyan
-	"\e[32;1m", // green
-	"\e[37;1m", // white(gray)
-	"\e[37;0m", // white(gray, no highlight)
+	"\e[31m", // red
+	"\e[35m", // purple
+	"\e[33m", // yellow
+	"\e[34m", // blue
+	"\e[36m", // cyan
+	"\e[32m", // green
+	"\e[37m", // white(gray)
+	"\e[37m", // white(gray)
 };
 
 const char *clear_color = "\e[0m";
