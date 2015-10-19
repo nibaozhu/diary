@@ -200,7 +200,7 @@ int main(int argc, char **argv)
 			if (nfds == -1)
 			{
 				plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
-				break;
+				// break;
 			}
 
 			for (n = 0; n < nfds; n++)
@@ -218,7 +218,7 @@ int main(int argc, char **argv)
 						break;
 					}
 					close(events[n].data.fd);
-					quit = 1;
+					// quit = 1;
 					break;
 				}
 
@@ -235,7 +235,7 @@ int main(int argc, char **argv)
 						break;
 					}
 					close(events[n].data.fd);
-					quit = 1;
+					// quit = 1;
 					break;
 				}
 
@@ -309,7 +309,7 @@ int reads(int fd)
 		if (end_of_zero == '0' || ((i_content_length <= pos - (crlf + 4 - content)) && chunked == NULL))
 		{
 			search_url(url, content, pos);
-			quit = 1;
+			// quit = 1;
 		}
 
 	} while (0);
@@ -390,7 +390,7 @@ int do_use_fd(const char *uri, const char *host)
 
 int search_url(const char *url, const char *string, int length)
 {
-	plog(debug, "%s: %d: %s\n|||%s|||\n", __FILE__, __LINE__, __func__, string);
+	plog(debug, "%s: %d: %s <%s>\n|||%s|||\n", __FILE__, __LINE__, __func__, url, string);
 
 	regex_t preg;
 	const char *regex = 
@@ -399,7 +399,9 @@ int search_url(const char *url, const char *string, int length)
 
 	regex_t preg2;
 	const char *regex2 = 
-"<title>[^<]\\+</title>"	// title
+//"<title>[^<]\\+</title>"	// title
+"<a>[^<]\\+</a>"	// 
+// "\\<title=\"[^\"]\\+\""	// title="xxx"
 ; 
 
 	int cflags = REG_ICASE;
@@ -432,17 +434,22 @@ int search_url(const char *url, const char *string, int length)
 
 	char title[1024];
 
-	// regexec() returns zero for a successful match or REG_NOMATCH for failure.
-	errcode = regexec(&preg2, string, nmatch, pmatch, eflags);
-	if (errcode == 0)
+	while (errcode != REG_NOMATCH)
 	{
-		memset(title, 0, sizeof title);
-		memcpy(title, string + pmatch[0].rm_so, pmatch[0].rm_eo - pmatch[0].rm_so);
-		plog(notice, "|||%s|||\n", title);
+		// regexec() returns zero for a successful match or REG_NOMATCH for failure.
+		errcode = regexec(&preg2, string, nmatch, pmatch, eflags);
+		if (errcode == 0)
+		{
+			memset(title, 0, sizeof title);
+			memcpy(title, string + pmatch[0].rm_so, pmatch[0].rm_eo - pmatch[0].rm_so);
+			plog(notice, "|||%s|||\n", title);
+			insert_it(url, title);
+		}
 
-		insert_it(url, title);
+		string += pmatch[0].rm_so + 1;
 	}
 
+	errcode = 0;
 	while (errcode != REG_NOMATCH)
 	{
 		// regexec() returns zero for a successful match or REG_NOMATCH for failure.
@@ -468,11 +475,15 @@ int search_url(const char *url, const char *string, int length)
 			if (strstr(sub_url, ".asp")) { break; }
 			if (strstr(sub_url, ".jsp")) { break; }
 			if (strstr(sub_url, "sta")) { break; }
+			if (strstr(sub_url, "ccnt")) { break; }
 			let_us_go_this_new_url(sub_url);
 			} while (0);
 		}
 
 		string += pmatch[0].rm_so + 1;
+
+		plog(notice, "|||break ---|||\n");
+		break;
 	}
 
 	regfree(&preg);
@@ -624,7 +635,7 @@ int callback(void *NotUsed, int argc, char **argv, char **colname)
 
 int let_us_go_this_new_url(const char *url)
 {
-	plog(emergency, "%s: %d: %s %s\n", __FILE__, __LINE__, __func__, url);
+	plog(notice, "%s: %d: %s %s\n", __FILE__, __LINE__, __func__, url);
 	
 
 	do {
@@ -698,6 +709,7 @@ int let_us_go_this_new_url(const char *url)
 		}
 
 		socklen_t addrlen = sizeof (struct sockaddr_in);
+		usleep(1000);
 		retval = connect(fd, (struct sockaddr *) &addr, addrlen);
 		if (retval == -1)
 		{
