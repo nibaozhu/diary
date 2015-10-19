@@ -221,7 +221,7 @@ int init(int argc, char **argv) {
 			break;
 		}
 
-		int backlog = (1<<4);
+		int backlog = (1<<10);
 		ret = listen(listen_sock, backlog);
 		if (ret == -1) {
 			plog(emergency, "%s(%d)\n", strerror(errno), errno);
