@@ -226,6 +226,7 @@ public:
 			width = WIDTH;
 		}
 		assert(b0 == false);
+		plog(info, "this->rx = %p, this->rp = 0x%lx\n", this->rx, this->rp);
 #if 0
 		size_t i = 0;
 		plog(debug, "--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);

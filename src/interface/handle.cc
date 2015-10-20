@@ -76,7 +76,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w)
 			memcpy(message, (const void *)((char *)t->get_rx() + width), length);
 			ret = checksum(message, length, md5sum, digestname);
 			if (ret == -1) {
-				plog(error, "checksum FAIL\n");
+				plog(warning, "Check fails.\n");
 				t->clear_rx();
 				/* Back to wait other message. */
 				break;
@@ -181,7 +181,6 @@ int checksum(const void *ptr, int size, char *md_value_0, char *digestname) {
 		}
 
 		if (md_value[i] != md_value_0[2 * i] * 0x10 + md_value_0[2 * i + 1]) {
-			plog(warning, "CHECKSUM NOT EQUAL!\n");
 			ret = -1;
 			break;
 		}
