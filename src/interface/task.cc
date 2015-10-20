@@ -235,7 +235,7 @@ int init(int argc, char **argv) {
 			break;
 		}
 
-		ev.events = EPOLLIN | EPOLLET | EPOLLRDHUP; /* Edge Triggered */
+		ev.events = EPOLLIN | EPOLLRDHUP; /* Level Triggered */
 		ev.data.fd = listen_sock; /* bind & listen's fd */
 		ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, listen_sock, &ev);
 		if (ret == -1) {
@@ -338,7 +338,7 @@ int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 					break;
 				}
 
-				ev.events = EPOLLIN | EPOLLET | EPOLLRDHUP; /* Edge Triggered */
+				ev.events = EPOLLIN | EPOLLRDHUP; /* Level Triggered */
 				ev.data.fd = acceptfd;
 				ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, acceptfd, &ev);
 				if (ret == -1) {
