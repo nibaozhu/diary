@@ -195,6 +195,8 @@ int init(int argc, char **argv) {
 			break;
 		}
 
+		plog(info, "%s\n", version);
+
 		is_quit = false;
 		set_disposition();
 		listen_sock = socket(AF_INET, SOCK_STREAM, 0);
