@@ -148,8 +148,18 @@ int init(int argc, char **argv) {
 					break;
 				case 'h':
 				default: /* ? */
-					printf("Usage: %s [-hv] [-i ip] [-p port]\n", argv[0]);
-					printf("ip = %s, port = %d\n", ip, port);
+					printf( "Usage: %s [OPTION]...\n"
+						"Interface server.\n"
+						"\n"
+						"	-h	display this help and exit\n"
+						"	-v	output version information and exit\n"
+						"	-i IP	set bind ip, default use %s\n"
+						"	-p PORT	set bind port, default use %d\n"
+						"\n"
+						"Report %s bugs to %s\n"
+						"Home page: <%s>\n"
+						"For complete documentation, see README\n", 
+						argv[0], ip, port, argv[0], email, home);
 					exit(0);
 			}
 		}
