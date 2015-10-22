@@ -277,6 +277,7 @@ public:
 	}
 
 	~Transport() {
+		plog(debug, "free this->rx = %p, free this->wx = %p\n", this->rx, this->wx);
 		free(this->rx);
 		free(this->wx);
 	}
