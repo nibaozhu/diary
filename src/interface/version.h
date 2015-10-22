@@ -3,7 +3,9 @@
  * warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-/* {experimental, unstable, stable} */
-const char *version = "Version: 1.2.0(stable)";
+const char *author = "Ni Baozhu";
 const char *email = "nibz@qq.com";
 const char *home = "https://github.com/nibaozhu/project_x/trunk/src/interface";
+
+/* {experimental, unstable, stable} */
+const char *version = "1.2.1-stable";

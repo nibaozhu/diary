@@ -28,6 +28,7 @@ WIDTH	transport.h	25;"	d
 addr	task.cc	/^struct sockaddr_in addr;$/;"	v	typeref:struct:sockaddr_in
 alert	../../include/logging.h	/^	alert,			\/* action must be taken immediately *\/$/;"	e	enum:elevel
 alive	transport.h	/^	bool alive; \/* true: live; false: die *\/$/;"	m	class:Transport
+author	version.h	/^const char *author = "Ni Baozhu";$/;"	v
 cache	../../include/logging.h	/^	unsigned int cache; \/\/ logging has cache lines in memory$/;"	m	struct:logging
 cache_max	../../include/logging.h	/^	unsigned int cache_max; \/\/ cache_max lines in memory$/;"	m	struct:logging
 checksum	handle.cc	/^int checksum(const void *ptr, int size, char *md_value_0, char *digestname) {$/;"	f
@@ -120,7 +121,7 @@ task_x	task.cc	/^int task_x(std::list<Transport*> *r, std::list<Transport*> *w, 
 uninit	task.cc	/^int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m) {$/;"	f
 uninitialized	../../include/logging.cc	/^int uninitialized(void)$/;"	f
 updated	transport.h	/^	time_t updated; \/* the lastest communication time *\/$/;"	m	class:Transport
-version	version.h	/^const char *version = "Version: 1.2.0(stable)";$/;"	v
+version	version.h	/^const char *version = "1.2.1-stable";$/;"	v
 warning	../../include/logging.h	/^	warning,		\/* warning conditions *\/$/;"	e	enum:elevel
 wp	transport.h	/^	size_t wp; \/* transport data `Write' pointer position *\/$/;"	m	class:Transport
 writes	task.cc	/^int writes(Transport *t) {$/;"	f
