@@ -5,7 +5,7 @@
 #include "handle.h"
 
 
-int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w) {
+int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w, std::map<std::string, int> *interface) {
 	int ret = 0;
 	size_t length = 0;
 	size_t width = 0;
@@ -18,7 +18,6 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w)
 	int i = 0;
 	char c = 0;
 	std::string id;
-	static std::map<std::string, int> *interface = new std::map<std::string, int>(); // maybe should use multimap
 	void *message = NULL;
 
 	t->pr();
@@ -75,6 +74,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w)
 			memset(message, 0, sizeof message);
 			memcpy(message, (const void *)((char *)t->get_rx() + width), length);
 			ret = checksum(message, length, md5sum, digestname);
+			free (message);
 			if (ret == -1) {
 				plog(warning, "Check fails.\n");
 				t->clear_rx();
@@ -129,12 +129,14 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w)
 	return ret;
 }
 
-int checksum(const void *ptr, int size, char *md_value_0, char *digestname) {
+int checksum(const void *ptr, size_t size, char *md_value_0, char *digestname) {
 	int ret = 0;
+	return ret;
+
 	EVP_MD_CTX *mdctx;
 	const EVP_MD *md;
 	unsigned char md_value[EVP_MAX_MD_SIZE];
-	int md_len, i;
+	size_t md_len, i;
 
 	OpenSSL_add_all_digests();
 	md = EVP_get_digestbyname(digestname);
@@ -149,7 +151,6 @@ int checksum(const void *ptr, int size, char *md_value_0, char *digestname) {
 	EVP_DigestFinal_ex(mdctx, md_value, (unsigned int *)&md_len);
 	EVP_MD_CTX_destroy(mdctx);
 
-#if 0
 	for (i = 0; i < size; i++) plog(debug, "%c", *(char *)((char *)ptr + i));
 	puts("");
 
@@ -160,7 +161,6 @@ int checksum(const void *ptr, int size, char *md_value_0, char *digestname) {
 	puts("Computed Digest is: {");
 	for (i = 0; i < md_len; i++) plog(debug, "%02x", md_value[i]);
 	puts("}");
-#endif
 
 	for (i = 0; i < md_len; i++) {
 

@@ -16,11 +16,11 @@ void handler(int signum);
 void set_disposition(void);
 
 int init(int argc, char **argv);
-int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m);
+int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface);
 
 int task(int argc, char **argv);
 int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m);
-int task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m);
+int task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface);
 int task_w(std::list<Transport*> *w);
 
 #include <arpa/inet.h>

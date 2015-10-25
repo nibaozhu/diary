@@ -262,7 +262,7 @@ int init(int argc, char **argv) {
 	return ret;
 }
 
-int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m) {
+int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *inferface) {
 	int ret = 0;
 	do {
 		if (listen_sock > 0) {
@@ -282,13 +282,19 @@ int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 		}
 
 		r->clear();
+		delete r;
+
 		w->clear();
+		delete w;
 
 		std::map<int, Transport*>::iterator i = m->begin();
 		while (i != m->end()) {
 			delete i->second;
 			m->erase(i++);
 		}
+		delete m;
+
+		delete inferface;
 
 		ret = uninitialized();
 		free(l);
@@ -301,6 +307,7 @@ int task(int argc, char **argv) {
 	std::list<Transport*> *r = new std::list<Transport*>();
 	std::list<Transport*> *w = new std::list<Transport*>();
 	std::map<int, Transport*> *m = new std::map<int, Transport*>();
+	std::map<std::string, int> *interface = new std::map<std::string, int>(); // maybe should use multimap
 	do {
 		srand(getpid());
 		ret = init(argc, argv);
@@ -310,11 +317,11 @@ int task(int argc, char **argv) {
 
 		while (!is_quit) {
 			ret = task_r(r, w, m);
-			ret = task_x(r, w, m);
+			ret = task_x(r, w, m, interface);
 			ret = task_w(w);
 		}
 	} while (0);
-	ret = uninit(r, w, m);
+	ret = uninit(r, w, m, interface);
 	return ret;
 }
 
@@ -488,13 +495,13 @@ int task_w(std::list<Transport*> *w) {
 	return ret;
 }
 
-int task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m) {
+int task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface) {
 	assert(r != NULL && w != NULL && m != NULL);
 	int ret = 0;
 	std::list<Transport*>::iterator i = r->begin();
 	while (i != r->end()) {
 		Transport *t = *i;
-		ret = handle(t, m, w);
+		ret = handle(t, m, w, interface);
 		if (ret == -1) {
 			// plog(error, "Handle fail.\n");
 		}

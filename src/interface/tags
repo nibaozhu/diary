@@ -31,7 +31,7 @@ alive	transport.h	/^	bool alive; \/* true: live; false: die *\/$/;"	m	class:Tran
 author	version.h	/^const char *author = "Ni Baozhu";$/;"	v
 cache	../../include/logging.h	/^	unsigned int cache; \/\/ logging has cache lines in memory$/;"	m	struct:logging
 cache_max	../../include/logging.h	/^	unsigned int cache_max; \/\/ cache_max lines in memory$/;"	m	struct:logging
-checksum	handle.cc	/^int checksum(const void *ptr, int size, char *md_value_0, char *digestname) {$/;"	f
+checksum	handle.cc	/^int checksum(const void *ptr, size_t size, char *md_value_0, char *digestname) {$/;"	f
 clear_color	../../include/logging.cc	/^const char *clear_color = "\\e[0m";$/;"	v
 clear_rx	transport.h	/^	void *clear_rx(size_t size = SIZE) {$/;"	f	class:Transport
 clear_wx	transport.h	/^	void *clear_wx(size_t size = SIZE) {$/;"	f	class:Transport
@@ -59,7 +59,7 @@ get_speed	transport.h	/^	double get_speed(void) {$/;"	f	class:Transport
 get_wp	transport.h	/^	size_t get_wp(void) {$/;"	f	class:Transport
 get_ws	transport.h	/^	size_t get_ws(void) {$/;"	f	class:Transport
 get_wx	transport.h	/^	void *get_wx(void) {$/;"	f	class:Transport
-handle	handle.cc	/^int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w) {$/;"	f
+handle	handle.cc	/^int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w, std::map<std::string, int> *interface) {$/;"	f
 handler	task.cc	/^void handler(int signum) {$/;"	f
 home	version.h	/^const char *home = "https:\/\/github.com\/nibaozhu\/project_x\/trunk\/src\/interface";$/;"	v
 id	transport.h	/^	std::string id; \/* id.size() = ID_LENGTH *\/$/;"	m	class:Transport
@@ -117,8 +117,8 @@ t1	../../include/logging.h	/^	struct tm t1; \/\/ the last flush stream date\/tim
 task	task.cc	/^int task(int argc, char **argv) {$/;"	f
 task_r	task.cc	/^int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m) {$/;"	f
 task_w	task.cc	/^int task_w(std::list<Transport*> *w) {$/;"	f
-task_x	task.cc	/^int task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m) {$/;"	f
-uninit	task.cc	/^int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m) {$/;"	f
+task_x	task.cc	/^int task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface) {$/;"	f
+uninit	task.cc	/^int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *inferface) {$/;"	f
 uninitialized	../../include/logging.cc	/^int uninitialized(void)$/;"	f
 updated	transport.h	/^	time_t updated; \/* the lastest communication time *\/$/;"	m	class:Transport
 version	version.h	/^const char *version = "1.2.1-stable";$/;"	v
