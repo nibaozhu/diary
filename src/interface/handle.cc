@@ -62,7 +62,6 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w,
 		if (t->get_rp() >= width + MD5SUM_LENGTH) {
 			memset(md5sum, 0, sizeof md5sum);
 			memcpy(md5sum, (const void *)((char *)t->get_rx() + width), MD5SUM_LENGTH);
-			plog(info, "md5sum = \"%s\"\n", md5sum);
 			width += MD5SUM_LENGTH;
 		} else {
 			/* Back to wait message. */
@@ -70,6 +69,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w,
 		}
 
 		if (t->get_rp() >= width + length) {
+			plog(info, "md5sum = \"%s\"\n", md5sum);
 			message = malloc(length + 1);
 			memset(message, 0, sizeof message);
 			memcpy(message, (const void *)((char *)t->get_rx() + width), length);
