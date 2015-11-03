@@ -86,7 +86,7 @@ int writes(Transport *t) {
 		if (ret == -1) {
 			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
-		} else if (ret >= 0 && ret <= (ssize_t)t->get_wp()) {
+		} else if (ret >= 0 && (size_t)ret <= t->get_wp()) {
 			/* Moving forward. */
 			memmove(t->get_wx(), (const void *)((char *)t->get_wx() + ret), t->get_wp() - ret);
 			t->set_wp(t->get_wp() - ret);
