@@ -1,7 +1,7 @@
 .PHONY: all clean
 all: i1
 clean:
-	rm -f *.o core.* i1
+	rm -f main.o task.o handle.o ../../include/logging.o i1
 
 i1: main.o task.o handle.o ../../include/logging.o
 	$(CXX) -o $@ $^ $(LDFLAGS) && ctags * ../../include/*
