@@ -15,6 +15,7 @@ extern char *optarg;
 extern int optind, opterr, optopt;
 extern struct logging *l;
 bool is_quit;
+bool is_reconfigure;
 short int port = 12340;
 char ip[3 + 1 + 3 + 1 + 3 + 1 + 3 + 1] = "0.0.0.0";
 
@@ -98,6 +99,9 @@ int writes(Transport *t) {
 void handler(int signum) {
 	plog(notice, "Received signal %d\n", signum);
 	switch (signum) {
+		case SIGHUP: /* causes auditd to reconfigure. */
+			is_reconfigure = true;
+			break;
 		case SIGQUIT: /* shortcut: Ctrl + \ */
 		case SIGINT : /* shortcut: Ctrl + C */
 		case SIGTERM:
@@ -117,7 +121,7 @@ void handler(int signum) {
 }
 
 void set_disposition(void) {
-	int arr[] = {SIGQUIT, SIGINT, SIGUSR1, SIGUSR2, SIGTERM, /* SIGSEGV */ };
+	int arr[] = {SIGHUP, SIGQUIT, SIGINT, SIGUSR1, SIGUSR2, SIGTERM, /* SIGSEGV */ };
 	size_t i = 0;
 	int signum = 0;
 	for ( ; i < sizeof arr / sizeof (int); i++) {
@@ -208,6 +212,7 @@ int init(int argc, char **argv) {
 		plog(info, "%s\n", version);
 
 		is_quit = false;
+		is_reconfigure = false;
 		set_disposition();
 		listen_sock = socket(AF_INET, SOCK_STREAM, 0);
 		if (listen_sock < 0) {
