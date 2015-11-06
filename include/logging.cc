@@ -50,7 +50,7 @@ int pflush(void)
 		return 0;
 	}
 
-	// The function fflush() forces a write of all user-space buffered data for the given output or update stream via the stream’s
+	// The function fflush() forces a write of all user-space buffered data for the given output or update stream via the stream's
 	//        underlying write function.
 	int ret = fflush(l->stream);
 	if (ret == EOF)
@@ -277,7 +277,7 @@ int uninitialized(void)
 
 	int ret = 0;
 
-	// The function fflush() forces a write of all user-space buffered data for the given output or update stream via the stream’s
+	// The function fflush() forces a write of all user-space buffered data for the given output or update stream via the stream's
 	//        underlying write function.
 	ret = fflush(l->stream);
 	if (ret == EOF)
