@@ -35,7 +35,7 @@ int setnonblocking(int fd) {
 			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		}
-	} while (0);
+	} while (false);
 	return ret;
 }
 
@@ -65,7 +65,7 @@ int reads(Transport *t) {
 				break;
 			}
 		}
-	} while (1);
+	} while (true);
 	t1 = time(NULL);
 	if (t1 - t0 <= 0.000001) {
 		speed = -1;
@@ -92,7 +92,7 @@ int writes(Transport *t) {
 			memmove(t->get_wx(), (const void *)((char *)t->get_wx() + ret), t->get_wp() - ret);
 			t->set_wp(t->get_wp() - ret);
 		}
-	} while (0);
+	} while (false);
 	return ret;
 }
 
@@ -263,7 +263,7 @@ int init(int argc, char **argv) {
 		plog(info, "Assigning address {%s:%u}.\n", ip, port);
 		plog(info, "Refer to by sockfd = %d as a passive socket.\n", listen_sock);
 		plog(info, "Epoll file descriptor = %d.\n", epollfd);
-	} while (0);
+	} while (false);
 	return ret;
 }
 
@@ -303,7 +303,7 @@ int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 
 		ret = uninitialized();
 		free(l);
-	} while (0);
+	} while (false);
 	return ret;
 }
 
@@ -325,7 +325,7 @@ int task(int argc, char **argv) {
 			ret = task_x(r, w, m, interface);
 			ret = task_w(w);
 		}
-	} while (0);
+	} while (false);
 	ret = uninit(r, w, m, interface);
 	return ret;
 }
@@ -473,7 +473,7 @@ int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 			}
 		}
 
-	} while (0);
+	} while (false);
 	return ret;
 }
 

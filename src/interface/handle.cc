@@ -125,7 +125,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w,
 				break;
 			}
 		}
-	} while (0);
+	} while (false);
 	return ret;
 }
 
