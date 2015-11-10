@@ -1,14 +1,15 @@
 #include "logging.h"
-struct logging *l;
+extern struct logging *l;
 
 #include <strings.h>
 #include <signal.h>
 
 unsigned int quit = 0;
 
-int do_something(enum elevel x)
+int do_something(enum elevel x, int timeout)
 {
-	plog(x, "This is a (logging level = %d) message. %s = \"%p\"\n", x, __func__, __func__);
+	plog(x, "This is a logging message. timeout = %d\n", timeout);
+	usleep(timeout);
 	return 0;
 }
 
@@ -108,12 +109,35 @@ int main(int argc, char **argv)
 	plog(info, "PROGRAM: %s, PID: %u, RELEASE: %s %s\n", l->name, l->pid, __DATE__, __TIME__);
 
 	srand(l->pid);
-	int i = 0;
+	enum elevel x = none;
+	int to = 0;
 	while (!quit)
 	{
-		int x = (i++) % (debug + 1);
-		do_something(x);
-		usleep(rand() % 1000000);
+
+//	emergency,		/* application is unusable */
+//	alert,			/* action must be taken immediately */
+//	critical,		/* critical conditions */
+//	error,			/* error conditions */
+//	warning,		/* warning conditions */
+//	notice,			/* normal but significant condition */
+//	info,			/* informational */
+//	debug,			/* debug-level messages */
+		to = rand() % 1000000;
+		x = emergency; do_something(x, to);
+		to = rand() % 1000000;
+		x = alert; do_something(x, to);
+		to = rand() % 1000000;
+		x = critical; do_something(x, to);
+		to = rand() % 1000000;
+		x = error; do_something(x, to);
+		to = rand() % 1000000;
+		x = warning; do_something(x, to);
+		to = rand() % 1000000;
+		x = notice; do_something(x, to);
+		to = rand() % 1000000;
+		x = info; do_something(x, to);
+		to = rand() % 1000000;
+		x = debug; do_something(x, to);
 	}
 
 	retval = uninitialized();

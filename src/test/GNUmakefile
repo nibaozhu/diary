@@ -6,14 +6,22 @@ clean:
 	rm test_sqlite3.o test_sqlite3
 	rm test_list.o test_list
 
-test_logging: test_logging.o
-	$(CC) -o $@ $^
+test_base64.o: test_base64.c
+test_gnu.o: test_gnu.c
+test_logging.o: test_logging.cc ../../include/logging.h
+test_regex.o: test_regex.c
+test_sqlite3.o: test_sqlite3.c
+test_xml.o: test_xml.c
+../../include/logging.o: ../../include/logging.cc ../../include/logging.h
+
+test_logging: test_logging.o ../../include/logging.o
+	$(CXX) -o $@ $^
 
 test_regex: test_regex.o
-	$(CC) -o $@ $^
+	$(CXX) -o $@ $^
 
 test_sqlite3: test_sqlite3.o
-	$(CC) -o $@ $^ $(LDFLAGS)
+	$(CXX) -o $@ $^ $(LDFLAGS)
 
 test_list: test_list.o
 	$(CXX) -o $@ $^
@@ -21,9 +29,6 @@ test_list: test_list.o
 install: test_regex test_logging test_sqlite3 test_list
 	cp $^ ../../bin
 
-test_logging.o: test_logging.c
-test_regex.o: test_regex.c
-test_sqlite3.o: test_sqlite3.c
 test_list.o: test_list.cc
 
 CPPFLAGS=-I ../../include/
