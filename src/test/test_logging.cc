@@ -105,9 +105,6 @@ int main(int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
-	// print the program name , pid, release
-	plog(info, "PROGRAM: %s, PID: %u, RELEASE: %s %s\n", l->name, l->pid, __DATE__, __TIME__);
-
 	srand(l->pid);
 	enum elevel x = none;
 	int to = 0;
