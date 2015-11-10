@@ -9,14 +9,14 @@
 
 /* Number stands for level. */
 const char *level[debug + 1] = {
-	"[EMERGENCY=0]",
-	"[ALERT=1....]",
-	"[CRITICAL=2.]",
-	"[ERROR=3....]",
-	"[WARNING=4..]",
-	"[NOTICE=5...]",
-	"[INFO=6.....]",
-	"[DEBUG=7....]",
+	"emergency(0)",
+	"alert(1)",
+	"critical(2)",
+	"error(3)",
+	"warning(4)",
+	"notice(5)",
+	"info(6)",
+	"debug(7)",
 };
 
 const char *color[debug + 1] = {
@@ -36,12 +36,12 @@ struct logging *l;
 int pflush(void)
 {
 #ifdef DEBUG
-	fprintf(stdout, "%s%-10s%s %s:%d: %s: %s, fflush, l->stream = %p, l->cache= %u, l->cache_max = %u\n",
+	fprintf(stdout, "%s%s%s %s:%d: %s: %s, fflush, l->stream = %p, l->cache= %u, l->cache_max = %u\n",
 		color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l->stream, l->cache, l->cache_max);
 #endif
 	if (l == NULL)
 	{
-		fprintf(stderr, "%s%-10s%s %s:%d: %s: l = %p\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, l);
+		fprintf(stderr, "%s%s%s %s:%d: %s: l = %p\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, l);
 		return -1;
 	}
 
@@ -55,7 +55,7 @@ int pflush(void)
 	int ret = fflush(l->stream);
 	if (ret == EOF)
 	{
-		fprintf(stderr, "%s%-10s%s %s:%d: %s: %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, strerror(errno), errno);
+		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, strerror(errno), errno);
 		return -1;
 	}
 
@@ -67,13 +67,13 @@ int pflush(void)
 	size = ftell(l->stream);
 	if (size == -1)
 	{
-		fprintf(stderr, "%s%-10s%s %s:%d: %s: %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, strerror(errno), errno);
+		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, strerror(errno), errno);
 		return -1;
 	}
 
 	l->size = size;
 #ifdef DEBUG
-	fprintf(stdout, "%s%-10s%s %s:%d: %s: %s, l->size = %lu, l->size_max = %lu\n",
+	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l->size = %lu, l->size_max = %lu\n",
 			color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l->size, l->size_max);
 #endif
 	if (l->size < l->size_max)
@@ -84,7 +84,7 @@ int pflush(void)
 	ret = fclose(l->stream);
 	if (ret == EOF)
 	{
-		fprintf(stderr, "%s%-10s%s %s:%d: %s: %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, strerror(errno), errno);
+		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, strerror(errno), errno);
 		return -1;
 	}
 
@@ -98,7 +98,7 @@ int pflush(void)
 	ret = rename(oldpath, newpath);
 	if (ret == -1)
 	{
-		fprintf(stderr, "%s%-10s%s %s:%d: %s: %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, strerror(errno), errno);
+		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, strerror(errno), errno);
 		return -1;
 	}
 
@@ -109,7 +109,7 @@ int pflush(void)
 	FILE *fp = fopen(path, l->mode);
 	if (fp == NULL)
 	{
-		fprintf(stderr, "%s%-10s%s %s:%d: %s: path = \"%s\", %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, path, strerror(errno), errno);
+		fprintf(stderr, "%s%s%s %s:%d: %s: path = \"%s\", %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, path, strerror(errno), errno);
 		return -1;
 	}
 	l->stream = fp;
@@ -117,15 +117,15 @@ int pflush(void)
 	return 0;
 }
 
-int plog(enum elevel x, const char *fmt, ...)
+int __plog(enum elevel x, const char *__file, unsigned int __line, const char *__function, const char *fmt, ...)
 {
 #ifdef DEBUG
-	fprintf(stdout, "%s%-10s%s %s:%d: %s: %s, l = %p\n",
+	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l = %p\n",
 		color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l);
 #endif
 	if (l == NULL)
 	{
-		fprintf(stderr, "%s%-10s%s %s:%d: %s: l = %p\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, l);
+		fprintf(stderr, "%s%s%s %s:%d: %s: l = %p\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, l);
 		return -1;
 	}
 
@@ -134,12 +134,12 @@ int plog(enum elevel x, const char *fmt, ...)
 
 	if (x <= l->stdout_level)
 	{
-		fprintf(stdout, "%s %s%-10s%s|", str, color[x], level[x], clear_color);
+		fprintf(stdout, "%s %s%s%s %s:%d: %s ", str, color[x], level[x], clear_color, __file, __line, __function);
 	}
 
 	if (x <= l->stream_level)
 	{
-		fprintf(l->stream, "%s %-10s|", str, level[x]);
+		fprintf(l->stream, "%s %s %s:%d: %s ", str, level[x], __file, __line, __function);
 	}
 
 	va_list ap;
@@ -164,7 +164,7 @@ int plog(enum elevel x, const char *fmt, ...)
 	else if (++l->cache < l->cache_max)
 	{
 #ifdef DEBUG
-		fprintf(stdout, "%s%-10s%s %s:%d: %s: %s, l->cache = %u, l->cache_max = %u\n",
+		fprintf(stdout, "%s%s%s %s:%d: %s: %s, l->cache = %u, l->cache_max = %u\n",
 			color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l->cache, l->cache_max);
 #endif
 		return 0;
@@ -181,7 +181,7 @@ int plog(enum elevel x, const char *fmt, ...)
 	localtime_r(&t1.tv_sec, &t0);
 	time_t diff = mktime(&t0) - mktime(&l->t1);
 #ifdef DEBUG
-	fprintf(stdout, "%s%-10s%s %s:%d: %s: %s, %04d-%02d-%02d %02d:%02d:%02d => %04d-%02d-%02d %02d:%02d:%02d, diff = %lu seconds\n",
+	fprintf(stdout, "%s%s%s %s:%d: %s: %s, %04d-%02d-%02d %02d:%02d:%02d => %04d-%02d-%02d %02d:%02d:%02d, diff = %lu seconds\n",
 			color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", 
 			l->t1.tm_year + 1900, l->t1.tm_mon + 1, l->t1.tm_mday, l->t1.tm_hour, l->t1.tm_min, l->t1.tm_sec, 
 			t0.tm_year + 1900, t0.tm_mon + 1, t0.tm_mday, t0.tm_hour, t0.tm_min, t0.tm_sec, 
@@ -206,12 +206,12 @@ int plog(enum elevel x, const char *fmt, ...)
 int initializing(void)
 {
 #ifdef DEBUG
-	fprintf(stdout, "%s%-10s%s %s:%d: %s: %s, l = %p\n",
+	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l = %p\n",
 		color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l);
 #endif
 	if (l == NULL)
 	{
-		fprintf(stderr, "%s%-10s%s %s:%d: %s: l = %p\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, l);
+		fprintf(stderr, "%s%s%s %s:%d: %s: l = %p\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, l);
 		return -1;
 	}
 
@@ -231,7 +231,7 @@ int initializing(void)
 	ret = access(l->path, F_OK | W_OK | X_OK);
 	if (ret == -1)
 	{
-		fprintf(stderr, "%s%-10s%s %s:%d: %s: path = \"%s\", %s(%u)\n",
+		fprintf(stderr, "%s%s%s %s:%d: %s: path = \"%s\", %s(%u)\n",
 			color[error], level[error], clear_color, __FILE__, __LINE__, __func__, l->path, strerror(errno), errno);
 		return -1;
 	}
@@ -244,14 +244,14 @@ int initializing(void)
 	FILE *fp = fopen(path, l->mode);
 	if (fp == NULL)
 	{
-		fprintf(stderr, "%s%-10s%s %s:%d: %s: path = \"%s\", %s(%u)\n",
+		fprintf(stderr, "%s%s%s %s:%d: %s: path = \"%s\", %s(%u)\n",
 			color[error], level[error], clear_color, __FILE__, __LINE__, __func__, path, strerror(errno), errno);
 		return -1;
 	}
 	l->stream = fp;
 
 #ifdef DEBUG
-	fprintf(stdout, "%s%-10s%s %s:%d: %s: %s\n", color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "passed");
+	fprintf(stdout, "%s%s%s %s:%d: %s: %s\n", color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "passed");
 #endif
 
 	// print the program name, pid, release
@@ -262,7 +262,7 @@ int initializing(void)
 int uninitialized(void)
 {
 #ifdef DEBUG
-	fprintf(stdout, "%s%-10s%s %s:%d: %s: %s, l = %p\n",
+	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l = %p\n",
 		color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l);
 #endif
 	if (l == NULL)
@@ -282,7 +282,7 @@ int uninitialized(void)
 	ret = fflush(l->stream);
 	if (ret == EOF)
 	{
-		fprintf(stderr, "%s%-10s%s %s:%d: %s: %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, strerror(errno), errno);
+		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, strerror(errno), errno);
 		return -1;
 	}
 
@@ -291,7 +291,7 @@ int uninitialized(void)
 	ret = fclose(l->stream);
 	if (ret == EOF)
 	{
-		fprintf(stderr, "%s%-10s%s %s:%d: %s: %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, strerror(errno), errno);
+		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, strerror(errno), errno);
 		return -1;
 	}
 
@@ -305,12 +305,12 @@ int uninitialized(void)
 	ret = rename(oldpath, newpath);
 	if (ret == -1)
 	{
-		fprintf(stderr, "%s%-10s%s %s:%d: %s: %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, strerror(errno), errno);
+		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, strerror(errno), errno);
 		return -1;
 	}
 
 #ifdef DEBUG
-	fprintf(stdout, "%s%-10s%s %s:%d: %s: %s\n", color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "passed");
+	fprintf(stdout, "%s%s%s %s:%d: %s: %s\n", color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "passed");
 #endif
 	return 0;
 }
