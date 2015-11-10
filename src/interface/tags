@@ -25,6 +25,7 @@ TRANSPORT_H	transport.h	6;"	d
 Transport	transport.h	/^	Transport(int fd, time_t created, struct sockaddr_in peer_addr, socklen_t peer_addrlen, size_t size = SIZE) {$/;"	f	class:Transport
 Transport	transport.h	/^class Transport {$/;"	c
 WIDTH	transport.h	25;"	d
+__plog	../../include/logging.cc	/^int __plog(enum elevel x, const char *__file, unsigned int __line, const char *__function, const char *fmt, ...)$/;"	f
 addr	task.cc	/^struct sockaddr_in addr;$/;"	v	typeref:struct:sockaddr_in
 alert	../../include/logging.h	/^	alert,			\/* action must be taken immediately *\/$/;"	e	enum:elevel
 alive	transport.h	/^	bool alive; \/* true: live; false: die *\/$/;"	m	class:Transport
@@ -85,7 +86,7 @@ peer_addr	transport.h	/^	struct sockaddr_in peer_addr;$/;"	m	class:Transport	typ
 peer_addrlen	transport.h	/^	socklen_t peer_addrlen;$/;"	m	class:Transport
 pflush	../../include/logging.cc	/^int pflush(void)$/;"	f
 pid	../../include/logging.h	/^	pid_t pid; \/\/ program process id$/;"	m	struct:logging
-plog	../../include/logging.cc	/^int plog(enum elevel x, const char *fmt, ...)$/;"	f
+plog	../../include/logging.h	83;"	d
 port	task.cc	/^short int port = 12340;$/;"	v
 pr	transport.h	/^	void pr(size_t width = WIDTH, bool b0 = false) {$/;"	f	class:Transport
 pw	transport.h	/^	void pw(size_t width = WIDTH, bool b0 = false) {$/;"	f	class:Transport

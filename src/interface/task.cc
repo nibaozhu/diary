@@ -198,7 +198,7 @@ int init(int argc, char **argv) {
 		l->diff = t2.tm_sec + t2.tm_min * 60 + t2.tm_hour * 60 * 60 + t2.tm_mday * 60 * 60 * 24 + t2.tm_mon * 60 * 60 * 24 * 30 + t2.tm_year * 60 * 60 * 24 * 30 * 365;
 		l->pid = getpid();
 		l->cache_max = 1;
-		l->size_max = 1024 * 1024 * 1; // 1 MB
+		l->size_max = 1024 * 1024 * 10; // 10 MB
 		strncpy(l->path, "../../log", sizeof l->path - 1);
 		strncpy(l->mode, "w+", sizeof l->mode - 1);
 		l->stream_level = debug;
