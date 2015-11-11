@@ -80,7 +80,7 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 int pflush(void);
 int uninitialized(void);
 
-#define plog(x, fmt, ...) (__plog(x, __FILE__, __LINE__, __ASSERT_FUNCTION, fmt, ## __VA_ARGS__, NULL))
+#define plog(x, fmt, ...) (__plog(x, __FILE__, __LINE__, __func__, fmt, ## __VA_ARGS__, NULL))
 
 #ifdef __cplusplus
 }

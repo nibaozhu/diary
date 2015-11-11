@@ -9,14 +9,14 @@
 
 /* Number stands for level. */
 const char *level[debug + 1] = {
-	"emergency(0)",
-	"alert(1)",
-	"critical(2)",
-	"error(3)",
-	"warning(4)",
-	"notice(5)",
-	"info(6)",
-	"debug(7)",
+	"emergency[0]",
+	"....alert[1]",
+	".critical[2]",
+	"....error[3]",
+	"..warning[4]",
+	"...notice[5]",
+	".....info[6]",
+	"....debug[7]",
 };
 
 const char *color[debug + 1] = {
@@ -35,15 +35,12 @@ struct logging *l;
 
 int pflush(void)
 {
-#ifdef DEBUG
+	assert(l != NULL);
+
+#ifdef DEBUG_LOGGING
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, fflush, l->stream = %p, l->cache= %u, l->cache_max = %u\n",
 		color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l->stream, l->cache, l->cache_max);
 #endif
-	if (l == NULL)
-	{
-		fprintf(stderr, "%s%s%s %s:%d: %s: l = %p\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, l);
-		return -1;
-	}
 
 	if (l->stream_level == none)
 	{
@@ -72,7 +69,7 @@ int pflush(void)
 	}
 
 	l->size = size;
-#ifdef DEBUG
+#ifdef DEBUG_LOGGING
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l->size = %lu, l->size_max = %lu\n",
 			color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l->size, l->size_max);
 #endif
@@ -119,27 +116,30 @@ int pflush(void)
 
 int __plog(enum elevel x, const char *__file, unsigned int __line, const char *__function, const char *fmt, ...)
 {
-#ifdef DEBUG
+	assert(l != NULL);
+#ifdef DEBUG_LOGGING
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l = %p\n",
 		color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l);
 #endif
-	if (l == NULL)
-	{
-		fprintf(stderr, "%s%s%s %s:%d: %s: l = %p\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, l);
-		return -1;
-	}
 
 	char str[DATE_MAX];
 	sysdate(str);
 
 	if (x <= l->stdout_level)
 	{
-		fprintf(stdout, "%s %s%s%s %s:%d: %s ", str, color[x], level[x], clear_color, __file, __line, x <= warning? __function: "\b");
+		if (x <= warning)
+		{
+			fprintf(stdout, "%s %s%s (%s:%d:%s) %s", str, color[x], level[x], __file, __line, __function, clear_color);
+		}
+		else
+		{
+			fprintf(stdout, "%s %s%s %s", str, color[x], level[x], clear_color);
+		}
 	}
 
 	if (x <= l->stream_level)
 	{
-		fprintf(l->stream, "%s %s %s:%d: %s ", str, level[x], __file, __line, x <= warning? __function: "\b");
+		fprintf(l->stream, "%s %s %s:%d:%s ", str, level[x], __file, __line, __function);
 	}
 
 	va_list ap;
@@ -163,7 +163,7 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 	}
 	else if (++l->cache < l->cache_max)
 	{
-#ifdef DEBUG
+#ifdef DEBUG_LOGGING
 		fprintf(stdout, "%s%s%s %s:%d: %s: %s, l->cache = %u, l->cache_max = %u\n",
 			color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l->cache, l->cache_max);
 #endif
@@ -180,7 +180,7 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 	//	on January 1, 1970, Coordinated Universal Time (UTC).
 	localtime_r(&t1.tv_sec, &t0);
 	time_t diff = mktime(&t0) - mktime(&l->t1);
-#ifdef DEBUG
+#ifdef DEBUG_LOGGING
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, %04d-%02d-%02d %02d:%02d:%02d => %04d-%02d-%02d %02d:%02d:%02d, diff = %lu seconds\n",
 			color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", 
 			l->t1.tm_year + 1900, l->t1.tm_mon + 1, l->t1.tm_mday, l->t1.tm_hour, l->t1.tm_min, l->t1.tm_sec, 
@@ -205,18 +205,16 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 
 int initializing(void)
 {
-#ifdef DEBUG
+	assert(l != NULL);
+#ifdef DEBUG_LOGGING
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l = %p\n",
 		color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l);
 #endif
-	if (l == NULL)
-	{
-		fprintf(stderr, "%s%s%s %s:%d: %s: l = %p\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, l);
-		return -1;
-	}
 
 	if (l->stream_level == none)
 	{
+		fprintf(stdout, "%s%s%s %s:%d: %s: %s, l->stream_level = %d\n", 
+				color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l->stream_level);
 		return 0;
 	}
 
@@ -250,7 +248,7 @@ int initializing(void)
 	}
 	l->stream = fp;
 
-#ifdef DEBUG
+#ifdef DEBUG_LOGGING
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s\n", color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "passed");
 #endif
 
@@ -261,19 +259,12 @@ int initializing(void)
 
 int uninitialized(void)
 {
-#ifdef DEBUG
+#ifdef DEBUG_LOGGING
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l = %p\n",
 		color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l);
 #endif
-	if (l == NULL)
-	{
-		return 0;
-	}
-
-	if (l->stream == 0)
-	{
-		return 0;
-	}
+	assert(l != NULL);
+	assert(l->stream > 0);
 
 	int ret = 0;
 
@@ -309,7 +300,7 @@ int uninitialized(void)
 		return -1;
 	}
 
-#ifdef DEBUG
+#ifdef DEBUG_LOGGING
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s\n", color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "passed");
 #endif
 	return 0;
