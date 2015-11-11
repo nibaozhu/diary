@@ -129,11 +129,11 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 	{
 		if (x <= warning)
 		{
-			fprintf(stdout, "%s %s%s (%s:%d:%s) %s", str, color[x], level[x], __file, __line, __function, clear_color);
+			fprintf(stdout, "%s %s%s (%s:%d:%s)%s ", str, color[x], level[x], __file, __line, __function, clear_color);
 		}
 		else
 		{
-			fprintf(stdout, "%s %s%s %s", str, color[x], level[x], clear_color);
+			fprintf(stdout, "%s %s%s%s ", str, color[x], level[x], clear_color);
 		}
 	}
 
