@@ -355,7 +355,7 @@ int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 				}
 
 				time_t created = time(NULL);
-				plog(notice, "acceptfd = %d\n", acceptfd);
+				plog(notice, "It creates a new connected socket = %d.\n", acceptfd);
 				ret = setnonblocking(acceptfd); /* Set Non Blocking */
 				if (ret == -1) {
 					break;
