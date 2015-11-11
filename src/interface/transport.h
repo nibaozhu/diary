@@ -78,6 +78,8 @@ public:
 
 		memset(this->rx, 0, this->rs);
 		memset(this->wx, 0, this->ws);
+		plog(debug, "new this = %p, malloc rx = %p, rp = 0x%lx, rs = 0x%lx, malloc wx = %p, wp = 0x%lx, ws = 0x%lx\n", 
+				this, this->rx, this->rp, this->rs, this->wx, this->wp, this->ws);
 	}
 
 	std::string set_id(const char *id) {
@@ -226,7 +228,7 @@ public:
 			width = WIDTH;
 		}
 		assert(b0 == false);
-		plog(info, "this->rx = %p, this->rp = 0x%lx\n", this->rx, this->rp);
+		plog(info, "this = %p, this->rx = %p, this->rp = 0x%lx, this->rs = 0x%lx, b0 = %d\n", this, this->rx, this->rp, this->rs, b0);
 #if 0
 		size_t i = 0;
 		plog(debug, "--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
@@ -254,6 +256,7 @@ public:
 			width = WIDTH;
 		}
 		assert(b0 == false);
+		plog(info, "this = %p, this->wx = %p, this->wp = 0x%lx, this->ws = 0x%lx, b0 = %d\n", this, this->wx, this->wp, this->ws, b0);
 #if 0
 		size_t i = 0;
 		plog(debug, "--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
@@ -277,7 +280,8 @@ public:
 	}
 
 	~Transport() {
-		plog(debug, "{rx = %p, rp = 0x%lx, rs = 0x%lx}, {wx = %p, wp = 0x%lx, ws = 0x%lx}\n", this->rx, this->rp, this->rs, this->wx, this->wp, this->ws);
+		plog(debug, "delete this = %p, free rx = %p, rp = 0x%lx, rs = 0x%lx, free wx = %p, wp = 0x%lx, ws = 0x%lx\n", 
+				this, this->rx, this->rp, this->rs, this->wx, this->wp, this->ws);
 		free(this->rx);
 		free(this->wx);
 	}

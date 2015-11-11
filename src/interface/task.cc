@@ -73,7 +73,6 @@ int reads(Transport *t) {
 		speed = rl * 1. / ((t1 - t0) * 1024 * 1024);
 		plog(notice, "speed: %0.2f M/s\n", t->set_speed(speed));
 	}
-	plog(debug, "rx = %p, rp = 0x%lx\n", t->get_rx(), t->get_rp());
 	free(buffer);
 	return ret;
 }
@@ -376,7 +375,6 @@ int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 				plog(notice, "NAME %s:%d->%s:%d\n", ip, htons(addr.sin_port), peer_ip, htons(peer_addr.sin_port));
 
 				Transport *t = new Transport(acceptfd, created, peer_addr, peer_addrlen);
-				plog(notice, "t = %p\n", t);
 				m->insert(std::make_pair(acceptfd, t));
 			} else {
 				plog(debug, "events[%d].events = 0x%03x\n", n, events[n].events);
@@ -394,7 +392,6 @@ int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 					}
 
 					w->remove((*m)[events[n].data.fd]);
-					plog(error, "delete t = %p\n", (*m)[events[n].data.fd]);
 					delete (*m)[events[n].data.fd];
 					m->erase(events[n].data.fd);
 					continue;
@@ -414,7 +411,6 @@ int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 					}
 
 					w->remove((*m)[events[n].data.fd]);
-					plog(error, "delete t = %p\n", (*m)[events[n].data.fd]);
 					delete (*m)[events[n].data.fd];
 					m->erase(events[n].data.fd);
 					continue;
@@ -434,7 +430,6 @@ int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 					}
 
 					w->remove((*m)[events[n].data.fd]);
-					plog(error, "delete t = %p\n", (*m)[events[n].data.fd]);
 					delete (*m)[events[n].data.fd];
 					m->erase(events[n].data.fd);
 					continue;

@@ -6,7 +6,7 @@
 !_TAG_PROGRAM_VERSION	5.8	//
 BUFFER_LENGTH	task.cc	9;"	d	file:
 CPPFLAGS	GNUmakefile	/^CPPFLAGS=-I ..\/..\/include$/;"	m
-CXXFLAGS	GNUmakefile	/^CXXFLAGS=-O0 -U NDEBUG -U DEBUG -funsigned-char -g3 -std=c++0x -Wall -Wextra$/;"	m
+CXXFLAGS	GNUmakefile	/^CXXFLAGS=-O0 -U NDEBUG -U DEBUG_LOGGING -funsigned-char -g3 -std=c++0x -Wall -Wextra$/;"	m
 DATE_MAX	../../include/logging.h	37;"	d
 HANDLE_H	handle.h	6;"	d
 ID_LENGTH	transport.h	32;"	d
