@@ -213,6 +213,14 @@ int init(int argc, char **argv) {
 		is_quit = false;
 		is_reconfigure = false;
 		set_disposition();
+
+		epollfd = epoll_create(MAX_EVENTS);
+		if (epollfd == -1) {
+			plog(emergency, "%s(%d)\n", strerror(errno), errno);
+			ret = -1;
+			break;
+		}
+
 		listen_sock = socket(AF_INET, SOCK_STREAM, 0);
 		if (listen_sock < 0) {
 			plog(emergency, "%s(%d)\n", strerror(errno), errno);
@@ -244,13 +252,6 @@ int init(int argc, char **argv) {
 			break;
 		}
 
-		epollfd = epoll_create(MAX_EVENTS);
-		if (epollfd == -1) {
-			plog(emergency, "%s(%d)\n", strerror(errno), errno);
-			ret = -1;
-			break;
-		}
-
 		ev.events = EPOLLIN | EPOLLRDHUP; /* Level Triggered */
 		ev.data.fd = listen_sock; /* bind & listen's fd */
 		ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, listen_sock, &ev);
@@ -259,9 +260,9 @@ int init(int argc, char **argv) {
 			break;
 		}
 
+		plog(info, "Epoll file descriptor = %d.\n", epollfd);
 		plog(info, "Assigning address {%s:%u}.\n", ip, port);
 		plog(info, "Refer to by sockfd = %d as a passive socket.\n", listen_sock);
-		plog(info, "Epoll file descriptor = %d.\n", epollfd);
 	} while (false);
 	return ret;
 }
