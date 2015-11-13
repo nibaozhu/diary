@@ -8,7 +8,8 @@
 #include "logging.h"
 
 /* Number stands for level. */
-const char *level[debug + 1] = {
+const char *level[debug + 1] = 
+{
 	"emergency[0]",
 	"....alert[1]",
 	".critical[2]",
@@ -19,7 +20,8 @@ const char *level[debug + 1] = {
 	"....debug[7]",
 };
 
-const char *color[debug + 1] = {
+const char *color[debug + 1] = 
+{
 	"\e[31m", // red
 	"\e[35m", // purple
 	"\e[33m", // yellow
