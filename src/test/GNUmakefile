@@ -1,5 +1,5 @@
 .PHONY:
-all: test_logging test_regex test_sqlite3 test_list
+all: test_logging test_regex test_sqlite3 test_list test_base64
 clean:
 	rm test_logging.o test_logging
 	rm test_regex.o test_regex
@@ -16,6 +16,9 @@ test_xml.o: test_xml.c
 
 test_logging: test_logging.o ../../include/logging.o
 	$(CXX) -o $@ $^
+
+test_base64: test_base64.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
 
 test_regex: test_regex.o
 	$(CXX) -o $@ $^
@@ -34,4 +37,4 @@ test_list.o: test_list.cc
 CPPFLAGS=-I ../../include/
 CFLAGS=-g -O0
 CXXFLAGS=-g -O0
-LDFLAGS=-lsqlite3
+LDFLAGS=-lsqlite3 -lssl
