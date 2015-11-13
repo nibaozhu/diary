@@ -1,14 +1,17 @@
 .PHONY:
-all: test_logging test_regex test_sqlite3 test_list test_base64
+all: test_logging test_regex test_sqlite3 test_list test_base64 test_const
 clean:
 	rm test_logging.o test_logging
 	rm test_regex.o test_regex
 	rm test_sqlite3.o test_sqlite3
 	rm test_list.o test_list
+	rm test_const.o test_const
+	rm test_base64.o test_base64
 
 test_base64.o: test_base64.c
 test_gnu.o: test_gnu.c
 test_logging.o: test_logging.cc ../../include/logging.h
+test_const.o: test_const.cc
 test_regex.o: test_regex.c
 test_sqlite3.o: test_sqlite3.c
 test_xml.o: test_xml.c
@@ -19,6 +22,9 @@ test_logging: test_logging.o ../../include/logging.o
 
 test_base64: test_base64.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
+
+test_const: test_const.o
+	$(CXX) -o $@ $^
 
 test_regex: test_regex.o
 	$(CXX) -o $@ $^
