@@ -1,5 +1,6 @@
 .PHONY:
 all: test_logging test_regex test_sqlite3 test_list test_base64 test_const
+	@ctags * ../../include/*
 clean:
 	rm test_logging.o test_logging
 	rm test_regex.o test_regex
