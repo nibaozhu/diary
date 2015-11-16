@@ -124,7 +124,6 @@ public:
 
 	void *set_rx(const void *rx, size_t rs) {
 		while (rs >= this->rs - this->rp) {
-//			plog(debug, "rs = 0x%lx, this->rp = 0x%lx, this->rs = 0x%lx, this->rx = %p\n", rs, this->rp, this->rs, this->rx);
 			plog(debug, "{rx = %p, rp = 0x%lx, rs = 0x%lx}, {0x%lx}\n", this->rx, this->rp, this->rs, rs);
 			assert(this->rs > 0);
 			this->rx = realloc(this->rx, this->rs << 1);
@@ -158,7 +157,6 @@ public:
 
 	void *set_wx(const void *wx, size_t ws) {
 		while (ws >= this->ws - this->wp) {
-//			plog(debug, "ws = 0x%lx, this->wp = 0x%lx, this->ws = 0x%lx, this->wx = %p\n", ws, this->wp, this->ws, this->wx);
 			plog(debug, "{wx = %p, wp = 0x%lx, ws = 0x%lx}, {0x%lx}\n", this->wx, this->wp, this->ws, ws);
 			assert(this->ws > 0);
 			this->wx = realloc(this->wx, this->ws << 1);
