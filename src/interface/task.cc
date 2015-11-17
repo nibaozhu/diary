@@ -322,8 +322,37 @@ int task(int argc, char **argv) {
 
 		while (!is_quit) {
 			ret = task_r(r, w, m);
+
+#if 0
+			std::map<int, Transport*>::iterator i = m->begin();
+			while (i != m->end()) {
+				plog(error, "(%d, %p)\n", i->first, i->second);
+				i++;
+			}
+#endif
+
 			ret = task_x(r, w, m, interface);
+
+#if 0
+			// std::map<int, Transport*>::iterator i = m->begin();
+			i = m->begin();
+			while (i != m->end()) {
+				plog(error, "(%d, %p)\n", i->first, i->second);
+				i++;
+			}
+#endif
+
 			ret = task_w(w);
+
+#if 0
+			// std::map<int, Transport*>::iterator i = m->begin();
+			i = m->begin();
+			while (i != m->end()) {
+				plog(error, "(%d, %p)\n", i->first, i->second);
+				i++;
+			}
+#endif
+
 		}
 	} while (false);
 	ret = uninit(r, w, m, interface);
@@ -430,9 +459,29 @@ int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 						continue;
 					}
 
+#if 0
+					plog(emergency, "before: fd = %d, m->size = %d\n", events[n].data.fd, m->size());
+					std::map<int, Transport*>::iterator i = m->begin();
+					while (i != m->end()) {
+						plog(error, "(%d, %p)\n", i->first, i->second);
+						i++;
+					}
+#endif
+
 					w->remove((*m)[events[n].data.fd]);
 					delete (*m)[events[n].data.fd];
 					m->erase(events[n].data.fd);
+
+#if 0
+					plog(emergency, "end: fd = %d, m->size = %d\n", events[n].data.fd, m->size());
+					// std::map<int, Transport*>::iterator i = m->begin();
+					i = m->begin();
+					while (i != m->end()) {
+						plog(error, "(%d, %p)\n", i->first, i->second);
+						i++;
+					}
+#endif
+
 					continue;
 				}
 

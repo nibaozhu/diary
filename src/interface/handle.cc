@@ -109,8 +109,15 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w,
 				break;
 			}
 
+			Transport *t2 = NULL;
 			id = destination;
-			Transport *t2 = (*m)[(*interface)[id]];
+			int fd2 = (*interface)[id];
+			std::map<int, Transport*>::iterator i2 = m->find(fd2);
+			if (i2 != m->end()) {
+				plog(warning, "Found, first = %d, second = %p\n", i2->first, i2->second);
+				t2 = i2->second;
+			}
+
 			if (t2 == NULL) {
 				plog(info, "Back to wait id = \"%s\"\n", destination);
 				break;
