@@ -321,7 +321,7 @@ int task(int argc, char **argv) {
 		}
 
 		while (!is_quit) {
-			ret = task_r(r, w, m);
+			ret = task_r(r, w, m, interface);
 
 #if 0
 			std::map<int, Transport*>::iterator i = m->begin();
@@ -359,7 +359,7 @@ int task(int argc, char **argv) {
 	return ret;
 }
 
-int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m) {
+int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface) {
 	assert(r != NULL && m != NULL);
 	int ret = 0;
 	do {
@@ -376,6 +376,7 @@ int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 			break;
 		}
 
+		Transport *t = NULL;
 		for (int n = 0; n < nfds; n++) {
 			if (events[n].data.fd == listen_sock) {
 				int acceptfd = accept(listen_sock, (struct sockaddr *) &peer_addr, &peer_addrlen);
@@ -404,9 +405,10 @@ int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 				strcpy(peer_ip, inet_ntoa(peer_addr.sin_addr));
 				plog(notice, "NAME %s:%d->%s:%d\n", ip, htons(addr.sin_port), peer_ip, htons(peer_addr.sin_port));
 
-				Transport *t = new Transport(acceptfd, created, peer_addr, peer_addrlen);
+				t = new Transport(acceptfd, created, peer_addr, peer_addrlen);
 				m->insert(std::make_pair(acceptfd, t));
 			} else {
+				std::map<int, Transport*>::iterator im = m->begin();
 				plog(debug, "events[%d].events = 0x%03x\n", n, events[n].events);
 				if (events[n].events & EPOLLERR) {
 					plog(error, "Error condition happened on the associated file descriptor = %d.\n", events[n].data.fd);
@@ -421,9 +423,39 @@ int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 						continue;
 					}
 
-					w->remove((*m)[events[n].data.fd]);
-					delete (*m)[events[n].data.fd];
-					m->erase(events[n].data.fd);
+
+
+#if 0
+					plog(emergency, "before: fd = %d, interface->size = %d\n", events[n].data.fd, interface->size());
+					std::map<std::string, int>::iterator i = interface->begin();
+					while (i != interface->end()) {
+						plog(error, "(%s, %d)\n", i->first.c_str(), i->second);
+						i++;
+					}
+#endif
+
+
+					im = m->find(events[n].data.fd);
+					if (im != m->end()) {
+						plog(warning, "Found, first = %d, second = %p\n", im->first, im->second);
+						t = im->second;
+						w->remove(t);
+						interface->erase(t->get_id());
+						delete t;
+						m->erase(events[n].data.fd);
+					}
+
+#if 0
+					plog(emergency, "after: fd = %d, interface->size = %d\n", events[n].data.fd, interface->size());
+					// std::map<std::string, int>::iterator i = interface->begin();
+					i = interface->begin();
+					while (i != interface->end()) {
+						plog(error, "(%s, %d)\n", i->first.c_str(), i->second);
+						i++;
+					}
+#endif
+
+
 					continue;
 				}
 
@@ -440,9 +472,16 @@ int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 						continue;
 					}
 
-					w->remove((*m)[events[n].data.fd]);
-					delete (*m)[events[n].data.fd];
-					m->erase(events[n].data.fd);
+					im = m->find(events[n].data.fd);
+					if (im != m->end()) {
+						plog(warning, "Found, first = %d, second = %p\n", im->first, im->second);
+						t = im->second;
+						w->remove(t);
+						interface->erase(t->get_id());
+						delete t;
+						m->erase(events[n].data.fd);
+					}
+
 					continue;
 				}
 
@@ -468,9 +507,15 @@ int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 					}
 #endif
 
-					w->remove((*m)[events[n].data.fd]);
-					delete (*m)[events[n].data.fd];
-					m->erase(events[n].data.fd);
+					im = m->find(events[n].data.fd);
+					if (im != m->end()) {
+						plog(warning, "Found, first = %d, second = %p\n", im->first, im->second);
+						t = im->second;
+						w->remove(t);
+						interface->erase(t->get_id());
+						delete t;
+						m->erase(events[n].data.fd);
+					}
 
 #if 0
 					plog(emergency, "end: fd = %d, m->size = %d\n", events[n].data.fd, m->size());

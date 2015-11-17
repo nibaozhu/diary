@@ -87,11 +87,12 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w,
 		}
 
 		if (strncmp(source, destination, sizeof source) == 0 && strlen(source) > 0) {
-			t->set_alive(true);
+			// update or refresh interface
 			interface->erase(t->get_id());
+
 			t->set_id(source);
-			(*interface)[t->get_id()] = t->get_fd();
-			t->set_id(source);
+			t->set_alive(true);
+			interface->insert(std::make_pair(t->get_id(), t->get_fd()));
 			if (t->get_rp() >= width) {
 				plog(notice, "Echo\n");
 				t->set_wx(t->get_rx(), t->get_rp());
@@ -109,16 +110,24 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w,
 				break;
 			}
 
+			int fd2 = 0;
 			Transport *t2 = NULL;
 			id = destination;
-			int fd2 = (*interface)[id];
+
+			std::map<std::string, int>::iterator ie = interface->find(id);
+			if (ie != interface->end()) {
+				plog(error, "(%s, %d)\n", ie->first.c_str(), ie->second);
+				fd2 = ie->second;
+			} else {
+				plog(info, "Back to wait id = \"%s\"\n", destination);
+				break;
+			}
+
 			std::map<int, Transport*>::iterator i2 = m->find(fd2);
 			if (i2 != m->end()) {
 				plog(warning, "Found, first = %d, second = %p\n", i2->first, i2->second);
 				t2 = i2->second;
-			}
-
-			if (t2 == NULL) {
+			} else {
 				plog(info, "Back to wait id = \"%s\"\n", destination);
 				break;
 			}
