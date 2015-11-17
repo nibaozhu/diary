@@ -71,7 +71,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w,
 		if (t->get_rp() >= width + length) {
 			plog(info, "md5sum = \"%s\"\n", md5sum);
 			message = malloc(length + 1);
-			memset(message, 0, sizeof message);
+			memset(message, 0, length + 1);
 			memcpy(message, (const void *)((char *)t->get_rx() + width), length);
 			ret = checksum(message, length, md5sum, digestname);
 			free (message);
