@@ -24,7 +24,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w,
 	do {
 		if (t->get_rp() >= LENGTH) {
 			for (i = 0; i < LENGTH; i++) {
-				c = *((char*)t->get_rx() + i);
+				c = *((char *)t->get_rx() + i);
 				if (c >= '0' && c <= '9') {
 					length = length * 0x10 + (c - '0' + 0x00);
 				} else if (c >= 'a' && c <= 'f') {
@@ -43,7 +43,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w,
 		}
 
 		if (t->get_rp() >= width + ID_LENGTH) {
-			strncpy(source, (char*)t->get_rx() + width, ID_LENGTH);
+			strncpy(source, (char *)t->get_rx() + width, ID_LENGTH);
 			width += ID_LENGTH;
 		} else {
 			/* Back to wait message. */
@@ -51,7 +51,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w,
 		}
 
 		if (t->get_rp() >= width + ID_LENGTH) {
-			strncpy(destination, (char*)t->get_rx() + width, ID_LENGTH);
+			strncpy(destination, (char *)t->get_rx() + width, ID_LENGTH);
 			width += ID_LENGTH;
 		} else {
 			/* Back to wait message. */
@@ -110,33 +110,33 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w,
 				break;
 			}
 
-			int fd2 = 0;
-			Transport *t2 = NULL;
+			int fdx = 0;
+			Transport *tx = NULL;
 			id = destination;
 
 			std::map<std::string, int>::iterator ie = interface->find(id);
 			if (ie != interface->end()) {
-				plog(error, "(%s, %d)\n", ie->first.c_str(), ie->second);
-				fd2 = ie->second;
+//				plog(debug, "ie->first.c_str() = %s, ie->second = %d\n", ie->first.c_str(), ie->second);
+				fdx = ie->second;
 			} else {
 				plog(info, "Back to wait id = \"%s\"\n", destination);
 				break;
 			}
 
-			std::map<int, Transport*>::iterator i2 = m->find(fd2);
-			if (i2 != m->end()) {
-//				plog(debug, "Found, first = %d, second = %p\n", i2->first, i2->second);
-				t2 = i2->second;
+			std::map<int, Transport*>::iterator im = m->find(fdx);
+			if (im != m->end()) {
+//				plog(debug, "Found, first = %d, second = %p\n", im->first, im->second);
+				tx = im->second;
 			} else {
 				plog(info, "Back to wait id = \"%s\"\n", destination);
 				break;
 			}
 
 			if (t->get_rp() >= width) {
-				t2->set_wx(t->get_rx(), (width + length));
+				tx->set_wx(t->get_rx(), (width + length));
 				memmove(t->get_rx(), (const void *)((char *)t->get_rx() + (width + length)), t->get_rp() - (width + length));
 				t->set_rp(t->get_rp() - (width + length));
-				w->push_back(t2);
+				w->push_back(tx);
 			} else {
 				break;
 			}
