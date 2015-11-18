@@ -67,7 +67,7 @@ int reads(Transport *t) {
 		}
 	} while (true);
 	t1 = time(NULL);
-	if (t1 - t0 <= 0.000001) {
+	if (t1 <= t0) {
 		speed = -1;
 	} else {
 		speed = rl * 1. / ((t1 - t0) * 1024 * 1024);
