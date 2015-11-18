@@ -4,7 +4,7 @@ clean:
 	rm -f main.o task.o handle.o ../../include/logging.o i1
 
 i1: main.o task.o handle.o ../../include/logging.o
-	$(CXX) -o $@ $^ $(LDFLAGS) && ctags * ../../include/* && svn diff > Changelog
+	$(CXX) -o $@ $^ $(LDFLAGS) && ctags * ../../include/*
 
 # gcc -I ../../include/ -MM *.cc ../../include/logging.cc -std=gnu++0x
 handle.o: handle.cc handle.h transport.h ../../include/logging.h

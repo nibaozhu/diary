@@ -101,11 +101,11 @@ set_id	transport.h	/^	std::string set_id(const char *id) {$/;"	f	class:Transport
 set_id	transport.h	/^	std::string set_id(std::string id) { \/* Make them happy. *\/$/;"	f	class:Transport
 set_rp	transport.h	/^	size_t set_rp(size_t rp) {$/;"	f	class:Transport
 set_rs	transport.h	/^	size_t set_rs(size_t rs) {$/;"	f	class:Transport
-set_rx	transport.h	/^	void *set_rx(const void *rx, size_t rs) {$/;"	f	class:Transport
+set_rx	transport.h	/^	void *set_rx(void *rx, size_t rs) {$/;"	f	class:Transport
 set_speed	transport.h	/^	double set_speed(double speed) {$/;"	f	class:Transport
 set_wp	transport.h	/^	size_t set_wp(size_t wp) {$/;"	f	class:Transport
 set_ws	transport.h	/^	size_t set_ws(size_t ws) {$/;"	f	class:Transport
-set_wx	transport.h	/^	void *set_wx(const void *wx, size_t ws) {$/;"	f	class:Transport
+set_wx	transport.h	/^	void *set_wx(void *wx, size_t ws) {$/;"	f	class:Transport
 setnonblocking	task.cc	/^int setnonblocking(int fd) {$/;"	f
 size	../../include/logging.h	/^	unsigned long size; \/\/ logging has written bytes in file$/;"	m	struct:logging
 size_max	../../include/logging.h	/^	unsigned long size_max; \/\/ size_max bytes in file$/;"	m	struct:logging

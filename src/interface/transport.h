@@ -83,7 +83,7 @@ public:
 	}
 
 	std::string set_id(const char *id) {
-		assert (strlen(id) == ID_LENGTH);
+		assert(strlen(id) == ID_LENGTH);
 		this->created = time(NULL);
 		return this->id = id;
 	}
@@ -122,7 +122,7 @@ public:
 		return this->wp;
 	}
 
-	void *set_rx(const void *rx, size_t rs) {
+	void *set_rx(void *rx, size_t rs) {
 		while (rs >= this->rs - this->rp) {
 			plog(debug, "{rx = %p, rp = 0x%lx, rs = 0x%lx}, {0x%lx}\n", this->rx, this->rp, this->rs, rs);
 			assert(this->rs > 0);
@@ -155,7 +155,7 @@ public:
 		return this->rx;
 	}
 
-	void *set_wx(const void *wx, size_t ws) {
+	void *set_wx(void *wx, size_t ws) {
 		while (ws >= this->ws - this->wp) {
 			plog(debug, "{wx = %p, wp = 0x%lx, ws = 0x%lx}, {0x%lx}\n", this->wx, this->wp, this->ws, ws);
 			assert(this->ws > 0);
