@@ -3,7 +3,7 @@ all: i1
 clean:
 	rm -f ../../include/logging.o handle.o main.o task.o i1
 
-i1: main.o task.o handle.o ../../include/logging.o
+i1: ../../include/logging.o handle.o main.o task.o
 	$(CXX) -o $@ $^ $(LDFLAGS) && ctags * ../../include/*
 
 # gcc -I ../../include/ -MM *.cc ../../include/logging.cc -std=gnu++0x
