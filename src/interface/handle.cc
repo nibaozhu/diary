@@ -57,7 +57,13 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w,
 			/* Back to wait message. */
 			break;
 		}
+
 		plog(notice, "source = \"%s\", destination = \"%s\", id = \"%s\"\n", source, destination, t->get_id().c_str());
+		if (checkid((void *)source, strlen(source)) == -1 || checkid((void *)destination, strlen(destination)) == -1) {
+			t->clear_rx(); /* Fixed: need reset connection */
+			/* Back to wait other message. */
+			break;
+		}
 
 		if (t->get_rp() >= width + MD5SUM_LENGTH) {
 			memset(md5sum, 0, sizeof md5sum);
@@ -77,7 +83,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w,
 			free (message);
 			if (ret == -1) {
 				plog(warning, "Check fails.\n");
-				t->clear_rx();
+				t->clear_rx(); /* Fixed: need reset connection */
 				/* Back to wait other message. */
 				break;
 			}
@@ -145,9 +151,22 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w,
 	return ret;
 }
 
+int checkid(void *ptr, size_t size) {
+	int ret = 0;
+	for (size_t i = 0; i < size; i++) {
+		int c = *((char *)ptr + i);
+		/* The values returned are non-zero if the character c falls into the tested class, and a zero value if not. */
+		if (isdigit(c) == 0) {
+			ret = -1;
+			break;
+		}
+	}
+	return ret;
+}
+
 int checksum(const void *ptr, size_t size, char *md_value_0, char *digestname) {
 	int ret = 0;
-	return ret;
+	return ret; /* temporary code */
 
 	EVP_MD_CTX *mdctx;
 	const EVP_MD *md;
