@@ -437,7 +437,7 @@ int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 
 					im = m->find(events[n].data.fd);
 					if (im != m->end()) {
-						plog(warning, "Found, first = %d, second = %p\n", im->first, im->second);
+//						plog(debug, "Found, first = %d, second = %p\n", im->first, im->second);
 						t = im->second;
 						w->remove(t);
 						interface->erase(t->get_id());
@@ -474,7 +474,7 @@ int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 
 					im = m->find(events[n].data.fd);
 					if (im != m->end()) {
-						plog(warning, "Found, first = %d, second = %p\n", im->first, im->second);
+//						plog(debug, "Found, first = %d, second = %p\n", im->first, im->second);
 						t = im->second;
 						w->remove(t);
 						interface->erase(t->get_id());
@@ -509,7 +509,7 @@ int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 
 					im = m->find(events[n].data.fd);
 					if (im != m->end()) {
-						plog(warning, "Found, first = %d, second = %p\n", im->first, im->second);
+//						plog(debug, "Found, first = %d, second = %p\n", im->first, im->second);
 						t = im->second;
 						w->remove(t);
 						interface->erase(t->get_id());

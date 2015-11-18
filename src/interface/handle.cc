@@ -125,7 +125,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w,
 
 			std::map<int, Transport*>::iterator i2 = m->find(fd2);
 			if (i2 != m->end()) {
-				plog(warning, "Found, first = %d, second = %p\n", i2->first, i2->second);
+//				plog(debug, "Found, first = %d, second = %p\n", i2->first, i2->second);
 				t2 = i2->second;
 			} else {
 				plog(info, "Back to wait id = \"%s\"\n", destination);
