@@ -19,6 +19,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w,
 	char c = 0;
 	std::string id;
 	void *message = NULL;
+	bool fake_length = false;
 
 	t->pr();
 	do {
@@ -32,9 +33,18 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w,
 				} else if (c >= 'A' && c <= 'F') {
 					length = length * 0x10 + (c - 'A' + 0x0a);
 				} else {
-					length = length * 0x10 + 0x00;
+					fake_length = true;
+					plog(debug, "fake_length is true, c = 0x%x\n", c);
+					// length = length * 0x10 + 0x00;
+					break;
 				}
 			}
+			if (fake_length) {
+				t->clear_rx(); /* Fixed: need reset connection */
+				/* Back to wait other message. */
+				break;
+			}
+
 			plog(notice, "i8.length = 0x%08lx\n", length);
 			width += LENGTH;
 		} else {
@@ -156,7 +166,8 @@ int checkid(void *ptr, size_t size) {
 	for (size_t i = 0; i < size; i++) {
 		int c = *((char *)ptr + i);
 		/* The values returned are non-zero if the character c falls into the tested class, and a zero value if not. */
-		if (isdigit(c) == 0) {
+		/* Checks for a hexadecimal digits, that is, one of 0 1 2 3 4 5 6 7 8 9 a b c d e f A B C D E F. */
+		if (isxdigit(c) == 0) {
 			ret = -1;
 			break;
 		}
