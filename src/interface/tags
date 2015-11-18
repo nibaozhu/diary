@@ -32,7 +32,7 @@ alive	transport.h	/^	bool alive; \/* true: live; false: die *\/$/;"	m	class:Tran
 author	version.h	/^const char *author = "Ni Baozhu";$/;"	v
 cache	../../include/logging.h	/^	unsigned int cache; \/\/ logging has cache lines in memory$/;"	m	struct:logging
 cache_max	../../include/logging.h	/^	unsigned int cache_max; \/\/ cache_max lines in memory$/;"	m	struct:logging
-checkid	handle.cc	/^int checkid(void *ptr, size_t size) {$/;"	f
+checkid	handle.cc	/^int checkid(const void *ptr, size_t size) {$/;"	f
 checksum	handle.cc	/^int checksum(const void *ptr, size_t size, char *md_value_0, char *digestname) {$/;"	f
 clear_color	../../include/logging.cc	/^const char *clear_color = "\\e[0m";$/;"	v
 clear_rx	transport.h	/^	void *clear_rx(size_t size = SIZE) {$/;"	f	class:Transport

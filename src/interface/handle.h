@@ -9,7 +9,7 @@
 #include "transport.h"
 
 int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w, std::map<std::string, int> *interface);
-int checkid(void *ptr, size_t size);
+int checkid(const void *ptr, size_t size);
 int checksum(const void *ptr, size_t size, char *md_value_0, char *digestname);
 
 #endif

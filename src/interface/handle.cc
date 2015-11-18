@@ -161,7 +161,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w,
 	return ret;
 }
 
-int checkid(void *ptr, size_t size) {
+int checkid(const void *ptr, size_t size) {
 	int ret = 0;
 	for (size_t i = 0; i < size; i++) {
 		int c = *((char *)ptr + i);
