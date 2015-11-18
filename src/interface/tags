@@ -6,25 +6,25 @@
 !_TAG_PROGRAM_VERSION	5.8	//
 BUFFER_LENGTH	task.cc	9;"	d	file:
 CPPFLAGS	GNUmakefile	/^CPPFLAGS=-I ..\/..\/include$/;"	m
-CXXFLAGS	GNUmakefile	/^CXXFLAGS=-O0 -U NDEBUG -U DEBUG_LOGGING -funsigned-char -g3 -std=c++0x -Wall -Wextra$/;"	m
+CXXFLAGS	GNUmakefile	/^CXXFLAGS=-O0 -U NDEBUG -U DEBUG_LOGGING -funsigned-char -g3 -std=c++0x -Wall -Wextra -Werror$/;"	m
 DATE_MAX	../../include/logging.h	37;"	d
 HANDLE_H	handle.h	6;"	d
-ID_LENGTH	transport.h	32;"	d
+ID_LENGTH	transport.h	33;"	d
 LDFLAGS	GNUmakefile	/^LDFLAGS=-lssl$/;"	m
-LENGTH	transport.h	30;"	d
+LENGTH	transport.h	31;"	d
 LOGGING_H	../../include/logging.h	9;"	d
 MAIN_H	main.h	6;"	d
 MAX_EVENTS	task.cc	8;"	d	file:
-MD5SUM_LENGTH	transport.h	31;"	d
+MD5SUM_LENGTH	transport.h	32;"	d
 MODE_MAX	../../include/logging.h	36;"	d
-SIZE	transport.h	28;"	d
+SIZE	transport.h	29;"	d
 SIZE_MAX	../../include/logging.h	16;"	d
 SIZE_MAX	../../include/logging.h	18;"	d
 TASK_H	task.h	6;"	d
 TRANSPORT_H	transport.h	6;"	d
 Transport	transport.h	/^	Transport(int fd, time_t created, struct sockaddr_in peer_addr, socklen_t peer_addrlen, size_t size = SIZE) {$/;"	f	class:Transport
 Transport	transport.h	/^class Transport {$/;"	c
-WIDTH	transport.h	25;"	d
+WIDTH	transport.h	26;"	d
 __plog	../../include/logging.cc	/^int __plog(enum elevel x, const char *__file, unsigned int __line, const char *__function, const char *fmt, ...)$/;"	f
 addr	task.cc	/^struct sockaddr_in addr;$/;"	v	typeref:struct:sockaddr_in
 alert	../../include/logging.h	/^	alert,			\/* action must be taken immediately *\/$/;"	e	enum:elevel
