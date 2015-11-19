@@ -6,6 +6,6 @@
 
 int main(int argc, char **argv) {
 	int ret = 0;
-	plog(info, "%s(%d)\n", __func__, ret = task(argc, argv));
+	ret = task(argc, argv);
 	return ret;
 }

@@ -14,7 +14,7 @@ struct sockaddr_in addr;
 extern char *optarg;
 extern int optind, opterr, optopt;
 extern struct logging *l;
-bool is_quit;
+bool quit;
 bool is_reconfigure;
 short int port = 12340;
 char ip[3 + 1 + 3 + 1 + 3 + 1 + 3 + 1] = "0.0.0.0";
@@ -41,7 +41,7 @@ int setnonblocking(int fd) {
 
 int reads(Transport *t) {
 	assert(t != NULL);
-	int ret = 0;
+	ssize_t ret = 0;
 	void *buffer = malloc(BUFFER_LENGTH + 1);
 	size_t rl = 0;
 	time_t t0 = 0, t1 = 0;
@@ -74,11 +74,12 @@ int reads(Transport *t) {
 		plog(notice, "speed: %0.2f M/s\n", t->set_speed(speed));
 	}
 	free(buffer);
-	return ret;
+	int _ret = ret < 0? -1: 0;
+	return _ret;
 }
 
-int writes(Transport *t) {
-	int ret = 0;
+ssize_t writes(Transport *t) {
+	ssize_t ret = 0;
 	assert(t != NULL);
 	do {
 		t->pw();
@@ -104,11 +105,11 @@ void handler(int signum) {
 		case SIGQUIT: /* shortcut: Ctrl + \ */
 		case SIGINT : /* shortcut: Ctrl + C */
 		case SIGTERM:
-			is_quit = true;
+			quit = true;
 			break;
 		case SIGUSR1:
 		case SIGSEGV:
-			is_quit = true;
+			quit = true;
 			break;
 		case SIGUSR2:
 			pflush();
@@ -116,7 +117,6 @@ void handler(int signum) {
 		default:
 			plog(warning, "Undefined handler.");
 	}
-	return ;
 }
 
 void set_disposition() {
@@ -129,7 +129,6 @@ void set_disposition() {
 			plog(error, "set the disposition of the signal(signum = %d) to handler.\n", signum);
 		}
 	}
-	return ;
 }
 
 int init(int argc, char **argv) {
@@ -194,7 +193,7 @@ int init(int argc, char **argv) {
 
 		plog(info, "%s\n", version);
 
-		is_quit = false;
+		quit = false;
 		is_reconfigure = false;
 		set_disposition();
 
@@ -304,8 +303,8 @@ int task(int argc, char **argv) {
 			break;
 		}
 
-		while (!is_quit) {
-			ret = task_r(r, w, m, interface);
+		while (!quit) {
+			task_r(r, w, m, interface);
 
 #if 0
 			std::map<int, Transport*>::iterator i = m->begin();
@@ -315,7 +314,7 @@ int task(int argc, char **argv) {
 			}
 #endif
 
-			ret = task_x(r, w, m, interface);
+			task_x(r, w, m, interface);
 
 #if 0
 			// std::map<int, Transport*>::iterator i = m->begin();
@@ -326,7 +325,7 @@ int task(int argc, char **argv) {
 			}
 #endif
 
-			ret = task_w(w);
+			task_w(w);
 
 #if 0
 			// std::map<int, Transport*>::iterator i = m->begin();
@@ -343,7 +342,7 @@ int task(int argc, char **argv) {
 	return ret;
 }
 
-int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface) {
+void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface) {
 	assert(r != NULL && m != NULL);
 	int ret = 0;
 	do {
@@ -408,7 +407,6 @@ int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 					}
 
 
-
 #if 0
 					plog(emergency, "before: fd = %d, interface->size = %d\n", events[n].data.fd, interface->size());
 					std::map<std::string, int>::iterator i = interface->begin();
@@ -428,6 +426,7 @@ int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 						delete t;
 						m->erase(events[n].data.fd);
 					}
+
 
 #if 0
 					plog(emergency, "after: fd = %d, interface->size = %d\n", events[n].data.fd, interface->size());
@@ -548,12 +547,11 @@ int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 		}
 
 	} while (false);
-	return ret;
 }
 
-int task_w(std::list<Transport*> *w) {
+void task_w(std::list<Transport*> *w) {
 	assert(w != NULL);
-	int ret = 0;
+	ssize_t ret = 0;
 	std::list<Transport*>::iterator i = w->begin();
 	while (i != w->end()) {
 		Transport *t = *i;
@@ -561,31 +559,29 @@ int task_w(std::list<Transport*> *w) {
 			i = w->erase(i);
 			continue;
 		}
-		plog(debug, "wx = %p, wp = 0x%lx\n", t->get_wx(), t->get_wp());
+
 		t->pw();
 		ret = writes(t);
+		plog(info, "Wrote 0x%lx bytes\n", ret);
+
 		if (t->get_wp() == 0) {
 			i = w->erase(i);
 		} else {
 			i++;
 		}
-		plog(debug, "Wrote %d bytes\n", ret);
 	}
-	return ret;
 }
 
-int task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface) {
+void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface) {
 	assert(r != NULL && w != NULL && m != NULL);
-	int ret = 0;
 	std::list<Transport*>::iterator i = r->begin();
 	while (i != r->end()) {
 		Transport *t = *i;
-		ret = handle(t, m, w, interface);
+		int ret = handle(t, m, w, interface);
 		if (ret == -1) {
-			// plog(error, "Handle fail.\n");
+			plog(error, "Handle fail.\n");
 		}
 		i = r->erase(i);
 	}
-	return ret;
 }
 

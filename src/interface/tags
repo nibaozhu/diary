@@ -69,7 +69,6 @@ info	../../include/logging.h	/^	info,			\/* informational *\/$/;"	e	enum:elevel
 init	task.cc	/^int init(int argc, char **argv) {$/;"	f
 initializing	../../include/logging.cc	/^int initializing()$/;"	f
 ip	task.cc	/^char ip[3 + 1 + 3 + 1 + 3 + 1 + 3 + 1] = "0.0.0.0";$/;"	v
-is_quit	task.cc	/^bool is_quit;$/;"	v
 is_reconfigure	task.cc	/^bool is_reconfigure;$/;"	v
 l	../../include/logging.cc	/^struct logging *l;$/;"	v	typeref:struct:logging
 level	../../include/logging.cc	/^const char *level[debug + 1] = $/;"	v
@@ -91,6 +90,7 @@ plog	../../include/logging.h	83;"	d
 port	task.cc	/^short int port = 12340;$/;"	v
 pr	transport.h	/^	void pr(size_t width = WIDTH, bool b0 = false) {$/;"	f	class:Transport
 pw	transport.h	/^	void pw(size_t width = WIDTH, bool b0 = false) {$/;"	f	class:Transport
+quit	task.cc	/^bool quit;$/;"	v
 reads	task.cc	/^int reads(Transport *t) {$/;"	f
 rp	transport.h	/^	size_t rp; \/* transport data `Read' pointer position *\/$/;"	m	class:Transport
 rs	transport.h	/^	size_t rs; \/* transport data `Read' size  *\/$/;"	m	class:Transport
@@ -118,16 +118,16 @@ sysdate	../../include/logging.cc	/^int sysdate(char *str)$/;"	f
 t0	../../include/logging.h	/^	struct tm t0; \/\/ start time$/;"	m	struct:logging	typeref:struct:logging::tm
 t1	../../include/logging.h	/^	struct tm t1; \/\/ the last flush stream date\/time$/;"	m	struct:logging	typeref:struct:logging::tm
 task	task.cc	/^int task(int argc, char **argv) {$/;"	f
-task_r	task.cc	/^int task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface) {$/;"	f
-task_w	task.cc	/^int task_w(std::list<Transport*> *w) {$/;"	f
-task_x	task.cc	/^int task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface) {$/;"	f
+task_r	task.cc	/^void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface) {$/;"	f
+task_w	task.cc	/^void task_w(std::list<Transport*> *w) {$/;"	f
+task_x	task.cc	/^void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface) {$/;"	f
 uninit	task.cc	/^int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *inferface) {$/;"	f
 uninitialized	../../include/logging.cc	/^int uninitialized()$/;"	f
 updated	transport.h	/^	time_t updated; \/* the lastest communication time *\/$/;"	m	class:Transport
 version	version.h	/^const char *version = "1.2.1-stable";$/;"	v
 warning	../../include/logging.h	/^	warning,		\/* warning conditions *\/$/;"	e	enum:elevel
 wp	transport.h	/^	size_t wp; \/* transport data `Write' pointer position *\/$/;"	m	class:Transport
-writes	task.cc	/^int writes(Transport *t) {$/;"	f
+writes	task.cc	/^ssize_t writes(Transport *t) {$/;"	f
 ws	transport.h	/^	size_t ws; \/* transport data `Write' size *\/$/;"	m	class:Transport
 wx	transport.h	/^	void *wx; \/* transport data `Write' *\/$/;"	m	class:Transport
 ~Transport	transport.h	/^	~Transport() {$/;"	f	class:Transport
