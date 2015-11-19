@@ -13,7 +13,7 @@ int reads(Transport *t);
 int writes(Transport *t);
 
 void handler(int signum);
-void set_disposition(void);
+void set_disposition();
 
 int init(int argc, char **argv);
 int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface);

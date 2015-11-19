@@ -119,7 +119,7 @@ void handler(int signum) {
 	return ;
 }
 
-void set_disposition(void) {
+void set_disposition() {
 	int arr[] = {SIGHUP, SIGQUIT, SIGINT, SIGUSR1, SIGUSR2, SIGTERM, /* SIGSEGV */ };
 	size_t i = 0;
 	int signum = 0;
@@ -178,23 +178,7 @@ int init(int argc, char **argv) {
 			strncpy(l->name, name + 1, sizeof l->name - 1);
 		}
 
-		struct timeval t0;
-		// gettimeofday() gives the number of seconds and microseconds since the Epoch (see time(2)).
-		gettimeofday(&t0, NULL);
-
-		// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
-		//	on January 1, 1970, Coordinated Universal Time (UTC).
-		localtime_r(&t0.tv_sec, &l->t0);
-
-		struct tm t2;
-		t2.tm_year = 0;
-		t2.tm_mon = 0;
-		t2.tm_mday = 0;
-		t2.tm_hour = 0;
-		t2.tm_min = 0;
-		t2.tm_sec = 1;
-
-		l->diff = t2.tm_sec + t2.tm_min * 60 + t2.tm_hour * 60 * 60 + t2.tm_mday * 60 * 60 * 24 + t2.tm_mon * 60 * 60 * 24 * 30 + t2.tm_year * 60 * 60 * 24 * 30 * 365;
+		l->diff = 6; // fflush file per 6 seconds
 		l->pid = getpid();
 		l->cache_max = 1;
 		l->size_max = 1024 * 1024 * 10; // 10 MB

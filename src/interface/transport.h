@@ -95,7 +95,7 @@ public:
 		return this->id = id;
 	}
 
-	std::string get_id(void) {
+	std::string get_id() {
 		return this->id;
 	}
 
@@ -103,7 +103,7 @@ public:
 		return this->fd = fd;
 	}
 
-	int get_fd(void) {
+	int get_fd() {
 		return this->fd;
 	}
 
@@ -111,7 +111,7 @@ public:
 		return this->rp = rp;
 	}
 
-	size_t get_rp(void) {
+	size_t get_rp() {
 		return this->rp;
 	}
 
@@ -119,7 +119,7 @@ public:
 		return this->wp = wp;
 	}
 
-	size_t get_wp(void) {
+	size_t get_wp() {
 		return this->wp;
 	}
 
@@ -152,7 +152,7 @@ public:
 		return this->rx;
 	}
 
-	void *get_rx(void) {
+	void *get_rx() {
 		return this->rx;
 	}
 
@@ -186,7 +186,7 @@ public:
 		return this->wx;
 	}
 
-	void *get_wx(void) {
+	void *get_wx() {
 		return this->wx;
 	}
 
@@ -194,7 +194,7 @@ public:
 		return this->rs = rs;
 	}
 
-	size_t get_rs(void) {
+	size_t get_rs() {
 		return this->rs;
 	}
 
@@ -202,7 +202,7 @@ public:
 		return this->ws = ws;
 	}
 
-	size_t get_ws(void) {
+	size_t get_ws() {
 		return this->ws;
 	}
 
@@ -210,7 +210,7 @@ public:
 		return this->alive = alive;
 	}
 
-	bool get_alive(void) {
+	bool get_alive() {
 		return this->alive;
 	}
 
@@ -218,7 +218,7 @@ public:
 		return this->speed = speed;
 	}
 
-	double get_speed(void) {
+	double get_speed() {
 		return this->speed;
 	}
 
