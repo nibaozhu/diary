@@ -35,7 +35,7 @@ const char *color[debug + 1] =
 const char *clear_color = "\e[0m";
 struct logging *l;
 
-int pflush(void)
+int pflush()
 {
 	assert(l != NULL);
 
@@ -75,7 +75,24 @@ int pflush(void)
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l->size = %lu, l->size_max = %lu\n",
 			color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l->size, l->size_max);
 #endif
-	if (l->size < l->size_max)
+
+	struct tm t0;
+	struct timeval t1;
+
+	// gettimeofday() gives the number of seconds and microseconds since the Epoch (see time(2)).
+	gettimeofday(&t1, NULL);
+
+	// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
+	//	on January 1, 1970, Coordinated Universal Time (UTC).
+	localtime_r(&t1.tv_sec, &t0);
+
+	bool reset_number = false;
+	if (t0.tm_year != l->t1.tm_year || t0.tm_mon != l->t1.tm_mon || t0.tm_mday != l->t1.tm_mday)
+	{
+		reset_number = true;
+		; //...
+	}
+	else if (l->size < l->size_max)
 	{
 		return 0;
 	}
@@ -91,8 +108,26 @@ int pflush(void)
 	char newpath[PATH_MAX];
 	memset(oldpath, 0, sizeof oldpath);
 	memset(newpath, 0, sizeof newpath);
-	snprintf(oldpath, sizeof oldpath, "%s/%s_%u.log.%u.tmp", l->path, l->name, l->pid, l->number);
-	snprintf(newpath, sizeof newpath, "%s/%s_%u.log.%u", l->path, l->name, l->pid, l->number);
+	snprintf(oldpath, sizeof oldpath, "%s/%s_%04d-%02d-%02d_%u.log.%u.tmp", l->path, l->name, l->t1.tm_year + 1900, l->t1.tm_mon + 1, l->t1.tm_mday, l->pid, l->number);
+	snprintf(newpath, sizeof newpath, "%s/%s_%04d-%02d-%02d_%u.log.%u", l->path, l->name, l->t1.tm_year + 1900, l->t1.tm_mon + 1, l->t1.tm_mday, l->pid, l->number);
+
+	if (reset_number)
+	{
+		l->number = 0;
+	}
+
+	/* F_OK tests for the existence of the file. */
+	ret = access(newpath, F_OK);
+	if (ret == -1 && errno != ENOENT)
+	{
+		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, strerror(errno), errno);
+		return -1;
+	}
+	else if (ret == 0)
+	{
+		fprintf(stderr, "%s%s%s %s:%d: %s: newpath = '%s' already exists!\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, newpath);
+		return -1;
+	}
 
 	ret = rename(oldpath, newpath);
 	if (ret == -1)
@@ -101,9 +136,10 @@ int pflush(void)
 		return -1;
 	}
 
+	localtime_r(&t1.tv_sec, &(l->t1));
 	char path[PATH_MAX]; // logging file's path
 	memset(path, 0, sizeof path);
-	snprintf(path, sizeof path, "%s/%s_%u.log.%u.tmp", l->path, l->name, l->pid, ++l->number);
+	snprintf(path, sizeof path, "%s/%s_%04d-%02d-%02d_%u.log.%u.tmp", l->path, l->name, l->t1.tm_year + 1900, l->t1.tm_mon + 1, l->t1.tm_mday, l->pid, ++l->number);
 
 	FILE *fp = fopen(path, l->mode);
 	if (fp == NULL)
@@ -112,7 +148,6 @@ int pflush(void)
 		return -1;
 	}
 	l->stream = fp;
-
 	return 0;
 }
 
@@ -123,6 +158,37 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l = %p\n",
 		color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l);
 #endif
+
+	int ret = 0;
+	struct tm t0;
+	struct timeval t1;
+
+	// gettimeofday() gives the number of seconds and microseconds since the Epoch (see time(2)).
+	gettimeofday(&t1, NULL);
+
+	// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
+	//	on January 1, 1970, Coordinated Universal Time (UTC).
+	localtime_r(&t1.tv_sec, &t0);
+	time_t diff = mktime(&t0) - mktime(&l->t1);
+
+#ifdef DEBUG_LOGGING
+	fprintf(stdout, "%s%s%s %s:%d: %s: %s, %04d-%02d-%02d %02d:%02d:%02d => %04d-%02d-%02d %02d:%02d:%02d, diff = %lu seconds\n",
+			color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", 
+			l->t1.tm_year + 1900, l->t1.tm_mon + 1, l->t1.tm_mday, l->t1.tm_hour, l->t1.tm_min, l->t1.tm_sec, 
+			t0.tm_year + 1900, t0.tm_mon + 1, t0.tm_mday, t0.tm_hour, t0.tm_min, t0.tm_sec, 
+			diff
+		);
+#endif
+
+	if (t0.tm_year != l->t1.tm_year || t0.tm_mon != l->t1.tm_mon || t0.tm_mday != l->t1.tm_mday)
+	{
+		ret = pflush();
+		assert(ret == 0);
+		// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
+		//	on January 1, 1970, Coordinated Universal Time (UTC).
+		localtime_r(&t1.tv_sec, &l->t1);
+		; //...
+	}
 
 	char str[DATE_MAX];
 	sysdate(str);
@@ -163,41 +229,20 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 	{
 		; //...
 	}
+	else if (diff < l->diff)
+	{
+		return 0; // no flush
+	}
 	else if (++l->cache < l->cache_max)
 	{
 #ifdef DEBUG_LOGGING
 		fprintf(stdout, "%s%s%s %s:%d: %s: %s, l->cache = %u, l->cache_max = %u\n",
 			color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l->cache, l->cache_max);
 #endif
-		return 0;
-	}
-
-	struct tm t0;
-	struct timeval t1;
-
-	// gettimeofday() gives the number of seconds and microseconds since the Epoch (see time(2)).
-	gettimeofday(&t1, NULL);
-
-	// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
-	//	on January 1, 1970, Coordinated Universal Time (UTC).
-	localtime_r(&t1.tv_sec, &t0);
-	time_t diff = mktime(&t0) - mktime(&l->t1);
-#ifdef DEBUG_LOGGING
-	fprintf(stdout, "%s%s%s %s:%d: %s: %s, %04d-%02d-%02d %02d:%02d:%02d => %04d-%02d-%02d %02d:%02d:%02d, diff = %lu seconds\n",
-			color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", 
-			l->t1.tm_year + 1900, l->t1.tm_mon + 1, l->t1.tm_mday, l->t1.tm_hour, l->t1.tm_min, l->t1.tm_sec, 
-			t0.tm_year + 1900, t0.tm_mon + 1, t0.tm_mday, t0.tm_hour, t0.tm_min, t0.tm_sec, 
-			diff
-		);
-#endif
-	if (diff < l->diff)
-	{
 		return 0; // no flush
 	}
 
-	int ret = 0;
 	ret = pflush();
-
 	assert(ret == 0);
 	// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
 	//	on January 1, 1970, Coordinated Universal Time (UTC).
@@ -205,14 +250,23 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 	return ret;
 }
 
-int initializing(void)
+int initializing()
 {
 	assert(l != NULL);
 #ifdef DEBUG_LOGGING
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l = %p\n",
-		color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l);
+			color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l);
 #endif
+	struct timeval t0;
+	// gettimeofday() gives the number of seconds and microseconds since the Epoch (see time(2)).
+	gettimeofday(&t0, NULL);
 
+	// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
+	//	on January 1, 1970, Coordinated Universal Time (UTC).
+	localtime_r(&t0.tv_sec, &l->t0);
+	localtime_r(&t0.tv_sec, &l->t1);
+
+	l->number = 0;
 	if (l->stream_level == none)
 	{
 		fprintf(stdout, "%s%s%s %s:%d: %s: %s, l->stream_level = %d\n", 
@@ -232,20 +286,19 @@ int initializing(void)
 	if (ret == -1)
 	{
 		fprintf(stderr, "%s%s%s %s:%d: %s: path = \"%s\", %s(%u)\n",
-			color[error], level[error], clear_color, __FILE__, __LINE__, __func__, l->path, strerror(errno), errno);
+				color[error], level[error], clear_color, __FILE__, __LINE__, __func__, l->path, strerror(errno), errno);
 		return -1;
 	}
 
 	char path[PATH_MAX];
 	memset(path, 0, sizeof path);
-	l->number = 0;
-	snprintf(path, sizeof path, "%s/%s_%u.log.%u.tmp", l->path, l->name, l->pid, ++l->number);
+	snprintf(path, sizeof path, "%s/%s_%04d-%02d-%02d_%u.log.%u.tmp", l->path, l->name, l->t0.tm_year + 1900, l->t0.tm_mon + 1, l->t0.tm_mday, l->pid, ++l->number);
 
 	FILE *fp = fopen(path, l->mode);
 	if (fp == NULL)
 	{
 		fprintf(stderr, "%s%s%s %s:%d: %s: path = \"%s\", %s(%u)\n",
-			color[error], level[error], clear_color, __FILE__, __LINE__, __func__, path, strerror(errno), errno);
+				color[error], level[error], clear_color, __FILE__, __LINE__, __func__, path, strerror(errno), errno);
 		return -1;
 	}
 	l->stream = fp;
@@ -254,12 +307,12 @@ int initializing(void)
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s\n", color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "passed");
 #endif
 
-	// print the program name, pid, release
+	// Print the program name, pid, release
 	plog(info, "PROGRAM: %s, PID: %u, RELEASE: %s %s\n", l->name, l->pid, __DATE__, __TIME__);
 	return 0;
 }
 
-int uninitialized(void)
+int uninitialized()
 {
 #ifdef DEBUG_LOGGING
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l = %p\n",
@@ -292,8 +345,21 @@ int uninitialized(void)
 	char newpath[PATH_MAX];
 	memset(oldpath, 0, sizeof oldpath);
 	memset(newpath, 0, sizeof newpath);
-	snprintf(oldpath, sizeof oldpath, "%s/%s_%u.log.%u.tmp", l->path, l->name, l->pid, l->number);
-	snprintf(newpath, sizeof newpath, "%s/%s_%u.log.%u", l->path, l->name, l->pid, l->number);
+	snprintf(oldpath, sizeof oldpath, "%s/%s_%04d-%02d-%02d_%u.log.%u.tmp", l->path, l->name, l->t1.tm_year + 1900, l->t1.tm_mon + 1, l->t1.tm_mday, l->pid, l->number);
+	snprintf(newpath, sizeof newpath, "%s/%s_%04d-%02d-%02d_%u.log.%u", l->path, l->name, l->t1.tm_year + 1900, l->t1.tm_mon + 1, l->t1.tm_mday, l->pid, l->number);
+
+	/* F_OK tests for the existence of the file. */
+	ret = access(newpath, F_OK);
+	if (ret == -1 && errno != ENOENT)
+	{
+		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, strerror(errno), errno);
+		return -1;
+	}
+	else if (ret == 0)
+	{
+		fprintf(stderr, "%s%s%s %s:%d: %s: newpath = '%s' already exists!\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, newpath);
+		return -1;
+	}
 
 	ret = rename(oldpath, newpath);
 	if (ret == -1)

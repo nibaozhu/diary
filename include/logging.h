@@ -74,11 +74,11 @@ struct logging {
 };
 
 int sysdate(char *str);
-int initializing(void);
+int initializing();
 int __plog(enum elevel x, const char *__file, unsigned int __line, const char *__function, 
 		const char *__restrict fmt, ...) __attribute__ ((__format__ (__printf__, 5, 0)));
-int pflush(void);
-int uninitialized(void);
+int pflush();
+int uninitialized();
 
 #define plog(x, fmt, ...) (__plog(x, __FILE__, __LINE__, __func__, fmt, ## __VA_ARGS__, NULL))
 
