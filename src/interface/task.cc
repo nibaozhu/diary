@@ -581,7 +581,7 @@ void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 	std::list<Transport*>::iterator i = r->begin();
 	while (i != r->end()) {
 		Transport *t = *i;
-		int ret = handle(t, m, w, interface);
+		int ret = handle(r, w, m, interface, t);
 		if (ret == -1) {
 			plog(error, "Handle fail.\n");
 		}

@@ -5,7 +5,7 @@
 #include "handle.h"
 
 
-int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w, std::map<std::string, int> *interface) {
+int handle(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface, Transport *t) {
 	int ret = 0;
 	char md5sum[MD5SUM_LENGTH + 1];
 	char digestname[] = "md5";
@@ -34,7 +34,6 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w,
 				} else {
 					fake_length = true;
 					plog(debug, "fake_length is true, c = 0x%x\n", c);
-					// length = length * 0x10 + 0x00;
 					break;
 				}
 			}
@@ -108,14 +107,18 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w,
 			t->set_id(source);
 			t->set_alive(true);
 			interface->insert(std::make_pair(t->get_id(), t->get_fd()));
-			if (t->get_rp() >= width) {
-				plog(notice, "Echo\n");
-				t->set_wx(t->get_rx(), t->get_rp());
-				t->clear_rx();
-				w->push_back(t);
-			} else {
-				break;
+
+			plog(notice, "Echo\n");
+			t->set_wx(t->get_rx(), t->get_rp());
+			t->clear_rx();
+			w->push_back(t);
+
+			std::map<int, Transport*>::iterator im = m->begin();
+			while (im != m->end()) {
+				r->push_back(im->second);
+				im++;
 			}
+
 		} else if (t->get_rp() >= width + length) {
 			plog(notice, "Message complete, width + length = 0x%lx, rp = 0x%lx\n", width + length, t->get_rp());
 			id = source;
@@ -125,36 +128,36 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w,
 				break;
 			}
 
-			int fdx = 0;
+			int fx = 0;
 			Transport *tx = NULL;
 			id = destination;
 
 			std::map<std::string, int>::iterator ie = interface->find(id);
 			if (ie != interface->end()) {
-//				plog(debug, "ie->first.c_str() = %s, ie->second = %d\n", ie->first.c_str(), ie->second);
-				fdx = ie->second;
+#if 0
+				plog(debug, "ie->first.c_str() = %s, ie->second = %d\n", ie->first.c_str(), ie->second);
+#endif
+				fx = ie->second;
 			} else {
 				plog(info, "Back to wait id = \"%s\"\n", destination);
 				break;
 			}
 
-			std::map<int, Transport*>::iterator im = m->find(fdx);
+			std::map<int, Transport*>::iterator im = m->find(fx);
 			if (im != m->end()) {
-//				plog(debug, "Found, first = %d, second = %p\n", im->first, im->second);
+#if 0
+				plog(debug, "Found, first = %d, second = %p\n", im->first, im->second);
+#endif
 				tx = im->second;
 			} else {
 				plog(info, "Back to wait id = \"%s\"\n", destination);
 				break;
 			}
 
-			if (t->get_rp() >= width) {
-				tx->set_wx(t->get_rx(), (width + length));
-				memmove(t->get_rx(), (const void *)((char *)t->get_rx() + (width + length)), t->get_rp() - (width + length));
-				t->set_rp(t->get_rp() - (width + length));
-				w->push_back(tx);
-			} else {
-				break;
-			}
+			tx->set_wx(t->get_rx(), (width + length));
+			memmove(t->get_rx(), (const void *)((char *)t->get_rx() + (width + length)), t->get_rp() - (width + length));
+			t->set_rp(t->get_rp() - (width + length));
+			w->push_back(tx);
 		}
 	} while (true);
 	return ret;
