@@ -7,25 +7,24 @@
 
 int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w, std::map<std::string, int> *interface) {
 	int ret = 0;
-	size_t length = 0;
-	size_t width = 0;
 	char md5sum[MD5SUM_LENGTH + 1];
 	char digestname[] = "md5";
 	char source[ID_LENGTH + 1];
 	char destination[ID_LENGTH + 1];
 	memset(source, 0, sizeof source);
 	memset(destination, 0, sizeof destination);
-	int i = 0;
-	char c = 0;
 	std::string id;
 	void *message = NULL;
-	bool fake_length = false;
 
 	t->pr();
 	do {
+		size_t length = 0;
+		size_t width = 0;
+		bool fake_length = false;
+
 		if (t->get_rp() >= LENGTH) {
-			for (i = 0; i < LENGTH; i++) {
-				c = *((char *)t->get_rx() + i);
+			for (int i = 0; i < LENGTH; i++) {
+				char c = *((char *)t->get_rx() + i);
 				if (c >= '0' && c <= '9') {
 					length = length * 0x10 + (c - '0' + 0x00);
 				} else if (c >= 'a' && c <= 'f') {
@@ -157,7 +156,7 @@ int handle(Transport *t, std::map<int, Transport*> *m, std::list<Transport*> *w,
 				break;
 			}
 		}
-	} while (false);
+	} while (true);
 	return ret;
 }
 

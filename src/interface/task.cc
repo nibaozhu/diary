@@ -303,7 +303,7 @@ int task(int argc, char **argv) {
 			break;
 		}
 
-		while (!quit) {
+		do {
 			task_r(r, w, m, interface);
 
 #if 0
@@ -336,7 +336,7 @@ int task(int argc, char **argv) {
 			}
 #endif
 
-		}
+		} while (!quit);
 	} while (false);
 	ret = uninit(r, w, m, interface);
 	return ret;
@@ -552,6 +552,10 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 void task_w(std::list<Transport*> *w) {
 	assert(w != NULL);
 	ssize_t ret = 0;
+
+	w->sort();
+	w->unique();
+
 	std::list<Transport*>::iterator i = w->begin();
 	while (i != w->end()) {
 		Transport *t = *i;
