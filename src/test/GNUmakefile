@@ -43,5 +43,5 @@ test_list.o: test_list.cc
 
 CPPFLAGS=-I ../../include/
 CFLAGS=-g -O0
-CXXFLAGS=-g -O0
+CXXFLAGS=-g -O0 -Wall -Wextra -Werror
 LDFLAGS=-lsqlite3 -lssl

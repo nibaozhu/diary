@@ -8,6 +8,7 @@ unsigned int quit = 0;
 
 int do_something(enum elevel x, int timeout)
 {
+	plog(x, "This is a logging message. timeout = x\n");
 	plog(x, "This is a logging message. timeout = %d\n", timeout);
 	usleep(timeout);
 	return 0;
@@ -64,14 +65,17 @@ int main(int argc, char **argv)
 	memset(l, 0, sizeof *l);
 
 	char *name;
-	name = rindex(argv[0], '/');
-	if (name == NULL)
-	{
-		strncpy(l->name, argv[0], sizeof l->name - 1);
-	}
-	else
-	{
-		strncpy(l->name, name + 1, sizeof l->name - 1);
+	if (argc > 0) {
+		name = rindex(argv[0], '/');
+		if (name == NULL)
+		{
+			strncpy(l->name, argv[0], sizeof l->name - 1);
+		}
+		else
+		{
+			strncpy(l->name, name + 1, sizeof l->name - 1);
+		}
+
 	}
 
 	struct timeval t0;
@@ -111,14 +115,14 @@ int main(int argc, char **argv)
 	while (!quit)
 	{
 
-//	emergency,		/* application is unusable */
-//	alert,			/* action must be taken immediately */
-//	critical,		/* critical conditions */
-//	error,			/* error conditions */
-//	warning,		/* warning conditions */
-//	notice,			/* normal but significant condition */
-//	info,			/* informational */
-//	debug,			/* debug-level messages */
+		//	emergency,		/* application is unusable */
+		//	alert,			/* action must be taken immediately */
+		//	critical,		/* critical conditions */
+		//	error,			/* error conditions */
+		//	warning,		/* warning conditions */
+		//	notice,			/* normal but significant condition */
+		//	info,			/* informational */
+		//	debug,			/* debug-level messages */
 		to = rand() % 1000000;
 		x = emergency; do_something(x, to);
 		to = rand() % 1000000;
