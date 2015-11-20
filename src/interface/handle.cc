@@ -43,7 +43,6 @@ int handle(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 				break;
 			}
 
-//			plog(notice, "i8.length = 0x%08lx\n", length);
 			head += LENGTH;
 		} else {
 			/* Back to wait message. */
@@ -100,7 +99,7 @@ int handle(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 		}
 
 		if (strncmp(source, destination, sizeof source) == 0 && strlen(source) > 0) {
-			// update or refresh interface
+			/* Update or refresh interface. */
 			interface->erase(t->get_id());
 
 			t->set_id(source);

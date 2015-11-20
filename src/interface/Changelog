@@ -5,5 +5,5 @@
 1.2.1
 =====
 
-  * Use iterator std::map:find(const key_type& __x)
+  * Use iterator std::map::find(const key_type& __x)
   * Add Changelog 
