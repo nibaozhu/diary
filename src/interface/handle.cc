@@ -5,7 +5,7 @@
 #include "handle.h"
 
 
-int handle(std::list<Transport *> *r, std::list<Transport *> *w, std::map<int, Transport *> *m, std::map<std::string, int> *interface, Transport *t) {
+int handle(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface, Transport* t) {
 	int ret = 0;
 	char md5sum[MD5SUM_LENGTH + 1];
 	char digestname[] = "md5";
@@ -112,7 +112,7 @@ int handle(std::list<Transport *> *r, std::list<Transport *> *w, std::map<int, T
 			t->clear_rx();
 			w->push_back(t);
 
-			std::map<int, Transport *>::iterator im = m->begin();
+			std::map<int, Transport*>::iterator im = m->begin();
 			while (im != m->end()) {
 				r->push_back(im->second);
 				im++;
@@ -128,7 +128,7 @@ int handle(std::list<Transport *> *r, std::list<Transport *> *w, std::map<int, T
 			}
 
 			int fx = 0;
-			Transport *tx = NULL;
+			Transport* tx = NULL;
 			id = destination;
 
 			std::map<std::string, int>::iterator ie = interface->find(id);
@@ -142,7 +142,7 @@ int handle(std::list<Transport *> *r, std::list<Transport *> *w, std::map<int, T
 				break;
 			}
 
-			std::map<int, Transport *>::iterator im = m->find(fx);
+			std::map<int, Transport*>::iterator im = m->find(fx);
 			if (im != m->end()) {
 #if 0
 				plog(debug, "Found, first = %d, second = %p\n", im->first, im->second);

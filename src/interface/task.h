@@ -9,19 +9,19 @@
 #include "handle.h"
 
 int setnonblocking(int fd);
-int reads(Transport *t);
-ssize_t writes(Transport *t);
+int reads(Transport* t);
+ssize_t writes(Transport* t);
 
 void handler(int signum);
 void set_disposition();
 
 int init(int argc, char **argv);
-int uninit(std::list<Transport *> *r, std::list<Transport *> *w, std::map<int, Transport *> *m, std::map<std::string, int> *interface);
+int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface);
 
 int task(int argc, char **argv);
-void task_r(std::list<Transport *> *r, std::list<Transport *> *w, std::map<int, Transport *> *m, std::map<std::string, int> *interface);
-void task_x(std::list<Transport *> *r, std::list<Transport *> *w, std::map<int, Transport *> *m, std::map<std::string, int> *interface);
-void task_w(std::list<Transport *> *w);
+void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface);
+void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface);
+void task_w(std::list<Transport*> *w);
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
