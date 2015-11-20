@@ -78,7 +78,7 @@ int reads(Transport* t) {
 	return _ret;
 }
 
-ssize_t writes(Transport* t) {
+void writes(Transport* t) {
 	ssize_t ret = 0;
 	assert(t != NULL);
 	do {
@@ -88,12 +88,14 @@ ssize_t writes(Transport* t) {
 			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		} else if (ret >= 0 && (size_t)ret <= t->get_wp()) {
+			plog(notice, "Wrote 0x%lx bytes to file = %d.\n", ret, t->get_fd());
+
 			/* Moving forward. */
 			memmove(t->get_wx(), (const void *)((char *)t->get_wx() + ret), t->get_wp() - ret);
 			t->set_wp(t->get_wp() - ret);
 		}
 	} while (false);
-	return ret;
+	return ;
 }
 
 void handler(int signum) {
@@ -539,21 +541,18 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 						break;
 					}
 					Transport* t = (*m)[events[n].data.fd];
-					ret = writes(t);
-					if (ret < 0) {
-						break;
-					}
+					writes(t);
 				}
 #endif
 			}
 		}
 
 	} while (false);
+	return ;
 }
 
 void task_w(std::list<Transport*> *w) {
 	assert(w != NULL);
-	ssize_t ret = 0;
 
 	w->sort();
 	w->unique();
@@ -566,20 +565,23 @@ void task_w(std::list<Transport*> *w) {
 			continue;
 		}
 
-		ret = writes(t);
-		plog(notice, "Wrote 0x%lx bytes to file = %d.\n", ret, t->get_fd());
-
+		writes(t);
 		if (t->get_wp() == 0) {
 			i = w->erase(i);
 		} else {
 			i++;
 		}
 	}
+	return ;
 }
 
 void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface) {
 	assert(r != NULL && w != NULL && m != NULL);
 	std::list<Transport*>::iterator i = r->begin();
+
+	r->sort();
+	r->unique();
+
 	while (i != r->end()) {
 		Transport* t = *i;
 		int ret = handle(r, w, m, interface, t);
@@ -588,5 +590,6 @@ void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 		}
 		i = r->erase(i);
 	}
+	return ;
 }
 

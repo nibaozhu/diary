@@ -10,7 +10,7 @@
 
 int setnonblocking(int fd);
 int reads(Transport* t);
-ssize_t writes(Transport* t);
+void writes(Transport* t);
 
 void handler(int signum);
 void set_disposition();

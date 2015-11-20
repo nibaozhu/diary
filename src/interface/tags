@@ -127,7 +127,7 @@ updated	transport.h	/^	time_t updated; \/* the lastest communication time *\/$/;
 version	version.h	/^const char *version = "1.2.2-stable";$/;"	v
 warning	../../include/logging.h	/^	warning,		\/* warning conditions *\/$/;"	e	enum:elevel
 wp	transport.h	/^	size_t wp; \/* transport data `Write' pointer position *\/$/;"	m	class:Transport
-writes	task.cc	/^ssize_t writes(Transport* t) {$/;"	f
+writes	task.cc	/^void writes(Transport* t) {$/;"	f
 ws	transport.h	/^	size_t ws; \/* transport data `Write' size *\/$/;"	m	class:Transport
 wx	transport.h	/^	void *wx; \/* transport data `Write' *\/$/;"	m	class:Transport
 ~Transport	transport.h	/^	~Transport() {$/;"	f	class:Transport
