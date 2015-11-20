@@ -5,7 +5,7 @@
 #include "handle.h"
 
 
-int handle(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface, Transport *t) {
+int handle(std::list<Transport *> *r, std::list<Transport *> *w, std::map<int, Transport *> *m, std::map<std::string, int> *interface, Transport *t) {
 	int ret = 0;
 	char md5sum[MD5SUM_LENGTH + 1];
 	char digestname[] = "md5";
@@ -19,7 +19,7 @@ int handle(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 	t->pr();
 	do {
 		size_t length = 0;
-		size_t width = 0;
+		size_t head = 0;
 		bool fake_length = false;
 
 		if (t->get_rp() >= LENGTH) {
@@ -43,50 +43,49 @@ int handle(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 				break;
 			}
 
-			plog(notice, "i8.length = 0x%08lx\n", length);
-			width += LENGTH;
+//			plog(notice, "i8.length = 0x%08lx\n", length);
+			head += LENGTH;
 		} else {
 			/* Back to wait message. */
 			break;
 		}
 
-		if (t->get_rp() >= width + ID_LENGTH) {
-			strncpy(source, (char *)t->get_rx() + width, ID_LENGTH);
-			width += ID_LENGTH;
+		if (t->get_rp() >= head + ID_LENGTH) {
+			strncpy(source, (char *)t->get_rx() + head, ID_LENGTH);
+			head += ID_LENGTH;
 		} else {
 			/* Back to wait message. */
 			break;
 		}
 
-		if (t->get_rp() >= width + ID_LENGTH) {
-			strncpy(destination, (char *)t->get_rx() + width, ID_LENGTH);
-			width += ID_LENGTH;
+		if (t->get_rp() >= head + ID_LENGTH) {
+			strncpy(destination, (char *)t->get_rx() + head, ID_LENGTH);
+			head += ID_LENGTH;
 		} else {
 			/* Back to wait message. */
 			break;
 		}
 
-		plog(notice, "source = \"%s\", destination = \"%s\", id = \"%s\"\n", source, destination, t->get_id().c_str());
+		plog(notice, "length = 0x%08lx, source = '%s'(id = '%s'), destination = '%s'\n", length, source, t->get_id().c_str(), destination);
 		if (checkid((void *)source, strlen(source)) == -1 || checkid((void *)destination, strlen(destination)) == -1) {
 			t->clear_rx(); /* Fixed: need reset connection */
 			/* Back to wait other message. */
 			break;
 		}
 
-		if (t->get_rp() >= width + MD5SUM_LENGTH) {
+		if (t->get_rp() >= head + MD5SUM_LENGTH) {
 			memset(md5sum, 0, sizeof md5sum);
-			memcpy(md5sum, (const void *)((char *)t->get_rx() + width), MD5SUM_LENGTH);
-			width += MD5SUM_LENGTH;
+			memcpy(md5sum, (const void *)((char *)t->get_rx() + head), MD5SUM_LENGTH);
+			head += MD5SUM_LENGTH;
 		} else {
 			/* Back to wait message. */
 			break;
 		}
 
-		if (t->get_rp() >= width + length) {
-			plog(info, "md5sum = \"%s\"\n", md5sum);
+		if (t->get_rp() >= head + length) {
 			message = malloc(length + 1);
 			memset(message, 0, length + 1);
-			memcpy(message, (const void *)((char *)t->get_rx() + width), length);
+			memcpy(message, (const void *)((char *)t->get_rx() + head), length);
 			ret = checksum(message, length, md5sum, digestname);
 			free (message);
 			if (ret == -1) {
@@ -113,14 +112,14 @@ int handle(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 			t->clear_rx();
 			w->push_back(t);
 
-			std::map<int, Transport*>::iterator im = m->begin();
+			std::map<int, Transport *>::iterator im = m->begin();
 			while (im != m->end()) {
 				r->push_back(im->second);
 				im++;
 			}
 
-		} else if (t->get_rp() >= width + length) {
-			plog(notice, "Message complete, width + length = 0x%lx, rp = 0x%lx\n", width + length, t->get_rp());
+		} else if (t->get_rp() >= head + length) {
+			plog(notice, "Message completed, head(0x%lx) + length(0x%lx) = 0x%lx\n", head, length, head + length);
 			id = source;
 			if (t->get_id() != id) {
 				plog(warning, "Non self id.\n");
@@ -139,24 +138,24 @@ int handle(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 #endif
 				fx = ie->second;
 			} else {
-				plog(info, "Back to wait id = \"%s\"\n", destination);
+				plog(info, "Back to wait id = '%s'\n", destination);
 				break;
 			}
 
-			std::map<int, Transport*>::iterator im = m->find(fx);
+			std::map<int, Transport *>::iterator im = m->find(fx);
 			if (im != m->end()) {
 #if 0
 				plog(debug, "Found, first = %d, second = %p\n", im->first, im->second);
 #endif
 				tx = im->second;
 			} else {
-				plog(info, "Back to wait id = \"%s\"\n", destination);
+				plog(info, "Back to wait id = '%s'\n", destination);
 				break;
 			}
 
-			tx->set_wx(t->get_rx(), (width + length));
-			memmove(t->get_rx(), (const void *)((char *)t->get_rx() + (width + length)), t->get_rp() - (width + length));
-			t->set_rp(t->get_rp() - (width + length));
+			tx->set_wx(t->get_rx(), (head + length));
+			memmove(t->get_rx(), (const void *)((char *)t->get_rx() + (head + length)), t->get_rp() - (head + length));
+			t->set_rp(t->get_rp() - (head + length));
 			w->push_back(tx);
 		}
 	} while (true);

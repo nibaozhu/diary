@@ -250,7 +250,7 @@ int init(int argc, char **argv) {
 	return ret;
 }
 
-int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *inferface) {
+int uninit(std::list<Transport *> *r, std::list<Transport *> *w, std::map<int, Transport *> *m, std::map<std::string, int> *inferface) {
 	int ret = 0;
 	do {
 		if (listen_sock > 0) {
@@ -275,7 +275,7 @@ int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 		w->clear();
 		delete w;
 
-		std::map<int, Transport*>::iterator i = m->begin();
+		std::map<int, Transport *>::iterator i = m->begin();
 		while (i != m->end()) {
 			delete i->second;
 			m->erase(i++);
@@ -292,9 +292,9 @@ int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 
 int task(int argc, char **argv) {
 	int ret = 0;
-	std::list<Transport*> *r = new std::list<Transport*>();
-	std::list<Transport*> *w = new std::list<Transport*>();
-	std::map<int, Transport*> *m = new std::map<int, Transport*>();
+	std::list<Transport *> *r = new std::list<Transport *>();
+	std::list<Transport *> *w = new std::list<Transport *>();
+	std::map<int, Transport *> *m = new std::map<int, Transport *>();
 	std::map<std::string, int> *interface = new std::map<std::string, int>(); // maybe should use multimap
 	do {
 		srand(getpid());
@@ -307,7 +307,7 @@ int task(int argc, char **argv) {
 			task_r(r, w, m, interface);
 
 #if 0
-			std::map<int, Transport*>::iterator i = m->begin();
+			std::map<int, Transport *>::iterator i = m->begin();
 			while (i != m->end()) {
 				plog(error, "(%d, %p)\n", i->first, i->second);
 				i++;
@@ -317,7 +317,7 @@ int task(int argc, char **argv) {
 			task_x(r, w, m, interface);
 
 #if 0
-			// std::map<int, Transport*>::iterator i = m->begin();
+			// std::map<int, Transport *>::iterator i = m->begin();
 			i = m->begin();
 			while (i != m->end()) {
 				plog(error, "(%d, %p)\n", i->first, i->second);
@@ -328,7 +328,7 @@ int task(int argc, char **argv) {
 			task_w(w);
 
 #if 0
-			// std::map<int, Transport*>::iterator i = m->begin();
+			// std::map<int, Transport *>::iterator i = m->begin();
 			i = m->begin();
 			while (i != m->end()) {
 				plog(error, "(%d, %p)\n", i->first, i->second);
@@ -342,7 +342,7 @@ int task(int argc, char **argv) {
 	return ret;
 }
 
-void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface) {
+void task_r(std::list<Transport *> *r, std::list<Transport *> *w, std::map<int, Transport *> *m, std::map<std::string, int> *interface) {
 	assert(r != NULL && m != NULL);
 	int ret = 0;
 	do {
@@ -391,7 +391,7 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 				t = new Transport(acceptfd, created, peer_addr, peer_addrlen);
 				m->insert(std::make_pair(acceptfd, t));
 			} else {
-				std::map<int, Transport*>::iterator im = m->begin();
+				std::map<int, Transport *>::iterator im = m->begin();
 				plog(debug, "events[%d].events = 0x%03x\n", n, events[n].events);
 				if (events[n].events & EPOLLERR) {
 					plog(error, "Error condition happened on the associated file descriptor = %d.\n", events[n].data.fd);
@@ -419,7 +419,9 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 
 					im = m->find(events[n].data.fd);
 					if (im != m->end()) {
-//						plog(debug, "Found, first = %d, second = %p\n", im->first, im->second);
+#if 0
+						plog(debug, "Found, first = %d, second = %p\n", im->first, im->second);
+#endif
 						t = im->second;
 						w->remove(t);
 						interface->erase(t->get_id());
@@ -483,7 +485,7 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 
 #if 0
 					plog(emergency, "before: fd = %d, m->size = %d\n", events[n].data.fd, m->size());
-					std::map<int, Transport*>::iterator i = m->begin();
+					std::map<int, Transport *>::iterator i = m->begin();
 					while (i != m->end()) {
 						plog(error, "(%d, %p)\n", i->first, i->second);
 						i++;
@@ -502,7 +504,7 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 
 #if 0
 					plog(emergency, "end: fd = %d, m->size = %d\n", events[n].data.fd, m->size());
-					// std::map<int, Transport*>::iterator i = m->begin();
+					// std::map<int, Transport *>::iterator i = m->begin();
 					i = m->begin();
 					while (i != m->end()) {
 						plog(error, "(%d, %p)\n", i->first, i->second);
@@ -549,14 +551,14 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 	} while (false);
 }
 
-void task_w(std::list<Transport*> *w) {
+void task_w(std::list<Transport *> *w) {
 	assert(w != NULL);
 	ssize_t ret = 0;
 
 	w->sort();
 	w->unique();
 
-	std::list<Transport*>::iterator i = w->begin();
+	std::list<Transport *>::iterator i = w->begin();
 	while (i != w->end()) {
 		Transport *t = *i;
 		if (t == NULL) {
@@ -564,9 +566,8 @@ void task_w(std::list<Transport*> *w) {
 			continue;
 		}
 
-		t->pw();
 		ret = writes(t);
-		plog(info, "Wrote 0x%lx bytes\n", ret);
+		plog(notice, "Wrote 0x%lx bytes to file = %d.\n", ret, t->get_fd());
 
 		if (t->get_wp() == 0) {
 			i = w->erase(i);
@@ -576,9 +577,9 @@ void task_w(std::list<Transport*> *w) {
 	}
 }
 
-void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface) {
+void task_x(std::list<Transport *> *r, std::list<Transport *> *w, std::map<int, Transport *> *m, std::map<std::string, int> *interface) {
 	assert(r != NULL && w != NULL && m != NULL);
-	std::list<Transport*>::iterator i = r->begin();
+	std::list<Transport *>::iterator i = r->begin();
 	while (i != r->end()) {
 		Transport *t = *i;
 		int ret = handle(r, w, m, interface, t);
