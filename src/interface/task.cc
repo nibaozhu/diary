@@ -119,18 +119,18 @@ void handler(int signum) {
 		default:
 			plog(warning, "Undefined handler.");
 	}
+	return ;
 }
 
 void set_disposition() {
-	int arr[] = {SIGHUP, SIGQUIT, SIGINT, SIGUSR1, SIGUSR2, SIGTERM, /* SIGSEGV */ };
-	size_t i = 0;
-	int signum = 0;
-	for ( ; i < sizeof arr / sizeof (int); i++) {
-		signum = arr[i];
+	int arr[] = {SIGHUP, SIGQUIT, SIGINT, SIGUSR1, SIGUSR2, SIGTERM/* , SIGSEGV */};
+	for (size_t i = 0 ; i < sizeof arr / sizeof (int); i++) {
+		int signum = arr[i];
 		if (signal(signum, handler) == SIG_ERR) {
 			plog(error, "set the disposition of the signal(signum = %d) to handler.\n", signum);
 		}
 	}
+	return ;
 }
 
 int init(int argc, char **argv) {
@@ -179,7 +179,7 @@ int init(int argc, char **argv) {
 			strncpy(l->name, name + 1, sizeof l->name - 1);
 		}
 
-		l->diff = 1; // fflush file per 1 seconds
+		l->diff = 0; // fflush file per 0 seconds
 		l->pid = getpid();
 		l->cache_max = 1;
 		l->size_max = 1024 * 1024 * 10; // 10 MB
@@ -408,7 +408,6 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 						continue;
 					}
 
-
 #if 0
 					plog(emergency, "before: fd = %d, interface->size = %d\n", events[n].data.fd, interface->size());
 					std::map<std::string, int>::iterator i = interface->begin();
@@ -418,12 +417,8 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 					}
 #endif
 
-
 					im = m->find(events[n].data.fd);
 					if (im != m->end()) {
-#if 0
-						plog(debug, "Found, first = %d, second = %p\n", im->first, im->second);
-#endif
 						t = im->second;
 						w->remove(t);
 						interface->erase(t->get_id());
@@ -431,17 +426,14 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 						m->erase(events[n].data.fd);
 					}
 
-
 #if 0
 					plog(emergency, "after: fd = %d, interface->size = %d\n", events[n].data.fd, interface->size());
-					// std::map<std::string, int>::iterator i = interface->begin();
 					i = interface->begin();
 					while (i != interface->end()) {
 						plog(error, "(%s, %d)\n", i->first.c_str(), i->second);
 						i++;
 					}
 #endif
-
 
 					continue;
 				}
@@ -461,7 +453,6 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 
 					im = m->find(events[n].data.fd);
 					if (im != m->end()) {
-//						plog(debug, "Found, first = %d, second = %p\n", im->first, im->second);
 						t = im->second;
 						w->remove(t);
 						interface->erase(t->get_id());
@@ -496,7 +487,6 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 
 					im = m->find(events[n].data.fd);
 					if (im != m->end()) {
-//						plog(debug, "Found, first = %d, second = %p\n", im->first, im->second);
 						t = im->second;
 						w->remove(t);
 						interface->erase(t->get_id());
@@ -506,7 +496,6 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 
 #if 0
 					plog(emergency, "end: fd = %d, m->size = %d\n", events[n].data.fd, m->size());
-					// std::map<int, Transport*>::iterator i = m->begin();
 					i = m->begin();
 					while (i != m->end()) {
 						plog(error, "(%d, %p)\n", i->first, i->second);

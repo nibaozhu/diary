@@ -4,7 +4,6 @@
  */
 #include "handle.h"
 
-
 int handle(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface, Transport* t) {
 	int ret = 0;
 	char md5sum[MD5SUM_LENGTH + 1];
