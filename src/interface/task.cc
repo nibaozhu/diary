@@ -245,8 +245,8 @@ int init(int argc, char **argv) {
 			break;
 		}
 
-		plog(info, "Epoll file descriptor = %d.\n", epollfd);
-		plog(info, "Assigning address {%s:%u}.\n", ip, port);
+		plog(info, "Epoll instance file = %d.\n", epollfd);
+		plog(info, "Assigning address %s:%u\n", ip, port);
 		plog(info, "Refer to by sockfd = %d as a passive socket.\n", listen_sock);
 	} while (false);
 	return ret;
@@ -255,22 +255,6 @@ int init(int argc, char **argv) {
 int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *inferface) {
 	int ret = 0;
 	do {
-		if (listen_sock > 0) {
-			plog(info, "Close a listen file descriptor = %d.\n", listen_sock);
-			ret = close(listen_sock);
-			if (ret == -1) {
-				plog(error, "%s(%d)\n", strerror(errno), errno);
-			}
-		}
-
-		if (epollfd > 0) {
-			plog(info, "Close an epoll file descriptor = %d.\n", epollfd);
-			ret = close(epollfd);
-			if (ret == -1) {
-				plog(error, "%s(%d)\n", strerror(errno), errno);
-			}
-		}
-
 		r->clear();
 		delete r;
 
@@ -284,7 +268,24 @@ int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 		}
 		delete m;
 
+		inferface->clear();
 		delete inferface;
+
+		if (listen_sock > 0) {
+			plog(info, "Close passive file = %d.\n", listen_sock);
+			ret = close(listen_sock);
+			if (ret == -1) {
+				plog(error, "%s(%d)\n", strerror(errno), errno);
+			}
+		}
+
+		if (epollfd > 0) {
+			plog(info, "Close epoll file = %d.\n", epollfd);
+			ret = close(epollfd);
+			if (ret == -1) {
+				plog(error, "%s(%d)\n", strerror(errno), errno);
+			}
+		}
 
 		ret = uninitialized();
 		free(l);
