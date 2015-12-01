@@ -1,5 +1,5 @@
 Program: i1
-Description: Transport Control Layer Interface.
+Description: Transport Control Layer Interface
 Repository Root: https://github.com/nibaozhu/project_x
 Email: nibz@qq.com
 Default Configuration: bind 0.0.0.0:12340
