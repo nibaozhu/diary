@@ -176,8 +176,9 @@ int checkid(const void *ptr, size_t size) {
 
 int checksum(const void *ptr, size_t size, char *md_value_0, char *digestname) {
 	int ret = 0;
+	plog(info, "ptr = %p, size = %lu, md_value_0 = %p, digestname = %s\n", ptr, size, md_value_0, digestname);
 	return ret; /* temporary code */
-
+#if 0
 	EVP_MD_CTX *mdctx;
 	const EVP_MD *md;
 	unsigned char md_value[EVP_MAX_MD_SIZE];
@@ -231,4 +232,5 @@ int checksum(const void *ptr, size_t size, char *md_value_0, char *digestname) {
 		}
 	}
 	return ret;
+#endif
 }

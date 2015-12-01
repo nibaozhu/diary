@@ -5,7 +5,10 @@
 #ifndef HANDLE_H
 #define HANDLE_H
 
+#if 0
 #include <openssl/evp.h>
+#endif
+
 #include "transport.h"
 
 int handle(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface, Transport* t);
