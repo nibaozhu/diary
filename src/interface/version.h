@@ -8,4 +8,4 @@ const char *email = "nibz@qq.com";
 const char *home = "https://github.com/nibaozhu/project_x/trunk/src/interface";
 
 /* {experimental, unstable, stable} */
-const char *version = "1.2.2-stable";
+const char *version = "1.2.3-stable";
