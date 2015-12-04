@@ -114,6 +114,11 @@ int main(int argc, char **argv)
 		else if (retval == 0)
 		{
 			// Child
+			retval = close(fd);
+			if (retval == -1)
+			{
+				printf("%s\n", strerror(errno));
+			}
 			printf("Child ID= %d\n", getpid());
 			break;
 		}
@@ -259,6 +264,8 @@ int reads(int fd)
 			break;
 		}
 		printf("fd = %d\n---response begin---\n%s\n---response end---\n", fd, buffer);
+
+		do_use_fd();
 	} while (0);
 	count ++;
 	return retval;
