@@ -10,7 +10,7 @@ CXXFLAGS	GNUmakefile	/^CXXFLAGS=-O0 -U NDEBUG -U DEBUG_LOGGING -funsigned-char -
 DATE_MAX	../../include/logging.h	37;"	d
 HANDLE_H	handle.h	6;"	d
 ID_LENGTH	transport.h	33;"	d
-LDFLAGS	GNUmakefile	/^LDFLAGS=#-lssl$/;"	m
+LDFLAGS	GNUmakefile	/^LDFLAGS=$/;"	m
 LENGTH	transport.h	31;"	d
 LOGGING_H	../../include/logging.h	9;"	d
 MAIN_H	main.h	6;"	d
