@@ -319,7 +319,7 @@ int uninitialized()
 		color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l);
 #endif
 	assert(l != NULL);
-	assert(l->stream > 0);
+	assert(l->stream != NULL);
 
 	int ret = 0;
 
