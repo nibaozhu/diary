@@ -61,7 +61,7 @@ get_speed	transport.h	/^	double get_speed() {$/;"	f	class:Transport
 get_wp	transport.h	/^	size_t get_wp() {$/;"	f	class:Transport
 get_ws	transport.h	/^	size_t get_ws() {$/;"	f	class:Transport
 get_wx	transport.h	/^	void *get_wx() {$/;"	f	class:Transport
-handle	handle.cc	/^int handle(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface, Transport* t) {$/;"	f
+handle	handle.cc	/^int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface, Transport* t) {$/;"	f
 handler	task.cc	/^void handler(int signum) {$/;"	f
 home	version.h	/^const char *home = "https:\/\/github.com\/nibaozhu\/project_x\/trunk\/src\/interface";$/;"	v
 id	transport.h	/^	std::string id; \/* id.size() = ID_LENGTH *\/$/;"	m	class:Transport

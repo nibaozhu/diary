@@ -56,7 +56,7 @@ public:
 
 		char id[ID_LENGTH + 1];
 		memset(id, 0, sizeof id);
-		sprintf(id, "%08x", rand());
+		snprintf(id, sizeof id, "%08x", rand());
 		this->id = id;
 
 		this->created = created;
@@ -79,6 +79,10 @@ public:
 
 		memset(this->rx, 0, this->rs);
 		memset(this->wx, 0, this->ws);
+
+		/* Tell Client ID. */
+		this->set_wx(id, strlen(id));
+
 		plog(debug, "new this = %p, malloc rx = %p, rp = 0x%lx, rs = 0x%lx, malloc wx = %p, wp = 0x%lx, ws = 0x%lx\n", 
 				this, this->rx, this->rp, this->rs, this->wx, this->wp, this->ws);
 	}

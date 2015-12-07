@@ -392,7 +392,9 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 				plog(notice, "NAME %s:%d->%s:%d\n", ip, htons(addr.sin_port), peer_ip, htons(peer_addr.sin_port));
 
 				t = new Transport(acceptfd, created, peer_addr, peer_addrlen);
+				w->push_back(t);
 				m->insert(std::make_pair(acceptfd, t));
+				interface->insert(std::make_pair(t->get_id(), t->get_fd()));
 			} else {
 				std::map<int, Transport*>::iterator im = m->begin();
 				plog(debug, "events[%d].events = 0x%03x\n", n, events[n].events);
@@ -574,7 +576,7 @@ void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 
 	while (i != r->end()) {
 		Transport* t = *i;
-		int ret = handle(r, w, m, interface, t);
+		int ret = handle(w, m, interface, t);
 		if (ret == -1) {
 			plog(error, "Handle fail.\n");
 		}

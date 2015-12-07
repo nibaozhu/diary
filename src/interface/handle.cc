@@ -4,16 +4,16 @@
  */
 #include "handle.h"
 
-int handle(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface, Transport* t) {
+int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface, Transport* t) {
 	int ret = 0;
-	char md5sum[MD5SUM_LENGTH + 1];
-	char digestname[] = "md5";
+//	char md5sum[MD5SUM_LENGTH + 1];
+//	char digestname[] = "md5";
 	char source[ID_LENGTH + 1];
 	char destination[ID_LENGTH + 1];
 	memset(source, 0, sizeof source);
 	memset(destination, 0, sizeof destination);
 	std::string id;
-	void *message = NULL;
+//	void *message = NULL;
 
 	t->pr();
 	do {
@@ -71,6 +71,7 @@ int handle(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 			break;
 		}
 
+#if 0
 		if (t->get_rp() >= head + MD5SUM_LENGTH) {
 			memset(md5sum, 0, sizeof md5sum);
 			memcpy(md5sum, (const void *)((char *)t->get_rx() + head), MD5SUM_LENGTH);
@@ -96,26 +97,14 @@ int handle(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 			/* Back to wait message. */
 			break;
 		}
+#endif
 
 		if (strncmp(source, destination, sizeof source) == 0 && strlen(source) > 0) {
-			/* Update or refresh interface. */
-			interface->erase(t->get_id());
-
-			t->set_id(source);
 			t->set_alive(true);
-			interface->insert(std::make_pair(t->get_id(), t->get_fd()));
-
 			plog(notice, "Echo\n");
 			t->set_wx(t->get_rx(), t->get_rp());
 			t->clear_rx();
 			w->push_back(t);
-
-			std::map<int, Transport*>::iterator im = m->begin();
-			while (im != m->end()) {
-				r->push_back(im->second);
-				im++;
-			}
-
 		} else if (t->get_rp() >= head + length) {
 			plog(notice, "Message completed, head(0x%lx) + length(0x%lx) = 0x%lx\n", head, length, head + length);
 			id = source;
