@@ -1,5 +1,5 @@
 .PHONY:
-all: test_logging test_regex test_sqlite3 test_list test_base64 test_const
+all: test_logging test_regex test_sqlite3 test_list test_base64 test_const test_pthread
 	@ctags * ../../include/*
 clean:
 	rm test_logging.o test_logging
@@ -8,6 +8,7 @@ clean:
 	rm test_list.o test_list
 	rm test_const.o test_const
 	rm test_base64.o test_base64
+	rm test_pthread.o test_pthread
 
 test_base64.o: test_base64.c
 test_gnu.o: test_gnu.c
@@ -16,6 +17,7 @@ test_const.o: test_const.cc
 test_regex.o: test_regex.c
 test_sqlite3.o: test_sqlite3.c
 test_xml.o: test_xml.c
+test_pthread.o: test_pthread.c
 ../../include/logging.o: ../../include/logging.cc ../../include/logging.h
 
 test_logging: test_logging.o ../../include/logging.o
@@ -36,6 +38,9 @@ test_sqlite3: test_sqlite3.o
 test_list: test_list.o
 	$(CXX) -o $@ $^
 
+test_pthread: test_pthread.o
+	$(CXX) $(LDFLAGS) -o $@ $^
+
 install: test_regex test_logging test_sqlite3 test_list
 	cp $^ ../../bin
 
@@ -44,4 +49,4 @@ test_list.o: test_list.cc
 CPPFLAGS=-I ../../include/
 CFLAGS=-g -O0
 CXXFLAGS=-g -O0 -Wall -Wextra -Werror
-LDFLAGS=-lsqlite3 -lssl
+LDFLAGS=-lsqlite3 -lssl -pthread
