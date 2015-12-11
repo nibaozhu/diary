@@ -17,6 +17,7 @@ MODE_MAX	../../include/logging.h	36;"	d
 SIZE_MAX	../../include/logging.h	16;"	d
 SIZE_MAX	../../include/logging.h	18;"	d
 __MAX	test_pthread.c	16;"	d	file:
+__MAX	test_pthread_with_sync.c	19;"	d	file:
 __execute	test_arch.cc	/^int __execute$/;"	f
 __plog	../../include/logging.cc	/^int __plog(enum elevel x, const char *__file, unsigned int __line, const char *__function, const char *fmt, ...)$/;"	f
 __read	test_arch.cc	/^int __read$/;"	f
@@ -59,6 +60,7 @@ main	test_map.cc	/^int main(void) {$/;"	f
 main	test_multimap.cc	/^int main(void) {$/;"	f
 main	test_or.c	/^int main(int ac, char **argv) {$/;"	f
 main	test_pthread.c	/^int main() {$/;"	f
+main	test_pthread_with_sync.c	/^int main() {$/;"	f
 main	test_regex.c	/^int main(int argc, char **argv)$/;"	f
 main	test_sqlite3.c	/^int main(int argc, char **argv)$/;"	f
 main	test_string.cc	/^int main(void) {$/;"	f
@@ -84,6 +86,7 @@ setnonblocking	test_client.c	/^int setnonblocking(int fd)$/;"	f
 size	../../include/logging.h	/^	unsigned long size; \/\/ logging has written bytes in file$/;"	m	struct:logging
 size_max	../../include/logging.h	/^	unsigned long size_max; \/\/ size_max bytes in file$/;"	m	struct:logging
 start_routine	test_pthread.c	/^void *start_routine(void *arg) {$/;"	f
+start_routine	test_pthread_with_sync.c	/^void *start_routine(void *arg) {$/;"	f
 stdout_level	../../include/logging.h	/^	enum elevel stdout_level;$/;"	m	struct:logging	typeref:enum:logging::elevel
 stream	../../include/logging.h	/^	FILE *stream;$/;"	m	struct:logging
 stream_level	../../include/logging.h	/^	enum elevel stream_level;$/;"	m	struct:logging	typeref:enum:logging::elevel
