@@ -16,6 +16,7 @@ MAX_EVENTS	test_client.c	17;"	d	file:
 MODE_MAX	../../include/logging.h	36;"	d
 SIZE_MAX	../../include/logging.h	16;"	d
 SIZE_MAX	../../include/logging.h	18;"	d
+__MAX	test_pthread.c	16;"	d	file:
 __execute	test_arch.cc	/^int __execute$/;"	f
 __plog	../../include/logging.cc	/^int __plog(enum elevel x, const char *__file, unsigned int __line, const char *__function, const char *fmt, ...)$/;"	f
 __read	test_arch.cc	/^int __read$/;"	f
