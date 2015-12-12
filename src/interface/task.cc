@@ -155,14 +155,14 @@ int init(int argc, char **argv) {
 					printf( "Usage: %s [OPTION]...\n"
 						"Interface server.\n"
 						"\n"
-						"	-h	display this help and exit\n"
-						"	-v	output version information and exit\n"
-						"	-i IP	set bind ip, default use %s\n"
-						"	-p PORT	set bind port, default use %d\n"
+						"	-h	Display this help and exit\n"
+						"	-v	Output version information and exit\n"
+						"	-i IP	Set bind ip, default use %s\n"
+						"	-p PORT	Set bind port, default use %d\n"
 						"\n"
 						"Report %s bugs to %s\n"
 						"Home page: <%s>\n"
-						"For complete documentation, see README\n", 
+						"For complete Documentation, see README\n", 
 						argv[0], ip, port, argv[0], email, home);
 					exit(0);
 			}
