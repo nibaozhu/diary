@@ -207,7 +207,14 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 
 	if (x <= l->stream_level)
 	{
-		fprintf(l->stream, "%s %s %s:%d:%s ", str, level[x], __file, __line, __function);
+		if (x <= warning)
+		{
+			fprintf(l->stream, "%s %s (%s:%d:%s) ", str, level[x], __file, __line, __function);
+		}
+		else
+		{
+			fprintf(l->stream, "%s %s ", str, level[x]);
+		}
 	}
 
 	va_list ap;
