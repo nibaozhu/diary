@@ -1,5 +1,6 @@
 int main(void) {
 	return __GNUC__;
+#if 0
 	return __GNUG__;
 	return __GNU1__;
 	return __DATE__;
@@ -9,4 +10,5 @@ int main(void) {
 	return __COUNTER__;
 	return __COUNTER__;
 	return __COUNTER__;
+#endif
 }
