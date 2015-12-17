@@ -133,7 +133,7 @@ public:
 			assert(this->rs > 0);
 			this->rx = realloc(this->rx, this->rs << 1);
 			if (this->rx == NULL) {
-				plog(debug, "The request fails that changes the size of the memory block.\n");
+				plog(critical, "%s(%d)\n", strerror(errno), errno);
 				return this->rx;
 			} else {
 				this->rs <<= 1;
@@ -166,7 +166,7 @@ public:
 			assert(this->ws > 0);
 			this->wx = realloc(this->wx, this->ws << 1);
 			if (this->wx == NULL) {
-				plog(debug, "The request fails that changes the size of the memory block.\n");
+				plog(critical, "%s(%d)\n", strerror(errno), errno);
 				return this->wx;
 			} else {
 				this->ws <<= 1;
