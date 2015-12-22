@@ -7,8 +7,8 @@
 
 #include "transport.h"
 
-int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface, Transport* t);
-int checkid(const void *ptr, size_t size);
+
+int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *interface, Transport* t);
 
 #endif
 

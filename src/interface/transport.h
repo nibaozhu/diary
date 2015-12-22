@@ -28,13 +28,11 @@
 /* 1024 bytes = 1KB */
 #define SIZE (1<<10)
 
-#define LENGTH (8)
-#define MD5SUM_LENGTH (32)
-#define ID_LENGTH (8)
+#define LENGTH (1<<2)
 
 class Transport {
 private:
-	std::string id; /* id.size() = ID_LENGTH */
+	uint32_t id; /* unsigned int 32 */
 	time_t created; /* the first communication time */
 	time_t updated; /* the lastest communication time */
 	bool alive; /* true: live; false: die */
@@ -53,11 +51,6 @@ private:
 public:
 	Transport(int fd, time_t created, struct sockaddr_in peer_addr, socklen_t peer_addrlen, size_t size = SIZE) {
 		assert(size > 0);
-
-		char id[ID_LENGTH + 1];
-		memset(id, 0, sizeof id);
-		snprintf(id, sizeof id, "%08x", rand());
-		this->id = id;
 
 		this->created = created;
 		this->updated = this->created;
@@ -80,26 +73,16 @@ public:
 		memset(this->rx, 0, this->rs);
 		memset(this->wx, 0, this->ws);
 
-		/* Tell Client ID. */
-		this->set_wx(id, strlen(id));
-
 		plog(debug, "new this = %p, malloc rx = %p, rp = 0x%lx, rs = 0x%lx, malloc wx = %p, wp = 0x%lx, ws = 0x%lx\n", 
 				this, this->rx, this->rp, this->rs, this->wx, this->wp, this->ws);
 	}
 
-	std::string set_id(const char *id) {
-		assert(strlen(id) == ID_LENGTH);
+	uint32_t set_id(uint32_t id) {
 		this->created = time(NULL);
 		return this->id = id;
 	}
 
-	std::string set_id(std::string id) { /* Make them happy. */
-		assert (id.size() == ID_LENGTH);
-		this->created = time(NULL);
-		return this->id = id;
-	}
-
-	std::string get_id() {
+	uint32_t get_id() {
 		return this->id;
 	}
 

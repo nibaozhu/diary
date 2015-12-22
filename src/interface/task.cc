@@ -252,7 +252,7 @@ int init(int argc, char **argv) {
 	return ret;
 }
 
-int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *inferface) {
+int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *inferface) {
 	int ret = 0;
 	do {
 		r->clear();
@@ -298,7 +298,7 @@ int task(int argc, char **argv) {
 	std::list<Transport*> *r = new std::list<Transport*>();
 	std::list<Transport*> *w = new std::list<Transport*>();
 	std::map<int, Transport*> *m = new std::map<int, Transport*>();
-	std::map<std::string, int> *interface = new std::map<std::string, int>(); // maybe should use multimap
+	std::map<uint32_t, int> *interface = new std::map<uint32_t, int>(); // maybe should use multimap
 	do {
 		srand(getpid());
 		ret = init(argc, argv);
@@ -345,7 +345,7 @@ int task(int argc, char **argv) {
 	return ret;
 }
 
-void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface) {
+void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *interface) {
 	assert(r != NULL && m != NULL);
 	int ret = 0;
 	do {
@@ -389,10 +389,9 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 				char peer_ip[3 + 1 + 3 + 1 + 3 + 1 + 3 + 1];
 				memset(peer_ip, 0, sizeof ip);
 				strcpy(peer_ip, inet_ntoa(peer_addr.sin_addr));
-				plog(notice, "NAME %s:%d->%s:%d\n", ip, htons(addr.sin_port), peer_ip, htons(peer_addr.sin_port));
+				plog(notice, "NAME %s:%u->%s:%u\n", ip, htons(addr.sin_port), peer_ip, htons(peer_addr.sin_port));
 
 				t = new Transport(acceptfd, created, peer_addr, peer_addrlen);
-				w->push_back(t);
 				m->insert(std::make_pair(acceptfd, t));
 				interface->insert(std::make_pair(t->get_id(), t->get_fd()));
 			} else {
@@ -567,7 +566,7 @@ void task_w(std::list<Transport*> *w) {
 	return ;
 }
 
-void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *interface) {
+void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *interface) {
 	assert(r != NULL && w != NULL && m != NULL);
 	std::list<Transport*>::iterator i = r->begin();
 
