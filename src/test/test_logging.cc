@@ -64,16 +64,17 @@ int main(int argc, char **argv)
 	l = (struct logging*) malloc(sizeof (struct logging));
 	memset(l, 0, sizeof *l);
 
-	char *name;
+	char name[PATH_MAX];
+	memset(name, 0, sizeof name);
 	if (argc > 0) {
-		name = rindex(argv[0], '/');
-		if (name == NULL)
+		char *ptr = rindex(argv[0], '/');
+		if (ptr == NULL)
 		{
-			strncpy(l->name, argv[0], sizeof l->name - 1);
+			strncpy(name, argv[0], sizeof name - 1);
 		}
 		else
 		{
-			strncpy(l->name, name + 1, sizeof l->name - 1);
+			strncpy(name, ptr + 1, sizeof name - 1);
 		}
 
 	}
@@ -94,16 +95,15 @@ int main(int argc, char **argv)
 	t2.tm_min = 0;
 	t2.tm_sec = 5;
 
-	l->diff = t2.tm_sec + t2.tm_min * 60 + t2.tm_hour * 60 * 60 + t2.tm_mday * 60 * 60 * 24 + t2.tm_mon * 60 * 60 * 24 * 30 + t2.tm_year * 60 * 60 * 24 * 30 * 365;
-	l->pid = getpid();
-	l->cache_max = 23;
-	l->size_max = 1024*1024*1; // 1MB
-	strncpy(l->path, "../../log", sizeof l->path - 1);
-	strncpy(l->mode, "w+", sizeof l->mode - 1);
-	l->stream_level = debug;
-	l->stdout_level = debug;
+	time_t diff = t2.tm_sec + t2.tm_min * 60 + t2.tm_hour * 60 * 60 + t2.tm_mday * 60 * 60 * 24 + t2.tm_mon * 60 * 60 * 24 * 30 + t2.tm_year * 60 * 60 * 24 * 30 * 365;
+	unsigned int cache_max = 1;
+	unsigned long size_max = 1024 * 1024;
+	const char path[PATH_MAX] = "../../log";
+	const char *mode = "w+";
+	enum elevel stream_level = debug;
+	enum elevel stdout_level = debug;
 
-	retval = initializing();
+	retval = initializing(diff, cache_max, size_max, name, path, mode, stream_level, stdout_level);
 	if (retval == EXIT_FAILURE)
 	{
 		return EXIT_FAILURE;
