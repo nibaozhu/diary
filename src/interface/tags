@@ -62,7 +62,7 @@ home	version.h	/^const char *home = "https:\/\/github.com\/nibaozhu\/project_x\/
 id	transport.h	/^	uint32_t id; \/* unsigned int 32 *\/$/;"	m	class:Transport
 info	../../include/logging.h	/^	info,			\/* informational *\/$/;"	e	enum:elevel
 init	task.cc	/^int init(int argc, char **argv) {$/;"	f
-initializing	../../include/logging.cc	/^int initializing()$/;"	f
+initializing	../../include/logging.cc	/^int initializing(const char *name, const char *path, const char *mode, enum elevel stream_level, enum elevel stdout_level, time_t diff, unsigned int cache_max, unsigned long size_max)$/;"	f
 ip	task.cc	/^char ip[3 + 1 + 3 + 1 + 3 + 1 + 3 + 1] = "0.0.0.0";$/;"	v
 is_reconfigure	task.cc	/^bool is_reconfigure;$/;"	v
 l	../../include/logging.cc	/^struct logging *l;$/;"	v	typeref:struct:logging

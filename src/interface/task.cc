@@ -171,24 +171,28 @@ int init(int argc, char **argv) {
 		l = (struct logging*) malloc(sizeof (struct logging));
 		memset(l, 0, sizeof *l);
 
-		char *name;
-		name = rindex(argv[0], '/');
-		if (name == NULL) {
-			strncpy(l->name, argv[0], sizeof l->name - 1);
+		char name[PATH_MAX];
+		memset(name, 0, sizeof name);
+
+		const char *ptr = rindex(argv[0], '/');
+		if (ptr == NULL) {
+			strncpy(name, argv[0], sizeof name - 1);
 		} else {
-			strncpy(l->name, name + 1, sizeof l->name - 1);
+			strncpy(name, ptr + 1, sizeof name - 1);
 		}
 
-		l->diff = 0; // fflush file per 0 seconds
-		l->pid = getpid();
-		l->cache_max = 1;
-		l->size_max = 1024 * 1024 * 10; // 10 MB
-		strncpy(l->path, "../../log", sizeof l->path - 1);
-		strncpy(l->mode, "w+", sizeof l->mode - 1);
-		l->stream_level = debug;
-		l->stdout_level = debug;
+#if 0
+		time_t diff = 1;
+		unsigned int cache_max = 1;
+		unsigned long size_max = 1024 * 1024;
+		const char path[PATH_MAX] = "../../log";
+		const char *mode = "w+";
+		enum elevel stream_level = debug;
+		enum elevel stdout_level = debug;
 
-		ret = initializing();
+		ret = initializing(name, path, mode, stream_level, stdout_level, diff, cache_max, size_max);
+#endif
+		ret = initializing(name);
 		if (ret == -1) {
 			break;
 		}
