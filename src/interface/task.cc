@@ -393,7 +393,6 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 
 				t = new Transport(acceptfd, created, peer_addr, peer_addrlen);
 				m->insert(std::make_pair(acceptfd, t));
-				interface->insert(std::make_pair(t->get_id(), t->get_fd()));
 			} else {
 				std::map<int, Transport*>::iterator im = m->begin();
 				plog(debug, "events[%d].events = 0x%03x\n", n, events[n].events);
