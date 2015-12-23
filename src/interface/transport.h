@@ -53,6 +53,7 @@ public:
 		this->created = created;
 		this->updated = this->created;
 
+		this->id = 0;
 		this->fd = fd;
 		this->peer_addr = peer_addr;
 		this->peer_addrlen = peer_addrlen;

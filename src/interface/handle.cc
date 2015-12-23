@@ -12,39 +12,25 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 	do {
 		uint32_t length = 0;
 		uint32_t id[2] = {0, 0};
-		char temporarily[sizeof (uint32_t)];
-		memset(temporarily, 0, sizeof temporarily);
 
-		if (t->get_rp() >= sizeof (uint32_t)) {
-			memcpy(temporarily, t->get_rx(), sizeof (uint32_t));
-			length = atoi(temporarily);
+		/* MESSAGE HEAD */
+		if (t->get_rp() >= 3 * sizeof (uint32_t)) {
+			memcpy(&length, t->get_rx(), sizeof (uint32_t));
 			length = ntohl(length);
-			plog(info, "length = 0x%x\n", length);
-		} else {
-			/* Back to wait message. */
-			break;
-		}
 
-		if (t->get_rp() >= 3 * sizeof (uint32_t) + length) {
-			memcpy(temporarily, (char *)t->get_rx() + sizeof (uint32_t), sizeof (uint32_t));
-			id[0] = atoi(temporarily);
+			memcpy(&id[0], (char *)t->get_rx() + sizeof (uint32_t), sizeof (uint32_t));
 			id[0] = ntohl(id[0]);
 
-			memcpy(temporarily, (char *)t->get_rx() + 2 * sizeof (uint32_t), sizeof (uint32_t));
-			id[1] = atoi(temporarily);
+			memcpy(&id[1], (char *)t->get_rx() + 2 * sizeof (uint32_t), sizeof (uint32_t));
 			id[1] = ntohl(id[1]);
+
+			plog(notice, "length = 0x%x, id = {0x%x(0x%x), 0x%x}\n", length, id[0], t->get_id(), id[1]);
 		} else {
 			/* Back to wait message. */
 			break;
 		}
 
-		plog(notice, "length = 0x%x, id = {0x%x(0x%x), 0x%x}\n", length, id[0], t->get_id(), id[1]);
-		if (0) {
-			t->clear_rx(); /* Fixed: need reset connection */
-			/* Back to wait other message. */
-			break;
-		}
-
+		/* MESSAGE BODY */
 		if (id[0] == id[1] && id[0] != 0) {
 			t->set_alive(true);
 
