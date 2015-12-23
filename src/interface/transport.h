@@ -22,13 +22,11 @@
 #include <arpa/inet.h>
 #include "logging.h"
 
-/* output BYTES bytes per output line */
+/* output BYTES bytes per line */
 #define WIDTH (1<<3)
 
 /* 1024 bytes = 1KB */
 #define SIZE (1<<10)
-
-#define LENGTH (1<<2)
 
 class Transport {
 private:

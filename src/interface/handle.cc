@@ -12,7 +12,7 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 	do {
 		uint32_t length = 0;
 		uint32_t id[2] = {0, 0};
-		char temporarily[LENGTH + 1];
+		char temporarily[sizeof (uint32_t)];
 		memset(temporarily, 0, sizeof temporarily);
 
 		if (t->get_rp() >= sizeof (uint32_t)) {
@@ -25,12 +25,12 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 			break;
 		}
 
-		if (t->get_rp() >= sizeof (uint32_t) + 2 * (LENGTH) + length) {
-			memcpy(temporarily, (char *)t->get_rx() + sizeof (uint32_t), LENGTH);
+		if (t->get_rp() >= 3 * sizeof (uint32_t) + length) {
+			memcpy(temporarily, (char *)t->get_rx() + sizeof (uint32_t), sizeof (uint32_t));
 			id[0] = atoi(temporarily);
 			id[0] = ntohl(id[0]);
 
-			memcpy(temporarily, (char *)t->get_rx() + 2 * sizeof (uint32_t), LENGTH);
+			memcpy(temporarily, (char *)t->get_rx() + 2 * sizeof (uint32_t), sizeof (uint32_t));
 			id[1] = atoi(temporarily);
 			id[1] = ntohl(id[1]);
 		} else {

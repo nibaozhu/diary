@@ -6,7 +6,7 @@
 #include "version.h"
 
 #define MAX_EVENTS (1<<8)
-#define BUFFER_LENGTH (1<<8)
+#define BUFFER_MAX (1<<8)
 struct epoll_event ev, events[MAX_EVENTS];
 int listen_sock, conn_sock, nfds, epollfd;
 struct sockaddr_in addr;
@@ -42,14 +42,14 @@ int setnonblocking(int fd) {
 int reads(Transport* t) {
 	assert(t != NULL);
 	ssize_t ret = 0;
-	void *buffer = malloc(BUFFER_LENGTH + 1);
+	void *buffer = malloc(BUFFER_MAX + 1);
 	size_t rl = 0;
 	time_t t0 = 0, t1 = 0;
 	double speed = 0;
 	t0 = time(NULL);
 	do {
-		memset(buffer, 0, BUFFER_LENGTH + 1);
-		ret = read(t->get_fd(), buffer, BUFFER_LENGTH);
+		memset(buffer, 0, BUFFER_MAX + 1);
+		ret = read(t->get_fd(), buffer, BUFFER_MAX);
 		if (ret == -1) {
 			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
@@ -57,11 +57,11 @@ int reads(Transport* t) {
 			t->set_alive(false);
 			plog(notice, "Stream socket peer = %d closed connection, or shut down writing half of connection.\n", t->get_fd());
 			break;
-		} else if (ret > 0 && ret <= BUFFER_LENGTH) {
+		} else if (ret > 0 && ret <= BUFFER_MAX) {
 			rl += ret;
 			t->set_rx(buffer, ret);
 			memset(buffer, 0, ret);
-			if (ret != BUFFER_LENGTH) {
+			if (ret != BUFFER_MAX) {
 				break;
 			}
 		}
