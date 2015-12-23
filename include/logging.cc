@@ -41,7 +41,7 @@ int pflush()
 
 #ifdef DEBUG_LOGGING
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, fflush, l->stream = %p, l->cache= %u, l->cache_max = %u\n",
-		color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l->stream, l->cache, l->cache_max);
+			color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l->stream, l->cache, l->cache_max);
 #endif
 
 	if (l->stream_level == none)
@@ -156,7 +156,7 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 	assert(l != NULL);
 #ifdef DEBUG_LOGGING
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l = %p\n",
-		color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l);
+			color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l);
 #endif
 
 	int ret = 0;
@@ -177,7 +177,7 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 			l->t1.tm_year + 1900, l->t1.tm_mon + 1, l->t1.tm_mday, l->t1.tm_hour, l->t1.tm_min, l->t1.tm_sec, 
 			t0.tm_year + 1900, t0.tm_mon + 1, t0.tm_mday, t0.tm_hour, t0.tm_min, t0.tm_sec, 
 			diff
-		);
+	       );
 #endif
 
 	if (t0.tm_year != l->t1.tm_year || t0.tm_mon != l->t1.tm_mon || t0.tm_mday != l->t1.tm_mday)
@@ -244,7 +244,7 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 	{
 #ifdef DEBUG_LOGGING
 		fprintf(stdout, "%s%s%s %s:%d: %s: %s, l->cache = %u, l->cache_max = %u\n",
-			color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l->cache, l->cache_max);
+				color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l->cache, l->cache_max);
 #endif
 		return 0; // no flush
 	}
@@ -257,13 +257,24 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 	return ret;
 }
 
-int initializing()
+int initializing(const char *name, const char *path, const char *mode, enum elevel stream_level, enum elevel stdout_level, time_t diff, unsigned int cache_max, unsigned long size_max)
 {
 	assert(l != NULL);
 #ifdef DEBUG_LOGGING
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l = %p\n",
 			color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l);
 #endif
+
+	l->pid = getpid();
+	l->diff = diff;
+	l->cache_max = cache_max;
+	l->size_max = size_max;
+	strncpy(l->name, name, strlen(name));
+	strncpy(l->path, path, strlen(path));
+	strncpy(l->mode, mode, strlen(mode));
+	l->stream_level = stream_level;
+	l->stdout_level = stdout_level;
+
 	struct timeval t0;
 	// gettimeofday() gives the number of seconds and microseconds since the Epoch (see time(2)).
 	gettimeofday(&t0, NULL);
@@ -297,15 +308,15 @@ int initializing()
 		return -1;
 	}
 
-	char path[PATH_MAX];
-	memset(path, 0, sizeof path);
-	snprintf(path, sizeof path, "%s/%s_%04d-%02d-%02d_%u.log.%u.tmp", l->path, l->name, l->t0.tm_year + 1900, l->t0.tm_mon + 1, l->t0.tm_mday, l->pid, ++l->number);
+	char __path[PATH_MAX];
+	memset(__path, 0, sizeof __path);
+	snprintf(__path, sizeof __path, "%s/%s_%04d-%02d-%02d_%u.log.%u.tmp", l->path, l->name, l->t0.tm_year + 1900, l->t0.tm_mon + 1, l->t0.tm_mday, l->pid, ++l->number);
 
-	FILE *fp = fopen(path, l->mode);
+	FILE *fp = fopen(__path, l->mode);
 	if (fp == NULL)
 	{
 		fprintf(stderr, "%s%s%s %s:%d: %s: path = \"%s\", %s(%u)\n",
-				color[error], level[error], clear_color, __FILE__, __LINE__, __func__, path, strerror(errno), errno);
+				color[error], level[error], clear_color, __FILE__, __LINE__, __func__, __path, strerror(errno), errno);
 		return -1;
 	}
 	l->stream = fp;
@@ -323,7 +334,7 @@ int uninitialized()
 {
 #ifdef DEBUG_LOGGING
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l = %p\n",
-		color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l);
+			color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l);
 #endif
 	assert(l != NULL);
 	assert(l->stream != NULL);
@@ -400,5 +411,5 @@ int sysdate(char *str)
 
 	// The function snprintf() writes at most size bytes (including the trailing null byte ('\0')) to str.
 	return snprintf(str, size, "%04d-%02d-%02d %02d:%02d:%02d.%06ld", 
-				t0.tm_year + 1900, t0.tm_mon + 1, t0.tm_mday, t0.tm_hour, t0.tm_min, t0.tm_sec, t1.tv_usec);
+			t0.tm_year + 1900, t0.tm_mon + 1, t0.tm_mday, t0.tm_hour, t0.tm_min, t0.tm_sec, t1.tv_usec);
 }

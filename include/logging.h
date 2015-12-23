@@ -74,7 +74,7 @@ struct logging {
 };
 
 int sysdate(char *str);
-int initializing();
+int initializing(const char *name = "(noname)", const char *path = ".", const char *mode = "w+", enum elevel stream_level = debug, enum elevel stdout_level = debug, time_t diff = 0, unsigned int cache_max = 1, unsigned long size_max = 1024 * 1024);
 int __plog(enum elevel x, const char *__file, unsigned int __line, const char *__function, const char *__restrict fmt, ...) __attribute__ ((__format__ (__printf__, 5, 6)));
 int pflush();
 int uninitialized();
