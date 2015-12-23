@@ -118,7 +118,7 @@ task_x	task.cc	/^void task_x(std::list<Transport*> *r, std::list<Transport*> *w,
 uninit	task.cc	/^int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *inferface) {$/;"	f
 uninitialized	../../include/logging.cc	/^int uninitialized()$/;"	f
 updated	transport.h	/^	time_t updated; \/* the lastest communication time *\/$/;"	m	class:Transport
-version	version.h	/^const char *version = "1.2.3-stable";$/;"	v
+version	version.h	/^const char *version = "1.3.3-experimental";$/;"	v
 warning	../../include/logging.h	/^	warning,		\/* warning conditions *\/$/;"	e	enum:elevel
 wp	transport.h	/^	size_t wp; \/* transport data `Write' pointer position *\/$/;"	m	class:Transport
 writes	task.cc	/^void writes(Transport* t) {$/;"	f
