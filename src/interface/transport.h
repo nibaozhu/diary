@@ -213,9 +213,8 @@ public:
 			width = WIDTH;
 		}
 		assert(b0 == false);
-		plog(info, "this = %p, this->rx = %p, this->rp = 0x%lx, this->rs = 0x%lx.\n", this, this->rx, this->rp, this->rs);
-#if 0
 		plog(info, "this = %p, this->rx = %p, this->rp = 0x%lx, this->rs = 0x%lx, b0 = %d\n", this, this->rx, this->rp, this->rs, b0);
+#if 0
 		size_t i = 0;
 		plog(debug, "--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
 		while (i < this->rp) {
@@ -242,9 +241,8 @@ public:
 			width = WIDTH;
 		}
 		assert(b0 == false);
-		plog(info, "this = %p, this->wx = %p, this->wp = 0x%lx, this->ws = 0x%lx.\n", this, this->wx, this->wp, this->ws);
-#if 0
 		plog(info, "this = %p, this->wx = %p, this->wp = 0x%lx, this->ws = 0x%lx, b0 = %d\n", this, this->wx, this->wp, this->ws, b0);
+#if 0
 		size_t i = 0;
 		plog(debug, "--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
 		while (i < this->wp) {
