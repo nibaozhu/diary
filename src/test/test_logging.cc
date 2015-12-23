@@ -103,8 +103,8 @@ int main(int argc, char **argv)
 	enum elevel stream_level = debug;
 	enum elevel stdout_level = debug;
 
-	// retval = initializing(diff, cache_max, size_max, name, path, mode, stream_level, stdout_level);
-	retval = initializing();
+	// retval = initializing(name, path, mode, stream_level, stdout_level, diff, cache_max, size_max);
+	retval = initializing(name);
 	if (retval == EXIT_FAILURE)
 	{
 		return EXIT_FAILURE;
