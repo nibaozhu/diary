@@ -8,8 +8,7 @@ unsigned int quit = 0;
 
 int do_something(enum elevel x, int timeout)
 {
-	plog(x, "This is a logging message. timeout = x\n");
-	plog(x, "This is a logging message. timeout = %d\n", timeout);
+	plog(x, "This is a logging message. timeout = This is a logging message. timeout = This is a logging message. timeout = This is a logging message. timeout = This is a logging message. timeout = xxxxxThis is a logging message. timeout = %d\n", timeout);
 	usleep(timeout);
 	return 0;
 }
