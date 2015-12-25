@@ -113,11 +113,12 @@ public:
 		while (rs >= this->rs - this->rp) {
 			plog(debug, "{rx = %p, rp = 0x%lx, rs = 0x%lx}, {0x%lx}\n", this->rx, this->rp, this->rs, rs);
 			assert(this->rs > 0);
-			this->rx = realloc(this->rx, this->rs << 1);
-			if (this->rx == NULL) {
+			void *rx = realloc(this->rx, this->rs << 1);
+			if (rx == NULL) {
 				plog(critical, "%s(%d)\n", strerror(errno), errno);
-				return this->rx;
+				return rx;
 			} else {
+				this->rx = rx;
 				this->rs <<= 1;
 				memset((void *)((char *)this->rx + this->rp), 0, this->rs - this->rp);
 			}
@@ -131,7 +132,14 @@ public:
 	void *clear_rx(size_t size = SIZE) {
 		assert(size > 0);
 		memset(this->rx, 0, sizeof this->rp);
-		this->rx = realloc(this->rx, size);
+		void *rx = realloc(this->rx, size);
+		if (rx == NULL) {
+			plog(critical, "%s(%d)\n", strerror(errno), errno);
+			return rx;
+		} else {
+			this->rx = rx;
+		}
+
 		this->rp = 0;
 		this->rs = size;
 		this->updated = time(NULL);
@@ -146,11 +154,12 @@ public:
 		while (ws >= this->ws - this->wp) {
 			plog(debug, "{wx = %p, wp = 0x%lx, ws = 0x%lx}, {0x%lx}\n", this->wx, this->wp, this->ws, ws);
 			assert(this->ws > 0);
-			this->wx = realloc(this->wx, this->ws << 1);
-			if (this->wx == NULL) {
+			void *wx = realloc(this->wx, this->ws << 1);
+			if (wx == NULL) {
 				plog(critical, "%s(%d)\n", strerror(errno), errno);
-				return this->wx;
+				return wx;
 			} else {
+				this->wx = wx;
 				this->ws <<= 1;
 				memset((void *)((char *)this->wx + this->wp), 0, this->ws - this->wp);
 			}
@@ -164,7 +173,14 @@ public:
 	void *clear_wx(size_t size = SIZE) {
 		memset(this->wx, 0, sizeof this->wp);
 		assert(size > 0);
-		this->wx = realloc(this->wx, size);
+		void *wx = realloc(this->wx, size);
+		if (wx == NULL) {
+			plog(critical, "%s(%d)\n", strerror(errno), errno);
+			return wx;
+		} else {
+			this->wx = wx;
+		}
+
 		assert(this->wx != NULL);
 		this->wp = 0;
 		this->ws = size;
