@@ -81,6 +81,7 @@ int reads(Transport* t) {
 void writes(Transport* t) {
 	ssize_t ret = 0;
 	assert(t != NULL);
+	size_t wl = 0;
 	do {
 		t->pw();
 		ret = write(t->get_fd(), t->get_wx(), t->get_wp());
@@ -88,11 +89,12 @@ void writes(Transport* t) {
 			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		} else if (ret >= 0 && (size_t)ret <= t->get_wp()) {
-			plog(notice, "Wrote 0x%lx bytes to file = %d.\n", ret, t->get_fd());
+			wl = ret;
+			plog(notice, "Wrote 0x%lx bytes to file = %d.\n", wl, t->get_fd());
 
 			/* Moving forward. */
-			memmove(t->get_wx(), (const void *)((char *)t->get_wx() + ret), t->get_wp() - ret);
-			t->set_wp(t->get_wp() - ret);
+			memmove(t->get_wx(), (const void *)((char *)t->get_wx() + wl), t->get_wp() - wl);
+			t->set_wp(t->get_wp() - wl);
 		}
 	} while (false);
 	return ;
@@ -181,17 +183,6 @@ int init(int argc, char **argv) {
 			strncpy(name, ptr + 1, sizeof name - 1);
 		}
 
-#if 0
-		time_t diff = 1;
-		unsigned int cache_max = 1;
-		unsigned long size_max = 1024 * 1024;
-		const char path[PATH_MAX] = "../../log";
-		const char *mode = "w+";
-		enum elevel stream_level = debug;
-		enum elevel stdout_level = debug;
-
-		ret = initializing(name, path, mode, stream_level, stdout_level, diff, cache_max, size_max);
-#endif
 		ret = initializing(name);
 		if (ret == -1) {
 			break;
@@ -312,37 +303,8 @@ int task(int argc, char **argv) {
 
 		do {
 			task_r(r, w, m, interface);
-
-#if 0
-			std::map<int, Transport*>::iterator i = m->begin();
-			while (i != m->end()) {
-				plog(error, "(%d, %p)\n", i->first, i->second);
-				i++;
-			}
-#endif
-
 			task_x(r, w, m, interface);
-
-#if 0
-			// std::map<int, Transport*>::iterator i = m->begin();
-			i = m->begin();
-			while (i != m->end()) {
-				plog(error, "(%d, %p)\n", i->first, i->second);
-				i++;
-			}
-#endif
-
 			task_w(w);
-
-#if 0
-			// std::map<int, Transport*>::iterator i = m->begin();
-			i = m->begin();
-			while (i != m->end()) {
-				plog(error, "(%d, %p)\n", i->first, i->second);
-				i++;
-			}
-#endif
-
 		} while (!quit);
 	} while (false);
 	ret = uninit(r, w, m, interface);
@@ -413,15 +375,6 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 						continue;
 					}
 
-#if 0
-					plog(emergency, "before: fd = %d, interface->size = %d\n", events[n].data.fd, interface->size());
-					std::map<std::string, int>::iterator i = interface->begin();
-					while (i != interface->end()) {
-						plog(error, "(%s, %d)\n", i->first.c_str(), i->second);
-						i++;
-					}
-#endif
-
 					im = m->find(events[n].data.fd);
 					if (im != m->end()) {
 						t = im->second;
@@ -430,16 +383,6 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 						delete t;
 						m->erase(events[n].data.fd);
 					}
-
-#if 0
-					plog(emergency, "after: fd = %d, interface->size = %d\n", events[n].data.fd, interface->size());
-					i = interface->begin();
-					while (i != interface->end()) {
-						plog(error, "(%s, %d)\n", i->first.c_str(), i->second);
-						i++;
-					}
-#endif
-
 					continue;
 				}
 
@@ -450,21 +393,13 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 						plog(error, "%s(%d)\n", strerror(errno), errno);
 						continue;
 					}
-					ret = close(events[n].data.fd);
-					if (ret == -1) {
-						plog(error, "%s(%d)\n", strerror(errno), errno);
-						continue;
-					}
 
 					im = m->find(events[n].data.fd);
 					if (im != m->end()) {
 						t = im->second;
-						w->remove(t);
-						interface->erase(t->get_id());
-						delete t;
-						m->erase(events[n].data.fd);
+						t->set_n(n);
+						t->set_alive(false);
 					}
-
 					continue;
 				}
 
@@ -475,39 +410,13 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 						plog(error, "%s(%d)\n", strerror(errno), errno);
 						continue;
 					}
-					ret = close(events[n].data.fd);
-					if (ret == -1) {
-						plog(error, "%s(%d)\n", strerror(errno), errno);
-						continue;
-					}
-
-#if 0
-					plog(emergency, "before: fd = %d, m->size = %d\n", events[n].data.fd, m->size());
-					std::map<int, Transport*>::iterator i = m->begin();
-					while (i != m->end()) {
-						plog(error, "(%d, %p)\n", i->first, i->second);
-						i++;
-					}
-#endif
 
 					im = m->find(events[n].data.fd);
 					if (im != m->end()) {
 						t = im->second;
-						w->remove(t);
-						interface->erase(t->get_id());
-						delete t;
-						m->erase(events[n].data.fd);
+						t->set_n(n);
+						t->set_alive(false);
 					}
-
-#if 0
-					plog(emergency, "end: fd = %d, m->size = %d\n", events[n].data.fd, m->size());
-					i = m->begin();
-					while (i != m->end()) {
-						plog(error, "(%d, %p)\n", i->first, i->second);
-						i++;
-					}
-#endif
-
 					continue;
 				}
 
@@ -526,22 +435,49 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 					}
 					r->push_back(t);
 				}
-
-#if 0
-				if (events[n].events & EPOLLOUT) {
-					plog(debug, "The associated file is available for write(2) operations.\n");
-					if (m == NULL) {
-						plog(info, "m = %p\n", m);
-						break;
-					}
-					Transport* t = (*m)[events[n].data.fd];
-					writes(t);
-				}
-#endif
 			}
 		}
 
 	} while (false);
+	return ;
+}
+
+void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *interface) {
+	assert(r != NULL && w != NULL && m != NULL);
+
+	std::map<int, Transport*>::iterator im = m->begin();
+	while (im != m->end()) {
+		Transport* t = im->second;
+		if (t->get_alive() == false && t->get_rp() == 0 && t->get_wp() == 0) {
+			int n = t->get_n();
+			int ret = 0;
+			plog(info, "It closes a file descriptor = %d(%p), so that it no longer refers to any file and may be reused.\n", im->first, im->second);
+			ret = close(events[n].data.fd);
+			if (ret == -1) {
+				plog(error, "%s(%d)\n", strerror(errno), errno);
+			}
+
+			interface->erase(t->get_id());
+			m->erase(im++);
+			delete t;
+		} else {
+			im++;
+		}
+	}
+
+
+	r->sort();
+	r->unique();
+
+	std::list<Transport*>::iterator i = r->begin();
+	while (i != r->end()) {
+		Transport* t = *i;
+		int ret = handle(w, m, interface, t);
+		if (ret == -1) {
+			plog(error, "Handle fail.\n");
+		}
+		i = r->erase(i);
+	}
 	return ;
 }
 
@@ -569,21 +505,79 @@ void task_w(std::list<Transport*> *w) {
 	return ;
 }
 
-void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *interface) {
-	assert(r != NULL && w != NULL && m != NULL);
-	std::list<Transport*>::iterator i = r->begin();
 
-	r->sort();
-	r->unique();
 
-	while (i != r->end()) {
-		Transport* t = *i;
-		int ret = handle(w, m, interface, t);
-		if (ret == -1) {
-			plog(error, "Handle fail.\n");
-		}
-		i = r->erase(i);
-	}
-	return ;
-}
+#if 0
+					plog(emergency, "before: fd = %d, interface->size = %d\n", events[n].data.fd, interface->size());
+					std::map<std::string, int>::iterator i = interface->begin();
+					while (i != interface->end()) {
+						plog(error, "(%s, %d)\n", i->first.c_str(), i->second);
+						i++;
+					}
+#endif
+
+#if 0
+					plog(emergency, "after: fd = %d, interface->size = %d\n", events[n].data.fd, interface->size());
+					i = interface->begin();
+					while (i != interface->end()) {
+						plog(error, "(%s, %d)\n", i->first.c_str(), i->second);
+						i++;
+					}
+#endif
+
+#if 0
+					plog(emergency, "before: fd = %d, m->size = %d\n", events[n].data.fd, m->size());
+					std::map<int, Transport*>::iterator i = m->begin();
+					while (i != m->end()) {
+						plog(error, "(%d, %p)\n", i->first, i->second);
+						i++;
+					}
+#endif
+
+#if 0
+					plog(emergency, "end: fd = %d, m->size = %d\n", events[n].data.fd, m->size());
+					i = m->begin();
+					while (i != m->end()) {
+						plog(error, "(%d, %p)\n", i->first, i->second);
+						i++;
+					}
+#endif
+
+#if 0
+			std::map<int, Transport*>::iterator i = m->begin();
+			while (i != m->end()) {
+				plog(error, "(%d, %p)\n", i->first, i->second);
+				i++;
+			}
+#endif
+
+#if 0
+			// std::map<int, Transport*>::iterator i = m->begin();
+			i = m->begin();
+			while (i != m->end()) {
+				plog(error, "(%d, %p)\n", i->first, i->second);
+				i++;
+			}
+#endif
+
+#if 0
+			// std::map<int, Transport*>::iterator i = m->begin();
+			i = m->begin();
+			while (i != m->end()) {
+				plog(error, "(%d, %p)\n", i->first, i->second);
+				i++;
+			}
+#endif
+
+#if 0
+		time_t diff = 1;
+		unsigned int cache_max = 1;
+		unsigned long size_max = 1024 * 1024;
+		const char path[PATH_MAX] = "../../log";
+		const char *mode = "w+";
+		enum elevel stream_level = debug;
+		enum elevel stdout_level = debug;
+
+		ret = initializing(name, path, mode, stream_level, stdout_level, diff, cache_max, size_max);
+#endif
 

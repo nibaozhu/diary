@@ -35,6 +35,7 @@ private:
 	time_t updated; /* the lastest communication time */
 	bool alive; /* true: live; false: die */
 	int fd; /* file descriptor */
+	int n; /* epoll events[n] */
 	void *rx; /* transport data `Read'  */
 	void *wx; /* transport data `Write' */
 	size_t rp; /* transport data `Read' pointer position */
@@ -55,6 +56,7 @@ public:
 
 		this->id = 0;
 		this->fd = fd;
+		this->n = 0;
 		this->peer_addr = peer_addr;
 		this->peer_addrlen = peer_addrlen;
 
@@ -71,6 +73,8 @@ public:
 
 		memset(this->rx, 0, this->rs);
 		memset(this->wx, 0, this->ws);
+
+		this->set_alive(true);
 
 		plog(debug, "new this = %p, malloc rx = %p, rp = 0x%lx, rs = 0x%lx, malloc wx = %p, wp = 0x%lx, ws = 0x%lx\n", 
 				this, this->rx, this->rp, this->rs, this->wx, this->wp, this->ws);
@@ -93,6 +97,14 @@ public:
 		return this->fd;
 	}
 
+	int set_n(int n) {
+		return this->n = n;
+	}
+
+	int get_n() {
+		return this->n;
+	}
+
 	size_t set_rp(size_t rp) {
 		return this->rp = rp;
 	}
@@ -113,12 +125,12 @@ public:
 		while (rs >= this->rs - this->rp) {
 			plog(debug, "{rx = %p, rp = 0x%lx, rs = 0x%lx}, {0x%lx}\n", this->rx, this->rp, this->rs, rs);
 			assert(this->rs > 0);
-			void *rx = realloc(this->rx, this->rs << 1);
-			if (rx == NULL) {
+			void *tx = realloc(this->rx, this->rs << 1);
+			if (tx == NULL) {
 				plog(critical, "%s(%d)\n", strerror(errno), errno);
-				return rx;
+				return tx;
 			} else {
-				this->rx = rx;
+				this->rx = tx;
 				this->rs <<= 1;
 				memset((void *)((char *)this->rx + this->rp), 0, this->rs - this->rp);
 			}
@@ -132,12 +144,12 @@ public:
 	void *clear_rx(size_t size = SIZE) {
 		assert(size > 0);
 		memset(this->rx, 0, sizeof this->rp);
-		void *rx = realloc(this->rx, size);
-		if (rx == NULL) {
+		void *tx = realloc(this->rx, size);
+		if (tx == NULL) {
 			plog(critical, "%s(%d)\n", strerror(errno), errno);
-			return rx;
+			return tx;
 		} else {
-			this->rx = rx;
+			this->rx = tx;
 		}
 
 		this->rp = 0;
@@ -154,12 +166,12 @@ public:
 		while (ws >= this->ws - this->wp) {
 			plog(debug, "{wx = %p, wp = 0x%lx, ws = 0x%lx}, {0x%lx}\n", this->wx, this->wp, this->ws, ws);
 			assert(this->ws > 0);
-			void *wx = realloc(this->wx, this->ws << 1);
-			if (wx == NULL) {
+			void *tx = realloc(this->wx, this->ws << 1);
+			if (tx == NULL) {
 				plog(critical, "%s(%d)\n", strerror(errno), errno);
-				return wx;
+				return tx;
 			} else {
-				this->wx = wx;
+				this->wx = tx;
 				this->ws <<= 1;
 				memset((void *)((char *)this->wx + this->wp), 0, this->ws - this->wp);
 			}
@@ -173,12 +185,12 @@ public:
 	void *clear_wx(size_t size = SIZE) {
 		memset(this->wx, 0, sizeof this->wp);
 		assert(size > 0);
-		void *wx = realloc(this->wx, size);
-		if (wx == NULL) {
+		void *tx = realloc(this->wx, size);
+		if (tx == NULL) {
 			plog(critical, "%s(%d)\n", strerror(errno), errno);
-			return wx;
+			return tx;
 		} else {
-			this->wx = wx;
+			this->wx = tx;
 		}
 
 		assert(this->wx != NULL);

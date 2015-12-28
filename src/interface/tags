@@ -49,6 +49,7 @@ fd	transport.h	/^	int fd; \/* file descriptor *\/$/;"	m	class:Transport
 get_alive	transport.h	/^	bool get_alive() {$/;"	f	class:Transport
 get_fd	transport.h	/^	int get_fd() {$/;"	f	class:Transport
 get_id	transport.h	/^	uint32_t get_id() {$/;"	f	class:Transport
+get_n	transport.h	/^	int get_n() {$/;"	f	class:Transport
 get_rp	transport.h	/^	size_t get_rp() {$/;"	f	class:Transport
 get_rs	transport.h	/^	size_t get_rs() {$/;"	f	class:Transport
 get_rx	transport.h	/^	void *get_rx() {$/;"	f	class:Transport
@@ -71,6 +72,7 @@ listen_sock	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
 logging	../../include/logging.h	/^struct logging {$/;"	s
 main	main.cc	/^int main(int argc, char **argv) {$/;"	f
 mode	../../include/logging.h	/^	char mode[MODE_MAX]; \/\/ logging file's mode$/;"	m	struct:logging
+n	transport.h	/^	int n; \/* epoll events[n] *\/$/;"	m	class:Transport
 name	../../include/logging.h	/^	char name[NAME_MAX]; \/\/ program name$/;"	m	struct:logging
 nfds	task.cc	/^int listen_sock, conn_sock, nfds, epollfd;$/;"	v
 none	../../include/logging.h	/^	none = -1,		\/* none logging *\/$/;"	e	enum:elevel
@@ -94,6 +96,7 @@ set_alive	transport.h	/^	bool set_alive(bool alive) {$/;"	f	class:Transport
 set_disposition	task.cc	/^void set_disposition() {$/;"	f
 set_fd	transport.h	/^	int set_fd(int fd) {$/;"	f	class:Transport
 set_id	transport.h	/^	uint32_t set_id(uint32_t id) {$/;"	f	class:Transport
+set_n	transport.h	/^	int set_n(int n) {$/;"	f	class:Transport
 set_rp	transport.h	/^	size_t set_rp(size_t rp) {$/;"	f	class:Transport
 set_rs	transport.h	/^	size_t set_rs(size_t rs) {$/;"	f	class:Transport
 set_rx	transport.h	/^	void *set_rx(void *rx, size_t rs) {$/;"	f	class:Transport

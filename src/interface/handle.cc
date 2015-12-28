@@ -31,13 +31,13 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 		}
 
 		/* MESSAGE BODY */
-		if (id[0] == id[1] && id[0] != 0) {
+		if (id[0] == id[1] && id[0] != 0 && t->get_rp() >= (3 * sizeof (uint32_t) + length)) {
 
 			interface->erase(t->get_id());
-			t->set_alive(true);
 			t->set_id(id[0]);
-			t->set_wx(t->get_rx(), t->get_rp());
-			t->clear_rx();
+			t->set_wx(t->get_rx(), (3 * sizeof (uint32_t) + length));
+			memmove(t->get_rx(), (const void *)((char *)t->get_rx() + (3 * sizeof (uint32_t) + length)), t->get_rp() - (3 * sizeof (uint32_t) + length));
+			t->set_rp(t->get_rp() - (3 * sizeof (uint32_t) + length));
 			interface->insert(std::make_pair(t->get_id(), t->get_fd()));
 
 			plog(notice, "Echo, id = 0x%x\n", id[0]);
@@ -79,6 +79,9 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 			memmove(t->get_rx(), (const void *)((char *)t->get_rx() + (3 * sizeof (uint32_t) + length)), t->get_rp() - (3 * sizeof (uint32_t) + length));
 			t->set_rp(t->get_rp() - (3 * sizeof (uint32_t) + length));
 			w->push_back(tx);
+		} else {
+			/* Back to wait message. */
+			break;
 		}
 	} while (true);
 	return ret;
