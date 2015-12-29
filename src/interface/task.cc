@@ -113,6 +113,7 @@ void handler(int signum) {
 			break;
 		case SIGUSR1:
 		case SIGSEGV:
+		case SIGPIPE:
 			quit = true;
 			break;
 		case SIGUSR2:
@@ -125,7 +126,7 @@ void handler(int signum) {
 }
 
 void set_disposition() {
-	int arr[] = {SIGHUP, SIGQUIT, SIGINT, SIGUSR1, SIGUSR2, SIGTERM/* , SIGSEGV */};
+	int arr[] = {SIGHUP, SIGQUIT, SIGINT, SIGUSR1, SIGUSR2, SIGTERM/* , SIGSEGV */, SIGPIPE};
 	for (size_t i = 0 ; i < sizeof arr / sizeof (int); i++) {
 		int signum = arr[i];
 		if (signal(signum, handler) == SIG_ERR) {
@@ -451,7 +452,7 @@ void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 		if (t->get_alive() == false && t->get_rp() == 0 && t->get_wp() == 0) {
 			int n = t->get_n();
 			int ret = 0;
-			plog(info, "It closes a file descriptor = %d(%p), so that it no longer refers to any file and may be reused.\n", im->first, im->second);
+			plog(info, "Close()  closes a file descriptor = %d(%p), so that it no longer refers to any file and may be reused.\n", im->first, im->second);
 			ret = close(events[n].data.fd);
 			if (ret == -1) {
 				plog(error, "%s(%d)\n", strerror(errno), errno);
@@ -504,80 +505,4 @@ void task_w(std::list<Transport*> *w) {
 	}
 	return ;
 }
-
-
-
-#if 0
-					plog(emergency, "before: fd = %d, interface->size = %d\n", events[n].data.fd, interface->size());
-					std::map<std::string, int>::iterator i = interface->begin();
-					while (i != interface->end()) {
-						plog(error, "(%s, %d)\n", i->first.c_str(), i->second);
-						i++;
-					}
-#endif
-
-#if 0
-					plog(emergency, "after: fd = %d, interface->size = %d\n", events[n].data.fd, interface->size());
-					i = interface->begin();
-					while (i != interface->end()) {
-						plog(error, "(%s, %d)\n", i->first.c_str(), i->second);
-						i++;
-					}
-#endif
-
-#if 0
-					plog(emergency, "before: fd = %d, m->size = %d\n", events[n].data.fd, m->size());
-					std::map<int, Transport*>::iterator i = m->begin();
-					while (i != m->end()) {
-						plog(error, "(%d, %p)\n", i->first, i->second);
-						i++;
-					}
-#endif
-
-#if 0
-					plog(emergency, "end: fd = %d, m->size = %d\n", events[n].data.fd, m->size());
-					i = m->begin();
-					while (i != m->end()) {
-						plog(error, "(%d, %p)\n", i->first, i->second);
-						i++;
-					}
-#endif
-
-#if 0
-			std::map<int, Transport*>::iterator i = m->begin();
-			while (i != m->end()) {
-				plog(error, "(%d, %p)\n", i->first, i->second);
-				i++;
-			}
-#endif
-
-#if 0
-			// std::map<int, Transport*>::iterator i = m->begin();
-			i = m->begin();
-			while (i != m->end()) {
-				plog(error, "(%d, %p)\n", i->first, i->second);
-				i++;
-			}
-#endif
-
-#if 0
-			// std::map<int, Transport*>::iterator i = m->begin();
-			i = m->begin();
-			while (i != m->end()) {
-				plog(error, "(%d, %p)\n", i->first, i->second);
-				i++;
-			}
-#endif
-
-#if 0
-		time_t diff = 1;
-		unsigned int cache_max = 1;
-		unsigned long size_max = 1024 * 1024;
-		const char path[PATH_MAX] = "../../log";
-		const char *mode = "w+";
-		enum elevel stream_level = debug;
-		enum elevel stdout_level = debug;
-
-		ret = initializing(name, path, mode, stream_level, stdout_level, diff, cache_max, size_max);
-#endif
 
