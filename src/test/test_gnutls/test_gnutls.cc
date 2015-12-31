@@ -97,7 +97,7 @@ main (int argc, char **argv)
     }
   else
     {
-      printf ("- Handshake was completed\n");
+      printf ("-- [Handshake was completed]\n");
     }
 
   char MSG[1024];
@@ -110,7 +110,7 @@ main (int argc, char **argv)
     ret = gnutls_record_recv (session, buffer, MAX_BUF);
     if (ret == 0)
       {
-        printf ("- Peer has closed the TLS connection\n");
+        printf ("-- [Peer has closed the TLS connection]\n");
         goto end;
       }
     else if (ret < 0)
@@ -119,7 +119,7 @@ main (int argc, char **argv)
         goto end;
       }
 
-    printf ("\n- Received %d(%d) bytes: \n", ret, MAX_BUF);
+    printf ("\n-- [Received %d(%d) bytes]\n", ret, MAX_BUF);
     for (ii = 0; ii < ret; ii++)
       {
         fputc (buffer[ii], stdout);
