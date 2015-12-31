@@ -123,8 +123,8 @@ main (int argc, char **argv)
     for (ii = 0; ii < ret; ii++)
       {
         fputc (buffer[ii], stdout);
-        fflush(stdout);
       }
+    fflush(stdout);
   } while (1);
   fputs ("\n", stdout);
 
