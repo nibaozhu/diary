@@ -110,12 +110,12 @@ main (int argc, char **argv)
     ret = gnutls_record_recv (session, buffer, MAX_BUF);
     if (ret == 0)
       {
-        printf ("-- [Peer has closed the TLS connection]\n");
+        printf ("\n-- [Peer has closed the TLS connection]\n");
         goto end;
       }
     else if (ret < 0)
       {
-        fprintf (stderr, "*** Error: %s\n", gnutls_strerror (ret));
+        fprintf (stderr, "\n*** Error: %s\n", gnutls_strerror (ret));
         goto end;
       }
 
@@ -158,6 +158,7 @@ int tcp_connect (void) {
   struct sockaddr_in addr;
   memset(&addr, 0, sizeof addr);
   addr.sin_family = domain;
+  uint16_t port = 443;
   addr.sin_port = htons(443);
 
   struct hostent *ht;
@@ -190,6 +191,7 @@ int tcp_connect (void) {
     return -1;
   }
 
+  printf("-- [Remote %s:%u]\n", ip_string, port);
   return sockfd;
 }
 
