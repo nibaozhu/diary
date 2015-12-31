@@ -7,8 +7,12 @@ extern int h_errno;
 #include <string.h>
 #include <errno.h>
 
-int main() {
-    const char ip_string[] = "127.0.0.1";
+int main(int argc, char **argv) {
+    char ip_string[4*4] = "127.0.0.1";
+
+    if (argc >= 0) {
+        strncpy(ip_string, argv[1], sizeof ip_string);
+    }
 
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
@@ -28,6 +32,6 @@ int main() {
     if (ht == NULL) 
         printf("%s(%d)\n", hstrerror(h_errno), h_errno);
     else
-        printf("ht = %p\n", ht);
+        printf("ip_string = %s, ht = %p, ht->h_name = %s\n", ip_string, ht, ht->h_name);
     return 0;
 }
