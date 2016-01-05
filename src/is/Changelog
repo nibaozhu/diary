@@ -1,0 +1,9 @@
+1.2.2
+=====
+  * Late messages send instantly.
+
+1.2.1
+=====
+
+  * Use iterator std::map::find(const key_type& __x)
+  * Add Changelog 
