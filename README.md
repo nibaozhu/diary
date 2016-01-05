@@ -1,2 +1,2 @@
-# project_x
+# mycode
 Let's browse the world.
