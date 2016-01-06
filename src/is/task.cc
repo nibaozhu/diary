@@ -193,7 +193,7 @@ int init(int argc, char **argv) {
 			strncpy(name, ptr + 1, sizeof name - 1);
 		}
 
-		ret = initializing(name, "logging");
+		ret = initializing(name, "logdir");
 		if (ret == -1) {
 			break;
 		}
