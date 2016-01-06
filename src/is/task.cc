@@ -92,6 +92,16 @@ void writes(Transport* t) {
 			wl = ret;
 			plog(notice, "Wrote 0x%lx bytes to file = %d.\n", wl, t->get_fd());
 
+			if (wl != t->get_wp()) {
+				ev.events = EPOLLIN | EPOLLRDHUP | EPOLLOUT; /* Level Triggered */
+				ev.data.fd = t->get_fd();
+				int _ret = epoll_ctl(epollfd, EPOLL_CTL_MOD, ev.data.fd, &ev); /* When t->get_wp() == 0, Should remove EPOLLOUT events! */
+				if (_ret == -1) {
+					plog(warning, "%s(%d)\n", strerror(errno), errno);
+				}
+				t->set_events(ev.events);
+			}
+
 			/* Moving forward. */
 			memmove(t->get_wx(), (const void *)((char *)t->get_wx() + wl), t->get_wp() - wl);
 			t->set_wp(t->get_wp() - wl);
@@ -156,16 +166,16 @@ int init(int argc, char **argv) {
 				case 'h':
 				default: /* ? */
 					printf( "Usage: %s [OPTION]...\n"
-						"\n"
-						"	-h	Display this help and exit\n"
-						"	-v	Output version information and exit\n"
-						"	-i IP	Set bind ip, default use %s\n"
-						"	-p PORT	Set bind port, default use %d\n"
-						"\n"
-						"Report %s bugs to %s\n"
-						"Home page: <%s>\n"
-						"For complete Documentation, see README\n", 
-						argv[0], ip, port, argv[0], email, home);
+							"\n"
+							"	-h	Display this help and exit\n"
+							"	-v	Output version information and exit\n"
+							"	-i IP	Set bind ip, default use %s\n"
+							"	-p PORT	Set bind port, default use %d\n"
+							"\n"
+							"Report %s bugs to %s\n"
+							"Home page: <%s>\n"
+							"For complete Documentation, see README\n", 
+							argv[0], ip, port, argv[0], email, home);
 					exit(0);
 			}
 		}
@@ -183,7 +193,7 @@ int init(int argc, char **argv) {
 			strncpy(name, ptr + 1, sizeof name - 1);
 		}
 
-		ret = initializing(name);
+		ret = initializing(name, "logging");
 		if (ret == -1) {
 			break;
 		}
@@ -234,7 +244,7 @@ int init(int argc, char **argv) {
 
 		ev.events = EPOLLIN | EPOLLRDHUP; /* Level Triggered */
 		ev.data.fd = listen_sock; /* bind & listen's fd */
-		ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, listen_sock, &ev);
+		ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, ev.data.fd, &ev);
 		if (ret == -1) {
 			plog(emergency, "%s(%d)\n", strerror(errno), errno);
 			break;
@@ -293,7 +303,7 @@ int task(int argc, char **argv) {
 	std::list<Transport*> *r = new std::list<Transport*>();
 	std::list<Transport*> *w = new std::list<Transport*>();
 	std::map<int, Transport*> *m = new std::map<int, Transport*>();
-	std::map<uint32_t, int> *is = new std::map<uint32_t, int>(); // maybe should use multimap
+	std::map<uint32_t, int> *__m = new std::map<uint32_t, int>(); // maybe should use multimap
 	do {
 		srand(getpid());
 		ret = init(argc, argv);
@@ -302,16 +312,16 @@ int task(int argc, char **argv) {
 		}
 
 		do {
-			task_r(r, w, m, is);
-			task_x(r, w, m, is);
+			task_r(r, w, m);
+			task_x(r, w, m, __m);
 			task_w(w);
 		} while (!quit);
 	} while (false);
-	ret = uninit(r, w, m, is);
+	ret = uninit(r, w, m, __m);
 	return ret;
 }
 
-void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *is) {
+void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m) {
 	assert(r != NULL && m != NULL);
 	int ret = 0;
 	do {
@@ -328,8 +338,9 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 			break;
 		}
 
-		Transport* t = NULL;
 		for (int n = 0; n < nfds; n++) {
+			Transport* t = NULL;
+
 			if (events[n].data.fd == listen_sock) {
 				int acceptfd = accept(listen_sock, (struct sockaddr *) &peer_addr, &peer_addrlen);
 				if (acceptfd == -1) {
@@ -346,7 +357,7 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 
 				ev.events = EPOLLIN | EPOLLRDHUP; /* Level Triggered */
 				ev.data.fd = acceptfd;
-				ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, acceptfd, &ev);
+				ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, ev.data.fd, &ev);
 				if (ret == -1) {
 					plog(error, "%s(%d)\n", strerror(errno), errno);
 					break;
@@ -361,6 +372,7 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 				m->insert(std::make_pair(acceptfd, t));
 			} else {
 				std::map<int, Transport*>::iterator im = m->begin();
+
 				plog(debug, "events[%d].events = 0x%03x\n", n, events[n].events);
 				if (events[n].events & EPOLLERR) {
 					plog(error, "Error condition happened on the associated file descriptor = %d.\n", events[n].data.fd);
@@ -369,24 +381,14 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 						plog(debug, "%s(%d)\n", strerror(errno), errno);
 						continue;
 					}
-					ret = close(events[n].data.fd);
-					if (ret == -1) {
-						plog(error, "%s(%d)\n", strerror(errno), errno);
-						continue;
-					}
 
 					im = m->find(events[n].data.fd);
 					if (im != m->end()) {
 						t = im->second;
-						w->remove(t);
-						is->erase(t->get_id());
-						delete t;
-						m->erase(events[n].data.fd);
+						t->set_n(n);
+						t->set_alive(false);
 					}
-					continue;
-				}
-
-				if (events[n].events & EPOLLHUP) {
+				} else if (events[n].events & EPOLLHUP) {
 					plog(notice, "Hang up happened on the associated file descriptor = %d.\n", events[n].data.fd);
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
@@ -400,10 +402,7 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 						t->set_n(n);
 						t->set_alive(false);
 					}
-					continue;
-				}
-
-				if (events[n].events & EPOLLRDHUP) {
+				} else if (events[n].events & EPOLLRDHUP) {
 					plog(notice, "Stream socket peer = %d closed connection, or shut down writing half of connection.\n", events[n].data.fd);
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
@@ -417,15 +416,8 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 						t->set_n(n);
 						t->set_alive(false);
 					}
-					continue;
-				}
-
-				if (events[n].events & EPOLLIN) {
+				} else if (events[n].events & EPOLLIN) {
 					plog(notice, "The associated file = %d is available for read(2) operations.\n", events[n].data.fd);
-					if (m == NULL) {
-						plog(error, "m = %p\n", m);
-						break;
-					}
 					Transport* t = (*m)[events[n].data.fd];
 					ret = reads(t);
 					if (ret < 0) {
@@ -434,30 +426,39 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 						;
 					}
 					r->push_back(t);
+				} else if (events[n].events & EPOLLOUT) {
+					plog(notice, "The associated file = %d is available for write(2) operations.\n", events[n].data.fd);
+					im = m->find(events[n].data.fd);
+					if (im != m->end()) {
+						t = im->second;
+						w->push_back(t);
+					}
+				} else {
+					plog(warning, "The associated file = %d is %sUNKNOWN%s operations.\n", events[n].data.fd, color[critical], clear_color);
 				}
 			}
 		}
-
 	} while (false);
 	return ;
 }
 
-void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *is) {
+void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *__m) {
 	assert(r != NULL && w != NULL && m != NULL);
 
 	std::map<int, Transport*>::iterator im = m->begin();
 	while (im != m->end()) {
 		Transport* t = im->second;
-		if (t->get_alive() == false && t->get_rp() == 0 && t->get_wp() == 0) {
+		if (t->get_alive() == false) {
 			int n = t->get_n();
 			int ret = 0;
 			plog(info, "Close()  closes a file descriptor = %d(%p), so that it no longer refers to any file and may be reused.\n", im->first, im->second);
 			ret = close(events[n].data.fd);
 			if (ret == -1) {
-				plog(error, "%s(%d)\n", strerror(errno), errno);
+				plog(warning, "%s(%d)\n", strerror(errno), errno);
 			}
 
-			is->erase(t->get_id());
+			w->remove(t);
+			__m->erase(t->get_id());
 			m->erase(im++);
 			delete t;
 		} else {
@@ -472,7 +473,7 @@ void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 	std::list<Transport*>::iterator i = r->begin();
 	while (i != r->end()) {
 		Transport* t = *i;
-		int ret = handle(w, m, is, t);
+		int ret = handle(w, m, __m, t);
 		if (ret == -1) {
 			plog(error, "Handle fail.\n");
 		}
@@ -496,11 +497,18 @@ void task_w(std::list<Transport*> *w) {
 		}
 
 		writes(t);
-		if (t->get_wp() == 0) {
-			i = w->erase(i);
-		} else {
-			i++;
+
+		if (t->get_wp() == 0 && t->get_events() & EPOLLOUT) {
+			ev.events = EPOLLIN | EPOLLRDHUP; /* Level Triggered */
+			ev.data.fd = t->get_fd();
+
+			int _ret = epoll_ctl(epollfd, EPOLL_CTL_MOD, ev.data.fd, &ev);
+			if (_ret == -1) {
+				plog(warning, "%s(%d)\n", strerror(errno), errno);
+			}
+			t->set_events(ev.events);
 		}
+		i = w->erase(i);
 	}
 	return ;
 }

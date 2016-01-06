@@ -5,7 +5,7 @@
 #include "handle.h"
 
 
-int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *is, Transport* t) {
+int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *__m, Transport* t) {
 	int ret = 0;
 
 	t->pr();
@@ -33,12 +33,12 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 		/* MESSAGE BODY */
 		if (id[0] == id[1] && id[0] != 0 && t->get_rp() >= (3 * sizeof (uint32_t) + length)) {
 
-			is->erase(t->get_id());
+			__m->erase(t->get_id());
 			t->set_id(id[0]);
 			t->set_wx(t->get_rx(), (3 * sizeof (uint32_t) + length));
 			memmove(t->get_rx(), (const void *)((char *)t->get_rx() + (3 * sizeof (uint32_t) + length)), t->get_rp() - (3 * sizeof (uint32_t) + length));
 			t->set_rp(t->get_rp() - (3 * sizeof (uint32_t) + length));
-			is->insert(std::make_pair(t->get_id(), t->get_fd()));
+			__m->insert(std::make_pair(t->get_id(), t->get_fd()));
 
 			plog(notice, "Echo, id = 0x%x\n", id[0]);
 			w->push_back(t);
@@ -53,8 +53,8 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 			int fx = 0;
 			Transport* tx = NULL;
 
-			std::map<uint32_t, int>::iterator ie = is->find(id[1]);
-			if (ie != is->end()) {
+			std::map<uint32_t, int>::iterator ie = __m->find(id[1]);
+			if (ie != __m->end()) {
 #if 0
 				plog(debug, "ie->first = %u, ie->second = %d\n", ie->first, ie->second);
 #endif

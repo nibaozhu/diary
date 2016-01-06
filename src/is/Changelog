@@ -1,3 +1,8 @@
+1.0.1
+=====
+ When TCP write-buffer is full, erase write-list-node, and set epoll_wait
+ EPOLLOUT until my write-buffer(t->get_wp() == 0) is zero.
+
 1.0
 =====
  initialize

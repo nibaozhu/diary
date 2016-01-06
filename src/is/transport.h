@@ -20,6 +20,7 @@
 #include <utility>
 
 #include <arpa/inet.h>
+#include <sys/types.h>
 #include "logging.h"
 
 /* output BYTES bytes per line */
@@ -46,6 +47,7 @@ private:
 
 	struct sockaddr_in peer_addr;
 	socklen_t peer_addrlen;
+	__uint32_t events;
 
 public:
 	Transport(int fd, time_t created, struct sockaddr_in peer_addr, socklen_t peer_addrlen, size_t size = SIZE) {
@@ -75,6 +77,7 @@ public:
 		memset(this->wx, 0, this->ws);
 
 		this->set_alive(true);
+		this->set_events(0);
 
 		plog(debug, "new this = %p, malloc rx = %p, rp = 0x%lx, rs = 0x%lx, malloc wx = %p, wp = 0x%lx, ws = 0x%lx\n", 
 				this, this->rx, this->rp, this->rs, this->wx, this->wp, this->ws);
@@ -234,6 +237,14 @@ public:
 
 	double get_speed() {
 		return this->speed;
+	}
+
+	__uint32_t set_events(__uint32_t events) {
+		return this->events= events;
+	}
+
+	__uint32_t get_events() {
+		return this->events;
 	}
 
 	void pr(size_t width = WIDTH, bool b0 = false) {
