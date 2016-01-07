@@ -32,15 +32,18 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 
 		/* MESSAGE BODY */
 		if (id[0] == id[1] && id[0] != 0 && t->get_rp() >= (3 * sizeof (uint32_t) + length)) {
+			if (t->get_id() != 0 && t->get_id() != id[0]) {
+				plog(warning, "Erase pair{id(0x%x), fd(?)} from __m(%p)\n", t->get_id(), __m);
+				__m->erase(t->get_id());
+			}
 
-			__m->erase(t->get_id());
 			t->set_id(id[0]);
-			t->set_wx(t->get_rx(), (3 * sizeof (uint32_t) + length));
+			t->set_wx(t->get_rx(), 3 * sizeof (uint32_t) + length);
 			memmove(t->get_rx(), (const void *)((char *)t->get_rx() + (3 * sizeof (uint32_t) + length)), t->get_rp() - (3 * sizeof (uint32_t) + length));
 			t->set_rp(t->get_rp() - (3 * sizeof (uint32_t) + length));
 			__m->insert(std::make_pair(t->get_id(), t->get_fd()));
-
-			plog(notice, "Echo, id = 0x%x\n", id[0]);
+			plog(info, "Insert pair{id(0x%x), fd(%d)} into __m(%p)\n", t->get_id(), t->get_fd(), __m);
+			plog(notice, "Welcome and Echo. id = 0x%x\n", id[0]);
 			w->push_back(t);
 		} else if (t->get_rp() >= (3 * sizeof (uint32_t) + length)) {
 			plog(notice, "Message completed(=0x%x).\n", (unsigned int)(3 * sizeof (uint32_t)) + length);

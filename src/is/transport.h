@@ -30,285 +30,285 @@
 #define SIZE (1<<10)
 
 class Transport {
-private:
-	uint32_t id; /* unsigned int 32 */
-	time_t created; /* the first communication time */
-	time_t updated; /* the lastest communication time */
-	bool alive; /* true: live; false: die */
-	int fd; /* file descriptor */
-	int n; /* epoll events[n] */
-	void *rx; /* transport data `Read'  */
-	void *wx; /* transport data `Write' */
-	size_t rp; /* transport data `Read' pointer position */
-	size_t wp; /* transport data `Write' pointer position */
-	size_t rs; /* transport data `Read' size  */
-	size_t ws; /* transport data `Write' size */
-	double speed; /* bytes per second */
+	private:
+		uint32_t id; /* unsigned int 32 */
+		time_t created; /* the first communication time */
+		time_t updated; /* the lastest communication time */
+		bool alive; /* true: live; false: die */
+		int fd; /* file descriptor */
+		int n; /* epoll events[n] */
+		void *rx; /* transport data `Read'  */
+		void *wx; /* transport data `Write' */
+		size_t rp; /* transport data `Read' pointer position */
+		size_t wp; /* transport data `Write' pointer position */
+		size_t rs; /* transport data `Read' size  */
+		size_t ws; /* transport data `Write' size */
+		double speed; /* bytes per second */
 
-	struct sockaddr_in peer_addr;
-	socklen_t peer_addrlen;
-	__uint32_t events;
+		struct sockaddr_in peer_addr;
+		socklen_t peer_addrlen;
+		__uint32_t events;
 
-public:
-	Transport(int fd, time_t created, struct sockaddr_in peer_addr, socklen_t peer_addrlen, size_t size = SIZE) {
-		assert(size > 0);
+	public:
+		Transport(int fd, time_t created, struct sockaddr_in peer_addr, socklen_t peer_addrlen, size_t size = SIZE) {
+			assert(size > 0);
 
-		this->created = created;
-		this->updated = this->created;
+			this->created = created;
+			this->updated = this->created;
 
-		this->id = 0;
-		this->fd = fd;
-		this->n = 0;
-		this->peer_addr = peer_addr;
-		this->peer_addrlen = peer_addrlen;
+			this->id = 0;
+			this->fd = fd;
+			this->n = 0;
+			this->peer_addr = peer_addr;
+			this->peer_addrlen = peer_addrlen;
 
-		this->rp = 0;
-		this->wp = 0;
-		this->rs = size;
-		this->ws = size;
+			this->rp = 0;
+			this->wp = 0;
+			this->rs = size;
+			this->ws = size;
 
-		this->rx = malloc(this->rs);
-		assert(this->rx != NULL);
+			this->rx = malloc(this->rs);
+			assert(this->rx != NULL);
 
-		this->wx = malloc(this->ws);
-		assert(this->wx != NULL);
+			this->wx = malloc(this->ws);
+			assert(this->wx != NULL);
 
-		memset(this->rx, 0, this->rs);
-		memset(this->wx, 0, this->ws);
+			memset(this->rx, 0, this->rs);
+			memset(this->wx, 0, this->ws);
 
-		this->set_alive(true);
-		this->set_events(0);
+			this->set_alive(true);
+			this->set_events(0);
 
-		plog(debug, "new this = %p, malloc rx = %p, rp = 0x%lx, rs = 0x%lx, malloc wx = %p, wp = 0x%lx, ws = 0x%lx\n", 
-				this, this->rx, this->rp, this->rs, this->wx, this->wp, this->ws);
-	}
+			plog(debug, "Construct %p. malloc rx = %p, rp = 0x%lx, rs = 0x%lx, malloc wx = %p, wp = 0x%lx, ws = 0x%lx\n", 
+					this, this->rx, this->rp, this->rs, this->wx, this->wp, this->ws);
+		}
 
-	uint32_t set_id(uint32_t id) {
-		this->created = time(NULL);
-		return this->id = id;
-	}
+		uint32_t set_id(uint32_t id) {
+			this->created = time(NULL);
+			return this->id = id;
+		}
 
-	uint32_t get_id() {
-		return this->id;
-	}
+		uint32_t get_id() {
+			return this->id;
+		}
 
-	int set_fd(int fd) {
-		return this->fd = fd;
-	}
+		int set_fd(int fd) {
+			return this->fd = fd;
+		}
 
-	int get_fd() {
-		return this->fd;
-	}
+		int get_fd() {
+			return this->fd;
+		}
 
-	int set_n(int n) {
-		return this->n = n;
-	}
+		int set_n(int n) {
+			return this->n = n;
+		}
 
-	int get_n() {
-		return this->n;
-	}
+		int get_n() {
+			return this->n;
+		}
 
-	size_t set_rp(size_t rp) {
-		return this->rp = rp;
-	}
+		size_t set_rp(size_t rp) {
+			return this->rp = rp;
+		}
 
-	size_t get_rp() {
-		return this->rp;
-	}
+		size_t get_rp() {
+			return this->rp;
+		}
 
-	size_t set_wp(size_t wp) {
-		return this->wp = wp;
-	}
+		size_t set_wp(size_t wp) {
+			return this->wp = wp;
+		}
 
-	size_t get_wp() {
-		return this->wp;
-	}
+		size_t get_wp() {
+			return this->wp;
+		}
 
-	void *set_rx(void *rx, size_t rs) {
-		while (rs >= this->rs - this->rp) {
-			plog(debug, "{rx = %p, rp = 0x%lx, rs = 0x%lx}, {0x%lx}\n", this->rx, this->rp, this->rs, rs);
-			assert(this->rs > 0);
-			void *tx = realloc(this->rx, this->rs << 1);
+		void *set_rx(void *rx, size_t rs) {
+			while (rs >= this->rs - this->rp) {
+				plog(debug, "{rx = %p, rp = 0x%lx, rs = 0x%lx}, {0x%lx}\n", this->rx, this->rp, this->rs, rs);
+				assert(this->rs > 0);
+				void *tx = realloc(this->rx, this->rs << 1);
+				if (tx == NULL) {
+					plog(critical, "%s(%d)\n", strerror(errno), errno);
+					return tx;
+				} else {
+					this->rx = tx;
+					this->rs <<= 1;
+					memset((void *)((char *)this->rx + this->rp), 0, this->rs - this->rp);
+				}
+			}
+			memcpy((void *)((char *)this->rx + this->rp), rx, rs);
+			this->rp += rs;
+			this->updated = time(NULL);
+			return (void *)((char *)this->rx + this->rp);
+		}
+
+		void *clear_rx(size_t size = SIZE) {
+			assert(size > 0);
+			memset(this->rx, 0, sizeof this->rp);
+			void *tx = realloc(this->rx, size);
 			if (tx == NULL) {
 				plog(critical, "%s(%d)\n", strerror(errno), errno);
 				return tx;
 			} else {
 				this->rx = tx;
-				this->rs <<= 1;
-				memset((void *)((char *)this->rx + this->rp), 0, this->rs - this->rp);
 			}
-		}
-		memcpy((void *)((char *)this->rx + this->rp), rx, rs);
-		this->rp += rs;
-		this->updated = time(NULL);
-		return (void *)((char *)this->rx + this->rp);
-	}
 
-	void *clear_rx(size_t size = SIZE) {
-		assert(size > 0);
-		memset(this->rx, 0, sizeof this->rp);
-		void *tx = realloc(this->rx, size);
-		if (tx == NULL) {
-			plog(critical, "%s(%d)\n", strerror(errno), errno);
-			return tx;
-		} else {
-			this->rx = tx;
+			this->rp = 0;
+			this->rs = size;
+			this->updated = time(NULL);
+			return this->rx;
 		}
 
-		this->rp = 0;
-		this->rs = size;
-		this->updated = time(NULL);
-		return this->rx;
-	}
+		void *get_rx() {
+			return this->rx;
+		}
 
-	void *get_rx() {
-		return this->rx;
-	}
+		void *set_wx(void *wx, size_t ws) {
+			while (ws >= this->ws - this->wp) {
+				plog(debug, "{wx = %p, wp = 0x%lx, ws = 0x%lx}, {0x%lx}\n", this->wx, this->wp, this->ws, ws);
+				assert(this->ws > 0);
+				void *tx = realloc(this->wx, this->ws << 1);
+				if (tx == NULL) {
+					plog(critical, "%s(%d)\n", strerror(errno), errno);
+					return tx;
+				} else {
+					this->wx = tx;
+					this->ws <<= 1;
+					memset((void *)((char *)this->wx + this->wp), 0, this->ws - this->wp);
+				}
+			}
+			memcpy((void *)((char *)this->wx + this->wp), wx, ws);
+			this->wp += ws;
+			this->updated = time(NULL);
+			return (void *)((char *)this->wx + this->wp);
+		}
 
-	void *set_wx(void *wx, size_t ws) {
-		while (ws >= this->ws - this->wp) {
-			plog(debug, "{wx = %p, wp = 0x%lx, ws = 0x%lx}, {0x%lx}\n", this->wx, this->wp, this->ws, ws);
-			assert(this->ws > 0);
-			void *tx = realloc(this->wx, this->ws << 1);
+		void *clear_wx(size_t size = SIZE) {
+			memset(this->wx, 0, sizeof this->wp);
+			assert(size > 0);
+			void *tx = realloc(this->wx, size);
 			if (tx == NULL) {
 				plog(critical, "%s(%d)\n", strerror(errno), errno);
 				return tx;
 			} else {
 				this->wx = tx;
-				this->ws <<= 1;
-				memset((void *)((char *)this->wx + this->wp), 0, this->ws - this->wp);
 			}
-		}
-		memcpy((void *)((char *)this->wx + this->wp), wx, ws);
-		this->wp += ws;
-		this->updated = time(NULL);
-		return (void *)((char *)this->wx + this->wp);
-	}
 
-	void *clear_wx(size_t size = SIZE) {
-		memset(this->wx, 0, sizeof this->wp);
-		assert(size > 0);
-		void *tx = realloc(this->wx, size);
-		if (tx == NULL) {
-			plog(critical, "%s(%d)\n", strerror(errno), errno);
-			return tx;
-		} else {
-			this->wx = tx;
+			assert(this->wx != NULL);
+			this->wp = 0;
+			this->ws = size;
+			this->updated = time(NULL);
+			return this->wx;
 		}
 
-		assert(this->wx != NULL);
-		this->wp = 0;
-		this->ws = size;
-		this->updated = time(NULL);
-		return this->wx;
-	}
-
-	void *get_wx() {
-		return this->wx;
-	}
-
-	size_t set_rs(size_t rs) {
-		return this->rs = rs;
-	}
-
-	size_t get_rs() {
-		return this->rs;
-	}
-
-	size_t set_ws(size_t ws) {
-		return this->ws = ws;
-	}
-
-	size_t get_ws() {
-		return this->ws;
-	}
-
-	bool set_alive(bool alive) {
-		return this->alive = alive;
-	}
-
-	bool get_alive() {
-		return this->alive;
-	}
-
-	double set_speed(double speed) {
-		return this->speed = speed;
-	}
-
-	double get_speed() {
-		return this->speed;
-	}
-
-	__uint32_t set_events(__uint32_t events) {
-		return this->events= events;
-	}
-
-	__uint32_t get_events() {
-		return this->events;
-	}
-
-	void pr(size_t width = WIDTH, bool b0 = false) {
-		if (width <= 0 || width > 1024) {
-			width = WIDTH;
+		void *get_wx() {
+			return this->wx;
 		}
-		assert(b0 == false);
-		plog(info, "this = %p, this->rx = %p, this->rp = 0x%lx, this->rs = 0x%lx, b0 = %d\n", this, this->rx, this->rp, this->rs, b0);
+
+		size_t set_rs(size_t rs) {
+			return this->rs = rs;
+		}
+
+		size_t get_rs() {
+			return this->rs;
+		}
+
+		size_t set_ws(size_t ws) {
+			return this->ws = ws;
+		}
+
+		size_t get_ws() {
+			return this->ws;
+		}
+
+		bool set_alive(bool alive) {
+			return this->alive = alive;
+		}
+
+		bool get_alive() {
+			return this->alive;
+		}
+
+		double set_speed(double speed) {
+			return this->speed = speed;
+		}
+
+		double get_speed() {
+			return this->speed;
+		}
+
+		__uint32_t set_events(__uint32_t events) {
+			return this->events= events;
+		}
+
+		__uint32_t get_events() {
+			return this->events;
+		}
+
+		void pr(size_t width = WIDTH, bool b0 = false) {
+			if (width <= 0 || width > 1024) {
+				width = WIDTH;
+			}
+			assert(b0 == false);
+			plog(info, "this = %p, this->rx = %p, this->rp = 0x%lx, this->rs = 0x%lx, b0 = %d\n", this, this->rx, this->rp, this->rs, b0);
 #if 0
-		size_t i = 0;
-		plog(debug, "--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
-		while (i < this->rp) {
-			if (i % width == 0) {
-				plog(debug, "%p ", (void *)((char *)this->rx + i));
-			}
-			plog(debug, " 0x%02x", *((char*)this->rx + i));
-			if (b0) {
-				plog(debug, " %c", *((char*)this->rx + i));
-			}
+			size_t i = 0;
+			plog(debug, "--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
+			while (i < this->rp) {
+				if (i % width == 0) {
+					plog(debug, "%p ", (void *)((char *)this->rx + i));
+				}
+				plog(debug, " 0x%02x", *((char*)this->rx + i));
+				if (b0) {
+					plog(debug, " %c", *((char*)this->rx + i));
+				}
 
-			i++;
-			if (i % width == 0) {
-				puts("");
+				i++;
+				if (i % width == 0) {
+					puts("");
+				}
 			}
-		}
-		puts("\n--- end ---");
+			puts("\n--- end ---");
 #endif
-		return ;
-	}
-
-	void pw(size_t width = WIDTH, bool b0 = false) {
-		if (width <= 0 || width > 1024) {
-			width = WIDTH;
+			return ;
 		}
-		assert(b0 == false);
-		plog(info, "this = %p, this->wx = %p, this->wp = 0x%lx, this->ws = 0x%lx, b0 = %d\n", this, this->wx, this->wp, this->ws, b0);
+
+		void pw(size_t width = WIDTH, bool b0 = false) {
+			if (width <= 0 || width > 1024) {
+				width = WIDTH;
+			}
+			assert(b0 == false);
+			plog(info, "this = %p, this->wx = %p, this->wp = 0x%lx, this->ws = 0x%lx, b0 = %d\n", this, this->wx, this->wp, this->ws, b0);
 #if 0
-		size_t i = 0;
-		plog(debug, "--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
-		while (i < this->wp) {
-			if (i % width == 0) {
-				plog(debug, "%p ", (void *)((char *)this->wx + i));
-			}
-			plog(debug, " 0x%02x", *((char*)this->wx + i));
-			if (b0) {
-				plog(debug, " %c", *((char*)this->rx + i));
-			}
+			size_t i = 0;
+			plog(debug, "--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
+			while (i < this->wp) {
+				if (i % width == 0) {
+					plog(debug, "%p ", (void *)((char *)this->wx + i));
+				}
+				plog(debug, " 0x%02x", *((char*)this->wx + i));
+				if (b0) {
+					plog(debug, " %c", *((char*)this->rx + i));
+				}
 
-			i++;
-			if (i % width == 0) {
-				puts("");
+				i++;
+				if (i % width == 0) {
+					puts("");
+				}
 			}
-		}
-		puts("\n--- end ---");
+			puts("\n--- end ---");
 #endif
-		return ;
-	}
+			return ;
+		}
 
-	~Transport() {
-		plog(debug, "delete this = %p, free rx = %p, rp = 0x%lx, rs = 0x%lx, free wx = %p, wp = 0x%lx, ws = 0x%lx\n", 
-				this, this->rx, this->rp, this->rs, this->wx, this->wp, this->ws);
-		free(this->rx);
-		free(this->wx);
-	}
+		~Transport() {
+			plog(debug, "Deconstruct %p. free rx = %p, rp = 0x%lx, rs = 0x%lx, free wx = %p, wp = 0x%lx, ws = 0x%lx\n", 
+					this, this->rx, this->rp, this->rs, this->wx, this->wp, this->ws);
+			free(this->rx);
+			free(this->wx);
+		}
 };
 
 #endif

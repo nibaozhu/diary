@@ -374,7 +374,24 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 				std::map<int, Transport*>::iterator im = m->begin();
 
 				plog(debug, "events[%d].events = 0x%03x\n", n, events[n].events);
-				if (events[n].events & EPOLLERR) {
+				if (events[n].events & EPOLLIN) { /* 0x001 */
+					plog(notice, "The associated file = %d is available for read(2) operations.\n", events[n].data.fd);
+					Transport* t = (*m)[events[n].data.fd];
+					ret = reads(t);
+					if (ret < 0) {
+						break;
+					} else if (ret == 0) {
+						;
+					}
+					r->push_back(t);
+				} else if (events[n].events & EPOLLOUT) { /* 0x004 */
+					plog(notice, "The associated file = %d is available for write(2) operations.\n", events[n].data.fd);
+					im = m->find(events[n].data.fd);
+					if (im != m->end()) {
+						t = im->second;
+						w->push_back(t);
+					}
+				} else if (events[n].events & EPOLLERR) { /* 0x008 */
 					plog(error, "Error condition happened on the associated file descriptor = %d.\n", events[n].data.fd);
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
@@ -388,7 +405,7 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 						t->set_n(n);
 						t->set_alive(false);
 					}
-				} else if (events[n].events & EPOLLHUP) {
+				} else if (events[n].events & EPOLLHUP) { /* 0x010 */
 					plog(notice, "Hang up happened on the associated file descriptor = %d.\n", events[n].data.fd);
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
@@ -402,7 +419,7 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 						t->set_n(n);
 						t->set_alive(false);
 					}
-				} else if (events[n].events & EPOLLRDHUP) {
+				} else if (events[n].events & EPOLLRDHUP) { /* 0x2000 */
 					plog(notice, "Stream socket peer = %d closed connection, or shut down writing half of connection.\n", events[n].data.fd);
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
@@ -415,23 +432,6 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 						t = im->second;
 						t->set_n(n);
 						t->set_alive(false);
-					}
-				} else if (events[n].events & EPOLLIN) {
-					plog(notice, "The associated file = %d is available for read(2) operations.\n", events[n].data.fd);
-					Transport* t = (*m)[events[n].data.fd];
-					ret = reads(t);
-					if (ret < 0) {
-						break;
-					} else if (ret == 0) {
-						;
-					}
-					r->push_back(t);
-				} else if (events[n].events & EPOLLOUT) {
-					plog(notice, "The associated file = %d is available for write(2) operations.\n", events[n].data.fd);
-					im = m->find(events[n].data.fd);
-					if (im != m->end()) {
-						t = im->second;
-						w->push_back(t);
 					}
 				} else {
 					plog(warning, "The associated file = %d is %sUNKNOWN%s operations.\n", events[n].data.fd, color[critical], clear_color);
