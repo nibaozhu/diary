@@ -39,8 +39,6 @@ If sender's ID[0] is not equal the register ID, it will discard Message, and clo
 	(nil) means void or nothing.
 
 
-
-
 $ vim +44 /usr/include/sys/epoll.h
 ...
 enum EPOLL_EVENTS
@@ -73,3 +71,8 @@ enum EPOLL_EVENTS
 #define EPOLLET EPOLLET
   };
 ...
+
+
+*Bugs:
+		$ lsof -i:12340
+	If Transport::rp != 0 or Transport::wp != 0, When Client ACTIVE closes, and Connection will be set "(CLOSE_WAIT)" status.

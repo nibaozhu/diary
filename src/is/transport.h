@@ -36,7 +36,6 @@ class Transport {
 		time_t updated; /* the lastest communication time */
 		bool alive; /* true: live; false: die */
 		int fd; /* file descriptor */
-		int n; /* epoll events[n] */
 		void *rx; /* transport data `Read'  */
 		void *wx; /* transport data `Write' */
 		size_t rp; /* transport data `Read' pointer position */
@@ -48,7 +47,6 @@ class Transport {
 		struct sockaddr_in peer_addr;
 		socklen_t peer_addrlen;
 		__uint32_t events;
-
 	public:
 		Transport(int fd, time_t created, struct sockaddr_in peer_addr, socklen_t peer_addrlen, size_t size = SIZE) {
 			assert(size > 0);
@@ -58,7 +56,6 @@ class Transport {
 
 			this->id = 0;
 			this->fd = fd;
-			this->n = 0;
 			this->peer_addr = peer_addr;
 			this->peer_addrlen = peer_addrlen;
 
@@ -98,14 +95,6 @@ class Transport {
 
 		int get_fd() {
 			return this->fd;
-		}
-
-		int set_n(int n) {
-			return this->n = n;
-		}
-
-		int get_n() {
-			return this->n;
 		}
 
 		size_t set_rp(size_t rp) {
@@ -300,6 +289,12 @@ class Transport {
 			}
 			puts("\n--- end ---");
 #endif
+			return ;
+		}
+
+		void reset() {
+			this->clear_rx();
+			this->clear_wx();
 			return ;
 		}
 

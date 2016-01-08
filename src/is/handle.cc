@@ -7,11 +7,13 @@
 
 int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *__m, Transport* t) {
 	int ret = 0;
+	int i = 0;
+	uint32_t length = 0;
+	uint32_t id[2] = {0, 0};
 
 	t->pr();
 	do {
-		uint32_t length = 0;
-		uint32_t id[2] = {0, 0};
+		{ length = 0; id[0] = 0; id[1] = 0; }
 
 		/* MESSAGE HEAD */
 		if (t->get_rp() >= 3 * sizeof (uint32_t)) {
@@ -24,7 +26,7 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 			memcpy(&id[1], (char *)t->get_rx() + 2 * sizeof (uint32_t), sizeof (uint32_t));
 			id[1] = ntohl(id[1]);
 
-			plog(notice, "length = 0x%x, id = {0x%x(0x%x), 0x%x}\n", length, id[0], t->get_id(), id[1]);
+			plog(notice, "%sTransaction(%d) Begin: length = 0x%x, id = {0x%x(0x%x), 0x%x}%s\n", color[notice], i, length, id[0], t->get_id(), id[1], clear_color);
 		} else {
 			/* Back to wait message. */
 			break;
@@ -32,18 +34,21 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 
 		/* MESSAGE BODY */
 		if (id[0] == id[1] && id[0] != 0 && t->get_rp() >= (3 * sizeof (uint32_t) + length)) {
-			if (t->get_id() != 0 && t->get_id() != id[0]) {
-				plog(warning, "Erase pair{id(0x%x), fd(?)} from __m(%p)\n", t->get_id(), __m);
-				__m->erase(t->get_id());
+			if (t->get_id() != id[0]) {
+				if (t->get_id() != 0) {
+					__m->erase(t->get_id());
+					plog(warning, "Erase pair{id(0x%x), fd(%d)} from __m(%p)\n", t->get_id(), t->get_fd(), __m);
+				}
+
+				t->set_id(id[0]);
+				__m->insert(std::make_pair(t->get_id(), t->get_fd()));
+				plog(info, "Insert pair{id(0x%x), fd(%d)} into __m(%p)\n", t->get_id(), t->get_fd(), __m);
+				plog(notice, "Welcome and Echo. id = 0x%x\n", id[0]);
 			}
 
-			t->set_id(id[0]);
 			t->set_wx(t->get_rx(), 3 * sizeof (uint32_t) + length);
 			memmove(t->get_rx(), (const void *)((char *)t->get_rx() + (3 * sizeof (uint32_t) + length)), t->get_rp() - (3 * sizeof (uint32_t) + length));
 			t->set_rp(t->get_rp() - (3 * sizeof (uint32_t) + length));
-			__m->insert(std::make_pair(t->get_id(), t->get_fd()));
-			plog(info, "Insert pair{id(0x%x), fd(%d)} into __m(%p)\n", t->get_id(), t->get_fd(), __m);
-			plog(notice, "Welcome and Echo. id = 0x%x\n", id[0]);
 			w->push_back(t);
 		} else if (t->get_rp() >= (3 * sizeof (uint32_t) + length)) {
 			plog(notice, "Message completed(=0x%x).\n", (unsigned int)(3 * sizeof (uint32_t)) + length);
@@ -86,6 +91,12 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 			/* Back to wait message. */
 			break;
 		}
+
+		plog(info, "%sTransaction(%d) Passed.%s\n", color[notice], i++, clear_color);
 	} while (true);
+
+	if (t->get_rp() != 0) {
+		plog(info, "%sTransaction(%d) Cancel! length = 0x%x, t->rp = 0x%lx%s\n", color[warning], i, length, t->get_rp(), clear_color);
+	}
 	return ret;
 }

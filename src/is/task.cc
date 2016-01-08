@@ -53,9 +53,11 @@ int reads(Transport* t) {
 		if (ret == -1) {
 			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
-		} else if (ret == 0) {
+		} else if (ret == 0) { /* You can ignore THIS case. */
+#if 0
 			t->set_alive(false);
 			plog(notice, "Stream socket peer = %d closed connection, or shut down writing half of connection.\n", t->get_fd());
+#endif
 			break;
 		} else if (ret > 0 && ret <= BUFFER_MAX) {
 			rl += ret;
@@ -74,7 +76,8 @@ int reads(Transport* t) {
 		plog(notice, "speed: %0.2f M/s\n", t->set_speed(speed));
 	}
 	free(buffer);
-	int _ret = ret < 0? -1: 0;
+
+	int _ret = labs(ret); /* Maybe loss */
 	return _ret;
 }
 
@@ -372,8 +375,8 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 				m->insert(std::make_pair(acceptfd, t));
 			} else {
 				std::map<int, Transport*>::iterator im = m->begin();
-
 				plog(debug, "events[%d].events = 0x%03x\n", n, events[n].events);
+
 				if (events[n].events & EPOLLIN) { /* 0x001 */
 					plog(notice, "The associated file = %d is available for read(2) operations.\n", events[n].data.fd);
 					Transport* t = (*m)[events[n].data.fd];
@@ -382,16 +385,21 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 						break;
 					} else if (ret == 0) {
 						;
+					} else if (ret > 0) {
+						r->push_back(t);
 					}
-					r->push_back(t);
-				} else if (events[n].events & EPOLLOUT) { /* 0x004 */
+				}
+
+				if (events[n].events & EPOLLOUT) { /* 0x004 */
 					plog(notice, "The associated file = %d is available for write(2) operations.\n", events[n].data.fd);
 					im = m->find(events[n].data.fd);
 					if (im != m->end()) {
 						t = im->second;
 						w->push_back(t);
 					}
-				} else if (events[n].events & EPOLLERR) { /* 0x008 */
+				}
+
+				if (events[n].events & EPOLLERR) { /* 0x008 */
 					plog(error, "Error condition happened on the associated file descriptor = %d.\n", events[n].data.fd);
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
@@ -402,10 +410,12 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 					im = m->find(events[n].data.fd);
 					if (im != m->end()) {
 						t = im->second;
-						t->set_n(n);
 						t->set_alive(false);
+						t->reset();
 					}
-				} else if (events[n].events & EPOLLHUP) { /* 0x010 */
+				}
+
+				if (events[n].events & EPOLLHUP) { /* 0x010 */
 					plog(notice, "Hang up happened on the associated file descriptor = %d.\n", events[n].data.fd);
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
@@ -416,10 +426,11 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 					im = m->find(events[n].data.fd);
 					if (im != m->end()) {
 						t = im->second;
-						t->set_n(n);
 						t->set_alive(false);
 					}
-				} else if (events[n].events & EPOLLRDHUP) { /* 0x2000 */
+				}
+
+				if (events[n].events & EPOLLRDHUP) { /* 0x2000 */
 					plog(notice, "Stream socket peer = %d closed connection, or shut down writing half of connection.\n", events[n].data.fd);
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
@@ -430,12 +441,10 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 					im = m->find(events[n].data.fd);
 					if (im != m->end()) {
 						t = im->second;
-						t->set_n(n);
 						t->set_alive(false);
 					}
-				} else {
-					plog(warning, "The associated file = %d is %sUNKNOWN%s operations.\n", events[n].data.fd, color[critical], clear_color);
 				}
+
 			}
 		}
 	} while (false);
@@ -448,15 +457,15 @@ void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 	std::map<int, Transport*>::iterator im = m->begin();
 	while (im != m->end()) {
 		Transport* t = im->second;
-		if (t->get_alive() == false) {
-			int n = t->get_n();
+		if (!t->get_alive() && (t->get_rp() == 0 && t->get_wp() == 0)) {
 			int ret = 0;
 			plog(info, "Close()  closes a file descriptor = %d(%p), so that it no longer refers to any file and may be reused.\n", im->first, im->second);
-			ret = close(events[n].data.fd);
+			ret = close(t->get_fd());
 			if (ret == -1) {
 				plog(warning, "%s(%d)\n", strerror(errno), errno);
 			}
 
+			r->remove(t);
 			w->remove(t);
 			__m->erase(t->get_id());
 			m->erase(im++);
@@ -465,7 +474,6 @@ void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 			im++;
 		}
 	}
-
 
 	r->sort();
 	r->unique();
@@ -502,7 +510,7 @@ void task_w(std::list<Transport*> *w) {
 			ev.events = EPOLLIN | EPOLLRDHUP; /* Level Triggered */
 			ev.data.fd = t->get_fd();
 
-			int _ret = epoll_ctl(epollfd, EPOLL_CTL_MOD, ev.data.fd, &ev);
+			int _ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, ev.data.fd, &ev);
 			if (_ret == -1) {
 				plog(warning, "%s(%d)\n", strerror(errno), errno);
 			}
