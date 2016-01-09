@@ -55,6 +55,7 @@ get_rp	transport.h	/^		size_t get_rp() {$/;"	f	class:Transport
 get_rs	transport.h	/^		size_t get_rs() {$/;"	f	class:Transport
 get_rx	transport.h	/^		void *get_rx() {$/;"	f	class:Transport
 get_speed	transport.h	/^		double get_speed() {$/;"	f	class:Transport
+get_updated	transport.h	/^		time_t get_updated() {$/;"	f	class:Transport
 get_wp	transport.h	/^		size_t get_wp() {$/;"	f	class:Transport
 get_ws	transport.h	/^		size_t get_ws() {$/;"	f	class:Transport
 get_wx	transport.h	/^		void *get_wx() {$/;"	f	class:Transport
@@ -102,6 +103,7 @@ set_rp	transport.h	/^		size_t set_rp(size_t rp) {$/;"	f	class:Transport
 set_rs	transport.h	/^		size_t set_rs(size_t rs) {$/;"	f	class:Transport
 set_rx	transport.h	/^		void *set_rx(void *rx, size_t rs) {$/;"	f	class:Transport
 set_speed	transport.h	/^		double set_speed(double speed) {$/;"	f	class:Transport
+set_updated	transport.h	/^		time_t set_updated() {$/;"	f	class:Transport
 set_wp	transport.h	/^		size_t set_wp(size_t wp) {$/;"	f	class:Transport
 set_ws	transport.h	/^		size_t set_ws(size_t ws) {$/;"	f	class:Transport
 set_wx	transport.h	/^		void *set_wx(void *wx, size_t ws) {$/;"	f	class:Transport

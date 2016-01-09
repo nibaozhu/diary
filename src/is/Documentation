@@ -74,5 +74,10 @@ enum EPOLL_EVENTS
 
 
 *Bugs:
-		$ lsof -i:12340
-	If Transport::rp != 0 or Transport::wp != 0, When Client ACTIVE closes, and Connection will be set "(CLOSE_WAIT)" status.
+
+======
+Fixed!
+======
+$ lsof -i:12340
+If Transport::rp != 0 or Transport::wp != 0, When Client ACTIVE closes, and Connection will be set "(CLOSE_WAIT)" status.
+

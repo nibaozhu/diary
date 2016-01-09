@@ -89,6 +89,23 @@ class Transport {
 			return this->id;
 		}
 
+		time_t set_updated() {
+			return this->updated = time(NULL);
+		}
+
+		time_t get_updated() {
+			return this->updated;
+		}
+
+		bool set_alive(bool alive) {
+			this->set_updated();
+			return this->alive = alive;
+		}
+
+		bool get_alive() {
+			return this->alive;
+		}
+
 		int set_fd(int fd) {
 			return this->fd = fd;
 		}
@@ -129,7 +146,7 @@ class Transport {
 			}
 			memcpy((void *)((char *)this->rx + this->rp), rx, rs);
 			this->rp += rs;
-			this->updated = time(NULL);
+			this->set_updated();
 			return (void *)((char *)this->rx + this->rp);
 		}
 
@@ -146,7 +163,7 @@ class Transport {
 
 			this->rp = 0;
 			this->rs = size;
-			this->updated = time(NULL);
+			this->set_updated();
 			return this->rx;
 		}
 
@@ -170,7 +187,7 @@ class Transport {
 			}
 			memcpy((void *)((char *)this->wx + this->wp), wx, ws);
 			this->wp += ws;
-			this->updated = time(NULL);
+			this->set_updated();
 			return (void *)((char *)this->wx + this->wp);
 		}
 
@@ -188,7 +205,7 @@ class Transport {
 			assert(this->wx != NULL);
 			this->wp = 0;
 			this->ws = size;
-			this->updated = time(NULL);
+			this->set_updated();
 			return this->wx;
 		}
 
@@ -210,14 +227,6 @@ class Transport {
 
 		size_t get_ws() {
 			return this->ws;
-		}
-
-		bool set_alive(bool alive) {
-			return this->alive = alive;
-		}
-
-		bool get_alive() {
-			return this->alive;
 		}
 
 		double set_speed(double speed) {
@@ -295,6 +304,7 @@ class Transport {
 		void reset() {
 			this->clear_rx();
 			this->clear_wx();
+			this->set_updated();
 			return ;
 		}
 

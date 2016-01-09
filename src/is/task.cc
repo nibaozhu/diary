@@ -454,10 +454,12 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *__m) {
 	assert(r != NULL && w != NULL && m != NULL);
 
+	time_t ti = time(NULL); /* time() returns the time since the Epoch (00:00:00 UTC, January 1, 1970), measured in seconds. */
 	std::map<int, Transport*>::iterator im = m->begin();
 	while (im != m->end()) {
 		Transport* t = im->second;
-		if (!t->get_alive() && (t->get_rp() == 0 && t->get_wp() == 0)) {
+		time_t expired = 120; /* measured in seconds */
+		if (!t->get_alive() && ((t->get_rp() == 0 && t->get_wp() == 0) || ti - t->get_updated() >= expired)) {
 			int ret = 0;
 			plog(info, "Close()  closes a file descriptor = %d(%p), so that it no longer refers to any file and may be reused.\n", im->first, im->second);
 			ret = close(t->get_fd());
