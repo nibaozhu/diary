@@ -13,8 +13,6 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 
 	t->pr();
 	do {
-		{ length = 0; id[0] = 0; id[1] = 0; }
-
 		/* MESSAGE HEAD */
 		if (t->get_rp() >= 3 * sizeof (uint32_t)) {
 			memcpy(&length, t->get_rx(), sizeof (uint32_t));
@@ -63,9 +61,6 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 
 			std::map<uint32_t, int>::iterator ie = __m->find(id[1]);
 			if (ie != __m->end()) {
-#if 0
-				plog(debug, "ie->first = %u, ie->second = %d\n", ie->first, ie->second);
-#endif
 				fx = ie->second;
 			} else {
 				plog(info, "Back to wait id(0x%x)\n", id[1]);
@@ -74,9 +69,6 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 
 			std::map<int, Transport*>::iterator im = m->find(fx);
 			if (im != m->end()) {
-#if 0
-				plog(debug, "Found, first = %d, second = %p\n", im->first, im->second);
-#endif
 				tx = im->second;
 			} else {
 				plog(info, "Back to wait id(0x%x)\n", id[1]);

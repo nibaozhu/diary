@@ -53,11 +53,7 @@ int reads(Transport* t) {
 		if (ret == -1) {
 			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
-		} else if (ret == 0) { /* You can ignore THIS case. */
-#if 0
-			t->set_alive(false);
-			plog(notice, "Stream socket peer = %d closed connection, or shut down writing half of connection.\n", t->get_fd());
-#endif
+		} else if (ret == 0) {
 			break;
 		} else if (ret > 0 && ret <= BUFFER_MAX) {
 			rl += ret;
@@ -77,7 +73,11 @@ int reads(Transport* t) {
 	}
 	free(buffer);
 
-	int _ret = labs(ret); /* Maybe loss */
+	if (ret > INT32_MAX) {
+		plog(warning, "ret(0x%lx) > INT32_MAX(0x%x)\n", ret, INT32_MAX);
+		ret = INT32_MAX;
+	}
+	int _ret = labs(ret);
 	return _ret;
 }
 
@@ -98,7 +98,7 @@ void writes(Transport* t) {
 			if (wl != t->get_wp()) {
 				ev.events = EPOLLIN | EPOLLRDHUP | EPOLLOUT; /* Level Triggered */
 				ev.data.fd = t->get_fd();
-				int _ret = epoll_ctl(epollfd, EPOLL_CTL_MOD, ev.data.fd, &ev); /* When t->get_wp() == 0, Should remove EPOLLOUT events! */
+				int _ret = epoll_ctl(epollfd, EPOLL_CTL_MOD, ev.data.fd, &ev); /* When wp is zero, we should remove EPOLLOUT event! */
 				if (_ret == -1) {
 					plog(warning, "%s(%d)\n", strerror(errno), errno);
 				}
@@ -196,7 +196,7 @@ int init(int argc, char **argv) {
 			strncpy(name, ptr + 1, sizeof name - 1);
 		}
 
-		ret = initializing(name, "logdir");
+		ret = initializing(name, "logdir", "w+", debug, debug, 1, 1, 1024*1024);
 		if (ret == -1) {
 			break;
 		}
@@ -305,8 +305,8 @@ int task(int argc, char **argv) {
 	int ret = 0;
 	std::list<Transport*> *r = new std::list<Transport*>();
 	std::list<Transport*> *w = new std::list<Transport*>();
-	std::map<int, Transport*> *m = new std::map<int, Transport*>();
-	std::map<uint32_t, int> *__m = new std::map<uint32_t, int>(); // maybe should use multimap
+	std::map<int, Transport*> *m = new std::map<int, Transport*>(); /* ONE-FILE-DESCRIPTER versus ONE-TRANSPORT-OBJECT */
+	std::map<uint32_t, int> *__m = new std::map<uint32_t, int>(); /* ONE-ID versus ONE-FILE-DESCRIPTER */
 	do {
 		srand(getpid());
 		ret = init(argc, argv);
