@@ -51,6 +51,7 @@ get_alive	transport.h	/^		bool get_alive() {$/;"	f	class:Transport
 get_events	transport.h	/^		__uint32_t get_events() {$/;"	f	class:Transport
 get_fd	transport.h	/^		int get_fd() {$/;"	f	class:Transport
 get_id	transport.h	/^		uint32_t get_id() {$/;"	f	class:Transport
+get_peer	transport.h	/^		struct sockaddr_in get_peer(struct sockaddr_in *peer_addr, socklen_t *peer_addrlen) {$/;"	f	class:Transport
 get_rp	transport.h	/^		size_t get_rp() {$/;"	f	class:Transport
 get_rs	transport.h	/^		size_t get_rs() {$/;"	f	class:Transport
 get_rx	transport.h	/^		void *get_rx() {$/;"	f	class:Transport
@@ -99,6 +100,7 @@ set_disposition	task.cc	/^void set_disposition() {$/;"	f
 set_events	transport.h	/^		__uint32_t set_events(__uint32_t events) {$/;"	f	class:Transport
 set_fd	transport.h	/^		int set_fd(int fd) {$/;"	f	class:Transport
 set_id	transport.h	/^		uint32_t set_id(uint32_t id) {$/;"	f	class:Transport
+set_peer	transport.h	/^		struct sockaddr_in set_peer(struct sockaddr_in peer_addr, socklen_t peer_addrlen) {$/;"	f	class:Transport
 set_rp	transport.h	/^		size_t set_rp(size_t rp) {$/;"	f	class:Transport
 set_rs	transport.h	/^		size_t set_rs(size_t rs) {$/;"	f	class:Transport
 set_rx	transport.h	/^		void *set_rx(void *rx, size_t rs) {$/;"	f	class:Transport

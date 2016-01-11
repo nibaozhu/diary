@@ -237,6 +237,19 @@ class Transport {
 			return this->speed;
 		}
 
+		struct sockaddr_in set_peer(struct sockaddr_in peer_addr, socklen_t peer_addrlen) {
+			this->peer_addr = peer_addr;
+			this->peer_addrlen = peer_addrlen;
+			return this->peer_addr;
+		}
+
+		struct sockaddr_in get_peer(struct sockaddr_in *peer_addr, socklen_t *peer_addrlen) {
+			assert(peer_addr != NULL && peer_addrlen != NULL);
+			*peer_addr = this->peer_addr;
+			*peer_addrlen = this->peer_addrlen;
+			return *peer_addr;
+		}
+
 		__uint32_t set_events(__uint32_t events) {
 			return this->events= events;
 		}
@@ -250,7 +263,17 @@ class Transport {
 				width = WIDTH;
 			}
 			assert(b0 == false);
-			plog(info, "this = %p, this->rx = %p, this->rp = 0x%lx, this->rs = 0x%lx, b0 = %d\n", this, this->rx, this->rp, this->rs, b0);
+
+			struct sockaddr_in peer_addr;
+			socklen_t peer_addrlen;
+			this->get_peer(&peer_addr, &peer_addrlen);
+
+			char peer_ip[3 + 1 + 3 + 1 + 3 + 1 + 3 + 1];
+			memset(peer_ip, 0, sizeof peer_ip);
+			strcpy(peer_ip, inet_ntoa(peer_addr.sin_addr));
+
+			plog(info, "|%s:%u| this = %p, this->rx = %p, this->rp = 0x%lx, this->rs = 0x%lx\n",
+					peer_ip, htons(peer_addr.sin_port), this, this->rx, this->rp, this->rs);
 #if 0
 			size_t i = 0;
 			plog(debug, "--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
@@ -278,7 +301,17 @@ class Transport {
 				width = WIDTH;
 			}
 			assert(b0 == false);
-			plog(info, "this = %p, this->wx = %p, this->wp = 0x%lx, this->ws = 0x%lx, b0 = %d\n", this, this->wx, this->wp, this->ws, b0);
+
+			struct sockaddr_in peer_addr;
+			socklen_t peer_addrlen;
+			this->get_peer(&peer_addr, &peer_addrlen);
+
+			char peer_ip[3 + 1 + 3 + 1 + 3 + 1 + 3 + 1];
+			memset(peer_ip, 0, sizeof peer_ip);
+			strcpy(peer_ip, inet_ntoa(peer_addr.sin_addr));
+
+			plog(info, "|%s:%u| this = %p, this->wx = %p, this->wp = 0x%lx, this->ws = 0x%lx\n",
+					peer_ip, htons(peer_addr.sin_port), this, this->wx, this->wp, this->ws);
 #if 0
 			size_t i = 0;
 			plog(debug, "--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
