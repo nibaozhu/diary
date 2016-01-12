@@ -1,18 +1,19 @@
 .PHONY: all clean
-all: main libdynamic.so
+all: libdynamic.so main
+	rm dynamic.o main.o
 clean:
-	rm main libdynamic.so main.o dynamic.o
-
-main: main.o
-	$(CC) -o $@ $^ -ldl
+	rm dynamic.o main.o libdynamic.so main
 
 libdynamic.so: dynamic.o
 	$(CC) -o $@ $^ -shared
 
-main.o: main.c
-dynamic.o: dynamic.c
+main: main.o
+	$(CC) -o $@ $^ -ldl
 
+dynamic.o: dynamic.c
+	$(CC) -c -o $@ $^ -fPIC
+main.o: main.c
 
 LDFLAGS = -ldl
-CPPFLAGS = -fPIC
+CPPFLAGS = 
 CFLAGS = -g
