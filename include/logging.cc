@@ -337,8 +337,11 @@ int uninitialized()
 			color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l);
 #endif
 	assert(l != NULL);
-	assert(l->stream != NULL);
 
+	if (l->stream_level == none && l->stream == NULL) {
+		return 0;
+	}
+	assert(l->stream != NULL);
 	int ret = 0;
 
 	// The function fflush() forces a write of all user-space buffered data for the given output or update stream via the stream's
