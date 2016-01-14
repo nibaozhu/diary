@@ -24,7 +24,7 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 			memcpy(&id[1], (char *)t->get_rx() + 2 * sizeof (uint32_t), sizeof (uint32_t));
 			id[1] = ntohl(id[1]);
 
-			plog(notice, "<< Transaction(%d) Begin: length = 0x%x, id = {0x%x(0x%x), 0x%x}\n", i, length, id[0], t->get_id(), id[1]);
+			plog(notice, "[+] Transaction(%d) Begin: length = 0x%x, id = {0x%x(0x%x), 0x%x}\n", i, length, id[0], t->get_id(), id[1]);
 		} else {
 			/* Back to wait message. */
 			break;
@@ -84,11 +84,11 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 			break;
 		}
 
-		plog(info, ">> Transaction(%d) Passed.\n", i++);
+		plog(info, "[x] Transaction(%d) Passed.\n", i++);
 	} while (true);
 
 	if (t->get_rp() != 0) {
-		plog(info, "-- Transaction(%d) Cancel! length = 0x%x, t->rp = 0x%lx\n", i, length, t->get_rp());
+		plog(info, "[!] Transaction(%d) Cancel! length = 0x%x, t->rp = 0x%lx\n", i, length, t->get_rp());
 	}
 	return ret;
 }
