@@ -415,7 +415,7 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 					}
 				}
 
-				if (events[n].events & EPOLLHUP) { /* 0x010 */
+				if (!(events[n].events & EPOLLERR) && (events[n].events & EPOLLHUP)) { /* 0x010, Except 0x008 */
 					plog(notice, "Hang up happened on the associated file descriptor = %d.\n", events[n].data.fd);
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
@@ -430,7 +430,7 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 					}
 				}
 
-				if (events[n].events & EPOLLRDHUP) { /* 0x2000 */
+				if (!(events[n].events & EPOLLERR) && (events[n].events & EPOLLRDHUP)) { /* 0x2000, Except 0x008 */
 					plog(notice, "Stream socket peer = %d closed connection, or shut down writing half of connection.\n", events[n].data.fd);
 					ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (ret == -1) {
