@@ -106,42 +106,7 @@ int set_disposition()
 int set_logging(int argc, const char **argv)
 {
 	l = (struct logging*) malloc(sizeof (struct logging));
-	memset(l, 0, sizeof *l);
-
-	char name[FILENAME_MAX];
-	memset(name, 0, sizeof name);
-	strcpy(name, rindex(argv[0], '/'));
-	if (name == NULL)
-	{
-		strncpy(l->name, argv[0], sizeof l->name - 1);
-	}
-	else
-	{
-		strncpy(l->name, name + 1, sizeof l->name - 1);
-	}
-
-	struct timeval t0;
-	// gettimeofday() gives the number of seconds and microseconds since the Epoch (see time(2)).
-	gettimeofday(&t0, NULL);
-
-	// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
-	//	on January 1, 1970, Coordinated Universal Time (UTC).
-	localtime_r(&t0.tv_sec, &l->t0);
-
-	struct tm t2;
-	// YEAR			MONTH			DAY				HOUR			MINUTE			SECOND
-	t2.tm_year = 0; t2.tm_mon = 0; t2.tm_mday = 0; t2.tm_hour = 0; t2.tm_min = 0; t2.tm_sec = 0;
-
-	l->diff = t2.tm_sec + t2.tm_min * 60 + t2.tm_hour * 60 * 60 + t2.tm_mday * 60 * 60 * 24 + t2.tm_mon * 60 * 60 * 24 * 30 + t2.tm_year * 60 * 60 * 24 * 30 * 365;
-	l->pid = getpid();
-	l->cache_max = 0;
-	l->size_max = 1024*1024*10; // 1MB
-	strncpy(l->path, "../../log", sizeof l->path - 1);
-	strncpy(l->mode, "w+", sizeof l->mode - 1);
-	l->stream_level = debug;
-	l->stdout_level = debug;
-
-	int retval = initializing();
+	int retval = initializing(argv[0]);
 	return retval;
 }
 
@@ -169,9 +134,6 @@ int main(int argc, char **argv)
 	{
 		return EXIT_FAILURE;
 	}
-
-	// print the program, pid, release
-	plog(info, "PROGRAM: %s, PID: %u, RELEASE: %s %s\n", l->name, l->pid, __DATE__, __TIME__);
 
 	do {
 		if (argc < 3)
