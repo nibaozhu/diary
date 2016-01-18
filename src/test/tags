@@ -51,7 +51,6 @@ main	test_curl.c	/^int main(int ac, char **av) {$/;"	f
 main	test_digit.c	/^int main(void)$/;"	f
 main	test_gethostbyaddr.c	/^int main(int argc, char **argv) {$/;"	f
 main	test_gnu.c	/^int main(void) {$/;"	f
-main	test_ic.c	/^int main(int argc, char **argv) {$/;"	f
 main	test_list.cc	/^int main(void) {$/;"	f
 main	test_logging.cc	/^int main(int argc, char **argv)$/;"	f
 main	test_map.cc	/^int main(void) {$/;"	f
@@ -60,7 +59,6 @@ main	test_or.c	/^int main(int ac, char **argv) {$/;"	f
 main	test_pthread.c	/^int main() {$/;"	f
 main	test_pthread_with_lock.c	/^int main() {$/;"	f
 main	test_pthread_with_sync.c	/^int main() {$/;"	f
-main	test_random.c	/^int main(int argc, char **argv) {$/;"	f
 main	test_regex.c	/^int main(int argc, char **argv)$/;"	f
 main	test_sizeof.c	/^int main() {$/;"	f
 main	test_sqlite3.c	/^int main(int argc, char **argv)$/;"	f
@@ -72,8 +70,6 @@ main	test_xml2.cc	/^int main(int argc, char **argv) {$/;"	f
 mode	../../include/logging.h	/^	char mode[MODE_MAX]; \/\/ logging file's mode$/;"	m	struct:logging
 mutex	test_pthread_with_lock.c	/^pthread_mutex_t mutex; \/\/ = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 mutex	test_pthread_with_sync.c	/^pthread_mutex_t mutex; \/\/ = PTHREAD_MUTEX_INITIALIZER;$/;"	v
-my_in	test_inout.py	/^my_in = ['how', 'are', 'you']$/;"	v
-my_sorted	test_inout.py	/^my_sorted = sorted(my_in)$/;"	v
 my_write	test_curl.c	/^size_t my_write( void *ptr, size_t size, size_t nmemb, void *stream) {$/;"	f
 name	../../include/logging.h	/^	char name[NAME_MAX]; \/\/ program name$/;"	m	struct:logging
 nconnect	test_client.c	/^int nconnect = 0;$/;"	v
