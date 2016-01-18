@@ -1,0 +1,17 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+CXXFLAGS	Makefile	/^CXXFLAGS=-g$/;"	m
+main	main.cpp	/^int main(int argc, char **argv) {$/;"	f
+root	spider.h	/^	std::string root;$/;"	m	class:spider
+run	spider.h	/^	int run() {$/;"	f	class:spider
+spider	spider.h	/^	spider() {$/;"	f	class:spider
+spider	spider.h	/^class spider {$/;"	c
+task_r	spider.h	/^	int task_r() {$/;"	f	class:spider
+task_w	spider.h	/^	int task_w() {$/;"	f	class:spider
+task_x	spider.h	/^	int task_x() {$/;"	f	class:spider
+urls	spider.h	/^	std::list<std::string> urls;$/;"	m	class:spider
+~spider	spider.h	/^	~spider() {$/;"	f	class:spider
