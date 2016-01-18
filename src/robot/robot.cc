@@ -69,7 +69,7 @@ int usage(const char *argv0)
 void handler(int signum)
 {
 	pflush();
-	plog(notice, "%s: %d: %s signum = %d\n", __FILE__, __LINE__, __func__, signum);
+	plog(notice, "signum = %d\n", signum);
 	if (signum == SIGINT || signum == SIGTERM || signum == SIGSEGV)
 	{
 		quit = 1;
@@ -106,7 +106,18 @@ int set_disposition()
 int set_logging(int argc, const char **argv)
 {
 	l = (struct logging*) malloc(sizeof (struct logging));
-	int retval = initializing(argv[0]);
+
+	char name[PATH_MAX];
+	memset(name, 0, sizeof name);
+
+	const char *ptr = rindex(argv[0], '/');
+	if (ptr == NULL) {
+		strncpy(name, argv[0], sizeof name - 1);
+	} else {
+		strncpy(name, ptr + 1, sizeof name - 1);
+	}
+
+	int retval = initializing(name, "logs");
 	return retval;
 }
 
@@ -153,7 +164,7 @@ int main(int argc, char **argv)
 		int n = 0;
 		while (1)
 		{
-			if (quit == 1)
+			if (quit == 1 || efd == 0)
 			{
 				break;
 			}
@@ -161,7 +172,7 @@ int main(int argc, char **argv)
 			int nfds = epoll_wait(efd, events, MAX_EVENTS, 1000);
 			if (nfds == -1)
 			{
-				plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
+				plog(error, "%s(%d)\n", strerror(errno), errno);
 				// break;
 			}
 
@@ -169,14 +180,14 @@ int main(int argc, char **argv)
 			{
 				if (events[n].events & EPOLLHUP)
 				{
-					plog(error, "%s: %d: %s "
-"Hang up happened on the associated file descriptor."
-					"(events[%d].events = 0x%03x)\n", __FILE__, __LINE__, __func__, n, events[n].events);
+					plog(error, ""
+							"Hang up happened on the associated file descriptor."
+							"(events[%d].events = 0x%03x)\n", n, events[n].events);
 
 					retval = epoll_ctl(efd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (retval == -1)
 					{
-						plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
+						plog(error, "%s(%d)\n", strerror(errno), errno);
 						break;
 					}
 					close(events[n].data.fd);
@@ -186,14 +197,14 @@ int main(int argc, char **argv)
 
 				if (events[n].events & EPOLLERR)
 				{
-					plog(error, "%s: %d: %s "
-"Error condition happened on the associated file descriptor.  epoll_wait(2) will always wait for this event; it is not necessary to set it in events."
-					"(events[%d].events = 0x%03x)\n", __FILE__, __LINE__, __func__, n, events[n].events);
+					plog(error, ""
+							"Error condition happened on the associated file descriptor.  epoll_wait(2) will always wait for this event; it is not necessary to set it in events."
+							"(events[%d].events = 0x%03x)\n", n, events[n].events);
 
 					retval = epoll_ctl(efd, EPOLL_CTL_DEL, events[n].data.fd, &events[n]);
 					if (retval == -1)
 					{
-						plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
+						plog(error, "%s(%d)\n", strerror(errno), errno);
 						break;
 					}
 					close(events[n].data.fd);
@@ -203,9 +214,9 @@ int main(int argc, char **argv)
 
 				if (events[n].events & EPOLLIN)
 				{
-					plog(info, "%s: %d: %s "
-"The associated file is available for read(2) operations."
-					"(events[%d].events = 0x%03x)\n", __FILE__, __LINE__, __func__, n, events[n].events);
+					plog(info, ""
+							"The associated file is available for read(2) operations."
+							"(events[%d].events = 0x%03x)\n", n, events[n].events);
 
 					retval = reads(events[n].data.fd);
 					if (retval < 0)
@@ -218,13 +229,13 @@ int main(int argc, char **argv)
 						close(events[n].data.fd);
 					}
 
-//					do_use_fd();
+					//					do_use_fd();
 				}
 			}
 		}
 	} while (0);
 
-	
+
 	sqlite3_close(db);
 	unset_logging();
 	return retval;
@@ -244,15 +255,16 @@ int reads(int fd)
 		retval = read(fd, buffer, BUFFER_LENGTH);
 		if (retval < 0)
 		{
-			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
+			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		}
-		plog(debug, "pos = %d, read: retval = %u, sum = %d\n---response begin---\n%s\n---response end---\n", pos, retval, pos + retval, buffer); 
+		// plog(debug, "pos = %d, read: retval = %u, sum = %d\n---response begin---\n%s\n---response end---\n", pos, retval, pos + retval, buffer); 
+		plog(info, "pos = %d, read: retval = %u, sum = %d\n---response begin---\n%s\n---response end---\n", pos, retval, pos + retval, "*"); 
 
 		memcpy(content + pos, buffer, retval);
 		pos += retval;
 
-//		char *strstr(const char *haystack, const char *needle);
+		//		char *strstr(const char *haystack, const char *needle);
 		const char *crlf = NULL; // cr: carriage return, lf: line feed
 		char *chunked = NULL;
 		int i_content_length = 0;
@@ -286,26 +298,26 @@ int writes(int fd, const char *uri, const char *host)
 		memset(buffer, 0, sizeof buffer);
 
 		sprintf(buffer,
-/* -http protocol request message header START- */
-"GET %s HTTP/1.1\r\n"
-"User-Agent: None/0.01\r\n"
-"Accept: */*\r\n"
-"Host: %s\r\n"
-"Connection: Keep-Alive\r\n"
-"\r\n"
-/* -http protocol request message header ENDED- */
-		, uri, host);
+				/* -http protocol request message header START- */
+				"GET %s HTTP/1.1\r\n"
+				"User-Agent: None/0.01\r\n"
+				"Accept: */*\r\n"
+				"Host: %s\r\n"
+				"Connection: Keep-Alive\r\n"
+				"\r\n"
+				/* -http protocol request message header ENDED- */
+				, uri, host);
 
 		size_t length = strlen(buffer);
 		retval = write(fd, buffer, length);
 		if (retval < 0)
 		{
-			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
+			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 		plog(notice, "\n---request begin---\n"
-"%s\n"
-		"---request end---\n", buffer);
+				"%s\n"
+				"---request end---\n", buffer);
 	} while (0);
 	return retval;
 }
@@ -318,14 +330,14 @@ int setnonblocking(int fd)
 		if (flags == -1)
 		{
 			retval = flags;
-			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
+			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 		flags |= O_NONBLOCK; //non block
 		retval = fcntl(fd, F_SETFL, flags);
 		if (retval == -1)
 		{
-			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
+			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 	} while (0);
@@ -352,19 +364,17 @@ int do_use_fd(const char *uri, const char *host)
 
 int search_url(const char *url, const char *string, int length)
 {
-	plog(debug, "%s: %d: %s <%s>\n|||%s|||\n", __FILE__, __LINE__, __func__, url, string);
+	plog(debug, "%s|||%s|||\n", url, "***");
 
 	regex_t preg;
 	const char *regex = 
-"http://\\([a-z0-9-]\\+\\.\\)\\+[a-z0-9]\\+\\(:[0-9]\\+\\)\\?\\(/[a-z0-9\\.]\\+\\)*\\(/\\)\\?" // url
-; 
+		"<a[^<]\\+</a>"
+		; 
 
 	regex_t preg2;
 	const char *regex2 = 
-//"<title>[^<]\\+</title>"	// title
-"<a>[^<]\\+</a>"	// 
-// "\\<title=\"[^\"]\\+\""	// title="xxx"
-; 
+		"<title>[^<]\\+</title>"	// title
+		; 
 
 	int cflags = REG_ICASE;
 
@@ -389,7 +399,7 @@ int search_url(const char *url, const char *string, int length)
 		return 1;
 	}
 
-//	const char *string = "how are you? yes. http://www9.sina.com.cn:80/news/index.html hi, very good.\n";
+	//	const char *string = "how are you? yes. http://www9.sina.com.cn:80/news/index.html hi, very good.\n";
 	regmatch_t pmatch[1];
 	size_t nmatch = 1;
 	int eflags = REG_NOTBOL;
@@ -404,7 +414,6 @@ int search_url(const char *url, const char *string, int length)
 		{
 			memset(title, 0, sizeof title);
 			memcpy(title, string + pmatch[0].rm_so, pmatch[0].rm_eo - pmatch[0].rm_so);
-			plog(notice, "|||%s|||\n", title);
 			insert_it(url, title);
 		}
 
@@ -421,24 +430,27 @@ int search_url(const char *url, const char *string, int length)
 			char sub_url[1024];
 			memset(sub_url, 0, sizeof sub_url);
 			memcpy(sub_url, string + pmatch[0].rm_so, pmatch[0].rm_eo - pmatch[0].rm_so);
-			plog(notice, "|||%s|||\n", sub_url);
 
 			do {
-			if (strstr(sub_url, ".js")) { break; }
-			if (strstr(sub_url, ".png")) { break; }
-			if (strstr(sub_url, ".jpg")) { break; }
-			if (strstr(sub_url, ".css")) { break; }
-			if (strstr(sub_url, ".ico")) { break; }
-			if (strstr(sub_url, "img")) { break; }
-			if (strstr(sub_url, "cgi")) { break; }
-			if (strstr(sub_url, "gif")) { break; }
-			if (strstr(sub_url, "action.do")) { break; }
-			if (strstr(sub_url, ".php")) { break; }
-			if (strstr(sub_url, ".asp")) { break; }
-			if (strstr(sub_url, ".jsp")) { break; }
-			if (strstr(sub_url, "sta")) { break; }
-			if (strstr(sub_url, "ccnt")) { break; }
-			let_us_go_this_new_url(sub_url);
+				if (strstr(sub_url, ".js")) { break; }
+				if (strstr(sub_url, ".png")) { break; }
+				if (strstr(sub_url, ".jpg")) { break; }
+				if (strstr(sub_url, ".css")) { break; }
+				if (strstr(sub_url, ".ico")) { break; }
+				if (strstr(sub_url, "img")) { break; }
+				if (strstr(sub_url, "cgi")) { break; }
+				if (strstr(sub_url, "gif")) { break; }
+				if (strstr(sub_url, "action.do")) { break; }
+				if (strstr(sub_url, ".php")) { break; }
+				if (strstr(sub_url, ".asp")) { break; }
+				if (strstr(sub_url, ".jsp")) { break; }
+				if (strstr(sub_url, "sta")) { break; }
+				if (strstr(sub_url, "ccnt")) { break; }
+				if (strstr(sub_url, ".svg")) { break; }
+				// let_us_go_this_new_url(sub_url);
+				if (strstr(sub_url, ".html")) { plog(notice, "|||wawawa, sub_url=%s|||\n", sub_url); let_us_go_this_new_url(sub_url); break; }
+				if (strstr(sub_url + strlen(sub_url) - 1, "/")) { plog(notice, "|||wawawa, sub_url=%s|||\n", sub_url); let_us_go_this_new_url(sub_url); break; }
+				
 			} while (0);
 		}
 
@@ -457,7 +469,7 @@ int search_url(const char *url, const char *string, int length)
 
 int parsing_http_protocol_response(const char *content, int length, char **chunked, int *i_content_length)
 {
-//	char *strstr(const char *haystack, const char *needle);
+	//	char *strstr(const char *haystack, const char *needle);
 	char string[1024];
 	memset(string, 0, sizeof string);
 	if (length >= 1024)
@@ -467,7 +479,7 @@ int parsing_http_protocol_response(const char *content, int length, char **chunk
 
 	memcpy(string, content, length);
 
-//	HTTP/1.1 400
+	//	HTTP/1.1 400
 	const char *return_code = strstr(string, "HTTP/1.1 200");
 	if (return_code == NULL)
 	{
@@ -534,7 +546,7 @@ int decoding_chunked_content(const char *content_body, int length, char *end_of_
 
 int initializing_sqlite3(const char *argv2)
 {
-//	sqlite3 *db;
+	//	sqlite3 *db;
 	char filename[PATH_MAX];
 	int retval = 0;
 
@@ -568,6 +580,9 @@ int insert_it(const char *url, const char *title)
 {
 	char sql[1024];
 	memset(sql, 0, sizeof sql);
+
+	plog(notice, "insert into |||url=%s, title=%s|||\n", url, title);
+
 	snprintf(sql, sizeof sql, "insert into t1(url, title) values('%s', '%s')", url, title);
 	int retval = 0;
 	char *errmsg = NULL;
@@ -597,18 +612,16 @@ int callback(void *NotUsed, int argc, char **argv, char **colname)
 
 int let_us_go_this_new_url(const char *url)
 {
-	plog(notice, "%s: %d: %s %s\n", __FILE__, __LINE__, __func__, url);
-	
-
+	plog(notice, "|||url=%s|||\n", url);
 	do {
 		///////////////////////////////////////////////
 		int fd = socket(AF_INET, SOCK_STREAM, 0);
 		if (fd < 0)
 		{
-			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
+			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
-    	}
-	
+		}
+
 		///////////////
 		const char *uri = NULL;
 		char host[1024];
@@ -618,7 +631,7 @@ int let_us_go_this_new_url(const char *url)
 		{
 			uri = "/";
 			snprintf(host, sizeof host, "%s", &url[7]);
-    	}
+		}
 		else
 		{
 			snprintf(host, sizeof host, "%s", &url[7]);
@@ -627,55 +640,55 @@ int let_us_go_this_new_url(const char *url)
 		}
 
 		///////////////
-	
+
 		struct sockaddr_in addr;
 		struct sockaddr_in local;
-    	memset(&addr, 0, sizeof (struct sockaddr_in));
-	
+		memset(&addr, 0, sizeof (struct sockaddr_in));
+
 		addr.sin_family = AF_INET;
-    	addr.sin_port = htons(80);
-	
+		addr.sin_port = htons(80);
+
 		struct hostent *ht;
 		ht = gethostbyname(host);
 		if (ht == NULL)
 		{
-			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, hstrerror(h_errno), h_errno);
+			plog(error, "%s(%d)\n", hstrerror(h_errno), h_errno);
 			break;
-    	}
-	
+		}
+
 		char temp_addr[1024] = {0};
 		socklen_t slt = sizeof temp_addr;
-    	char *ri;
-	
+		char *ri;
+
 		// On success, inet_ntop() returns a non-null pointer to dst.  NULL is returned if there was an error, with errno set to indicate the error.
 		inet_ntop(AF_INET, (void *)*(ht->h_addr_list), temp_addr, slt);
 		if (temp_addr == NULL)
 		{
-			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
+			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
-    	}
-	
+		}
+
 		int retval = 0;
 		retval = inet_pton(AF_INET, temp_addr, (struct sockaddr *) &addr.sin_addr.s_addr);
 		if (retval == 0)
 		{
-		plog(error, "%s: %d: %s %s\n", __FILE__, __LINE__, __func__, 
-"0 is returned if src does not contain a character string representing a valid network address in the specified address family."
-			);
+			plog(error, "%s\n", 
+					"0 is returned if src does not contain a character string representing a valid network address in the specified address family."
+			    );
 			break;
 		}
 		else if (retval == -1)
 		{
-			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
+			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 
 		socklen_t addrlen = sizeof (struct sockaddr_in);
-		usleep(1000);
+		usleep(100000);
 		retval = connect(fd, (struct sockaddr *) &addr, addrlen);
 		if (retval == -1)
 		{
-			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
+			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 
@@ -687,7 +700,7 @@ int let_us_go_this_new_url(const char *url)
 		retval = getsockname(fd, (struct sockaddr *) &local, &locallen);
 		if (retval == -1)
 		{
-			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
+			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 
@@ -695,7 +708,7 @@ int let_us_go_this_new_url(const char *url)
 		memset(local_ip, 0, sizeof local_ip);
 		if (inet_ntop(AF_INET, (void*) &local.sin_addr.s_addr, local_ip, locallen) == NULL)
 		{
-			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
+			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 
@@ -705,7 +718,7 @@ int let_us_go_this_new_url(const char *url)
 		retval = gethostname(hostname, len);
 		if (retval == -1)
 		{
-			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
+			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 
@@ -719,12 +732,13 @@ int let_us_go_this_new_url(const char *url)
 		}
 
 		if (efd == 0) {
-		efd = epoll_create(MAX_EVENTS);
-		if (efd == -1)
-		{
-			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
-			break;
-		} }
+			efd = epoll_create(MAX_EVENTS);
+			if (efd == -1)
+			{
+				plog(error, "%s(%d)\n", strerror(errno), errno);
+				break;
+			}
+		}
 
 		ev.events = EPOLLIN | EPOLLET; //epoll edge triggered
 		//      ev.events = EPOLLIN | EPOLLOUT | EPOLLET; // epoll edge triggered
@@ -733,14 +747,13 @@ int let_us_go_this_new_url(const char *url)
 		retval = epoll_ctl(efd, EPOLL_CTL_ADD, fd, &ev);
 		if (retval == -1)
 		{
-			plog(error, "%s: %d: %s %s(%d)\n", __FILE__, __LINE__, __func__, strerror(errno), errno);
+			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 
 		do_use_fd(uri, host);
-	///////////////////////////////////////////////
+		///////////////////////////////////////////////
 	} while (0);
-
 	return 0;
 }
 
