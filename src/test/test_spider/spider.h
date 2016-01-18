@@ -67,6 +67,10 @@ class page {
 
 			this->content = ::content;
 			std::clog << this->content << std::endl;
+
+			regex_content();
+
+
 			::content = "";
 			return 0;
 		}
