@@ -11,6 +11,7 @@ void f1(const std::string &s1, std::string &s2)
 
 int main()
 {
+#if 0
 	const int i0 = 0;
 	int const i1 = 1;
 	const int * i2 = &i1;
@@ -18,7 +19,6 @@ int main()
 	int const * i4 const = const_cast<const int*>(&i1);
 	const volatile i5 = 5;
 
-#if 0
 	std::string s1("hello");
 	std::string s2;
 	f1(s1, s2);

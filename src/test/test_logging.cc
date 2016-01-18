@@ -94,13 +94,13 @@ int main(int argc, char **argv)
 	t2.tm_min = 0;
 	t2.tm_sec = 5;
 
-	time_t diff = t2.tm_sec + t2.tm_min * 60 + t2.tm_hour * 60 * 60 + t2.tm_mday * 60 * 60 * 24 + t2.tm_mon * 60 * 60 * 24 * 30 + t2.tm_year * 60 * 60 * 24 * 30 * 365;
-	unsigned int cache_max = 1;
-	unsigned long size_max = 1024 * 1024;
-	const char path[PATH_MAX] = "../../log";
-	const char *mode = "w+";
-	enum elevel stream_level = debug;
-	enum elevel stdout_level = debug;
+	// time_t diff = t2.tm_sec + t2.tm_min * 60 + t2.tm_hour * 60 * 60 + t2.tm_mday * 60 * 60 * 24 + t2.tm_mon * 60 * 60 * 24 * 30 + t2.tm_year * 60 * 60 * 24 * 30 * 365;
+	// unsigned int cache_max = 1;
+	// unsigned long size_max = 1024 * 1024;
+	// const char path[PATH_MAX] = "../../log";
+	// const char *mode = "w+";
+	// enum elevel stream_level = debug;
+	// enum elevel stdout_level = debug;
 
 	// retval = initializing(name, path, mode, stream_level, stdout_level, diff, cache_max, size_max);
 	retval = initializing(name);
