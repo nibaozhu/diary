@@ -13,6 +13,23 @@
 #include <stdlib.h>
 #include <curl/curl.h>
 
+
+
+
+#include <stdio.h>
+#include <sys/types.h>
+#include <regex.h>
+#include <string.h>
+
+#include <iostream>
+#include <string>
+#include <list>
+#include <algorithm>
+
+
+int regex_content(const char * regex, const char * string1, std::list<std::string> &urls);
+
+
 extern std::string content;
 size_t my_write(void *ptr, size_t size, size_t nmemb, void *stream);
 
@@ -24,6 +41,20 @@ class page {
 		std::string title;
 
 		std::string content;
+		std::list<std::string> urls;
+
+		page() {}
+		page(std::string url) {
+			this->url = url;
+		}
+
+		bool operator< (const page &p0) {
+			return this->url < p0.url;
+		}
+
+		bool operator== (const page &p0) {
+			return this->url == p0.url;
+		}
 
 		int i_want_to_get_this_content() {
 
@@ -43,6 +74,14 @@ class page {
 				return errornum;
 			}
 
+
+			option = CURLOPT_CONNECTTIMEOUT;
+			errornum = curl_easy_setopt(handle, option, 1);
+			if (errornum != CURLE_OK) {
+				puts(curl_easy_strerror(errornum));
+				return errornum;
+			}
+
 			option = CURLOPT_ENCODING;
 			errornum = curl_easy_setopt(handle, option, "deflate,gzip");
 			if (errornum != CURLE_OK) {
@@ -57,6 +96,7 @@ class page {
 				return errornum;
 			}
 
+
 			errornum = curl_easy_perform(handle);
 			if (errornum != CURLE_OK) {
 				puts(curl_easy_strerror(errornum));
@@ -66,16 +106,16 @@ class page {
 			curl_easy_cleanup(handle);
 
 			this->content = ::content;
-			std::clog << this->content << std::endl;
 
-			regex_content();
-
+			std::string regex = "http://\\([a-z0-9:@-]\\+\\.\\)\\+[a-z0-9:@-]\\+\\(:[0-9]\\+\\)\\?\\(/[a-z0-9\\.\\?=&@-]\\+\\)*\\(/\\)\\?";
+			regex_content(regex.c_str(), this->content.c_str(), urls);
 
 			::content = "";
 			return 0;
 		}
 
 };
+
 
 class spider {
 	public:
@@ -93,67 +133,49 @@ class spider {
 		int run() {
 
 			do {
-				this->task_r();
-				this->task_x();
-				this->task_w();
-
-				sleep(1);
+				this->doing();
 			} while (true);
 
 			int ret = 0;
 			return ret;
 		}
 
-		int task_r() {
+		int doing() {
 			std::clog << ": " << __func__<< std::endl;
 
-			std::list<page>::iterator i = urls.begin();
-			while (i != urls.end()) {
+			std::list<page>::iterator i = this->urls.begin();
+
+			std::clog << "before this->urls.size = " << this->urls.size() << std::endl;
+
+			while (i != this->urls.end()) {
 				page p = *i;
-				std::clog << ": " << p.url << std::endl;
+				std::clog << p.url << std::endl;
 				this->get_page(p);
 
+				std::list<std::string>::iterator iu = p.urls.begin();
+				while (iu != p.urls.end()) {
+					std::string s1 = *iu;
+					page pi(s1);
+					this->urls.push_front(pi);
+					iu++;
+				}
 				i++;
 			}
 
+			this->urls.sort();
+			this->urls.unique();
 
-			int ret = 0;
-			return ret;
-		}
-
-		int task_x() {
-			std::clog << ": " << __func__<< std::endl;
-
-			std::list<page>::iterator i = urls.begin();
-			while (i != urls.end()) {
+			for (i = this->urls.begin(); i != this->urls.end(); i++) {
 				page p = *i;
-				std::clog << ": " << p.url << std::endl;
-
-				i++;
+				std::clog << p.url << std::endl;
 			}
 
-
+			std::clog << "after  this->urls.size = " << this->urls.size() << std::endl;
 			int ret = 0;
 			return ret;
 		}
 
-		int task_w() {
-			std::clog << ": " << __func__<< std::endl;
-
-			std::list<page>::iterator i = urls.begin();
-			while (i != urls.end()) {
-				page p = *i;
-				std::clog << ": " << p.url << std::endl;
-
-				i++;
-			}
-
-
-			int ret = 0;
-			return ret;
-		}
-
-		int get_page(page p) {
+		int get_page(page &p) {
 
 			p.i_want_to_get_this_content();
 

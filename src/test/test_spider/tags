@@ -5,13 +5,27 @@
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
 CXXFLAGS	Makefile	/^CXXFLAGS=-g$/;"	m
+LDFLAGS	Makefile	/^LDFLAGS=-lcurl$/;"	m
+_SPIDER_H_	spider.h	2;"	d
+content	spider.cpp	/^std::string content;$/;"	v
+content	spider.h	/^		std::string content;$/;"	m	class:page
+doing	spider.h	/^		int doing() {$/;"	f	class:spider
+get_page	spider.h	/^		int get_page(page &p) {$/;"	f	class:spider
+host	spider.h	/^		std::string host;$/;"	m	class:page
+i_want_to_get_this_content	spider.h	/^		int i_want_to_get_this_content() {$/;"	f	class:page
+ip	spider.h	/^		std::string ip;$/;"	m	class:page
 main	main.cpp	/^int main(int argc, char **argv) {$/;"	f
-root	spider.h	/^	std::string root;$/;"	m	class:spider
-run	spider.h	/^	int run() {$/;"	f	class:spider
-spider	spider.h	/^	spider() {$/;"	f	class:spider
+my_write	spider.cpp	/^size_t my_write(void *ptr, size_t size, size_t nmemb, void *stream) {$/;"	f
+page	spider.h	/^		page() {}$/;"	f	class:page
+page	spider.h	/^		page(std::string url) {$/;"	f	class:page
+page	spider.h	/^class page {$/;"	c
+regex_content	spider.cpp	/^int regex_content(const char * regex, const char * string1, std::list<std::string> &urls) {$/;"	f
+root	spider.h	/^		page root;$/;"	m	class:spider
+run	spider.h	/^		int run() {$/;"	f	class:spider
+spider	spider.h	/^		spider(std::string root_url) {$/;"	f	class:spider
 spider	spider.h	/^class spider {$/;"	c
-task_r	spider.h	/^	int task_r() {$/;"	f	class:spider
-task_w	spider.h	/^	int task_w() {$/;"	f	class:spider
-task_x	spider.h	/^	int task_x() {$/;"	f	class:spider
-urls	spider.h	/^	std::list<std::string> urls;$/;"	m	class:spider
-~spider	spider.h	/^	~spider() {$/;"	f	class:spider
+title	spider.h	/^		std::string title;$/;"	m	class:page
+url	spider.h	/^		std::string url;$/;"	m	class:page
+urls	spider.h	/^		std::list<page> urls;$/;"	m	class:spider
+urls	spider.h	/^		std::list<std::string> urls;$/;"	m	class:page
+~spider	spider.h	/^		~spider() {$/;"	f	class:spider
