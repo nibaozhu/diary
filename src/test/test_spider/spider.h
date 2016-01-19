@@ -42,9 +42,11 @@ class page {
 
 		std::string content;
 		std::list<std::string> urls;
+		bool flag;
 
-		page() { ; }
+		page() { flag = false; }
 		page(std::string url) {
+			flag = false;
 			this->url = url;
 		}
 
@@ -57,6 +59,12 @@ class page {
 		}
 
 		int i_want_to_get_this_content() {
+
+			if (this->flag) {
+				return 0;
+			}
+
+			flag = true;
 
 			CURL *handle;
 			CURLcode errornum;
