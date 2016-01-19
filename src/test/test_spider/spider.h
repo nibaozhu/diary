@@ -43,7 +43,7 @@ class page {
 		std::string content;
 		std::list<std::string> urls;
 
-		page() {}
+		page() { ; }
 		page(std::string url) {
 			this->url = url;
 		}
@@ -70,36 +70,42 @@ class page {
 
 			errornum = curl_easy_setopt(handle, option, parameter);
 			if (errornum != CURLE_OK) {
-				puts(curl_easy_strerror(errornum));
+				std::clog << curl_easy_strerror(errornum) << std::endl;
 				return errornum;
 			}
 
+			option = CURLOPT_TIMEOUT;
+			errornum = curl_easy_setopt(handle, option, 1);
+			if (errornum != CURLE_OK) {
+				std::clog << curl_easy_strerror(errornum) << std::endl;
+				return errornum;
+			}
 
 			option = CURLOPT_CONNECTTIMEOUT;
 			errornum = curl_easy_setopt(handle, option, 1);
 			if (errornum != CURLE_OK) {
-				puts(curl_easy_strerror(errornum));
+				std::clog << curl_easy_strerror(errornum) << std::endl;
 				return errornum;
 			}
 
 			option = CURLOPT_ENCODING;
 			errornum = curl_easy_setopt(handle, option, "deflate,gzip");
 			if (errornum != CURLE_OK) {
-				puts(curl_easy_strerror(errornum));
+				std::clog << curl_easy_strerror(errornum) << std::endl;
 				return errornum;
 			}
 
 			option = CURLOPT_WRITEFUNCTION;
 			errornum = curl_easy_setopt(handle, option, &my_write);
 			if (errornum != CURLE_OK) {
-				puts(curl_easy_strerror(errornum));
+				std::clog << curl_easy_strerror(errornum) << std::endl;
 				return errornum;
 			}
 
-
+			std::clog << "GET " << this->url.c_str() << std::endl;
 			errornum = curl_easy_perform(handle);
 			if (errornum != CURLE_OK) {
-				puts(curl_easy_strerror(errornum));
+				std::clog << this->url.c_str() << curl_easy_strerror(errornum) << std::endl;
 				return errornum;
 			}
 
@@ -108,7 +114,8 @@ class page {
 			this->content = ::content;
 
 			std::string regex = "http://\\([a-z0-9:@-]\\+\\.\\)\\+[a-z0-9:@-]\\+\\(:[0-9]\\+\\)\\?\\(/[a-z0-9\\.\\?=&@-]\\+\\)*\\(/\\)\\?";
-			regex_content(regex.c_str(), this->content.c_str(), urls);
+			regex_content(regex.c_str(), this->content.c_str(), this->urls);
+			std::clog << "URLS " << this->urls.size() << std::endl;
 
 			::content = "";
 			return 0;
@@ -149,8 +156,10 @@ class spider {
 
 			while (i != this->urls.end()) {
 				page p = *i;
-				std::clog << p.url << std::endl;
 				this->get_page(p);
+
+				p.urls.sort();
+				p.urls.unique();
 
 				std::list<std::string>::iterator iu = p.urls.begin();
 				while (iu != p.urls.end()) {
