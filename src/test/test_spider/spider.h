@@ -45,9 +45,9 @@ class page {
 		bool flag;
 
 		page() { flag = false; }
-		page(std::string url) {
-			flag = false;
+		page(std::string url, bool flag = false) {
 			this->url = url;
+			this->flag = flag;
 		}
 
 		bool operator< (const page &p0) {
@@ -61,6 +61,7 @@ class page {
 		int i_want_to_get_this_content() {
 
 			if (this->flag) {
+//				std::clog << "flag ======================= " << this->flag << std::endl;
 				return 0;
 			}
 
@@ -113,7 +114,7 @@ class page {
 			std::clog << "GET " << this->url.c_str() << std::endl;
 			errornum = curl_easy_perform(handle);
 			if (errornum != CURLE_OK) {
-				std::clog << this->url.c_str() << curl_easy_strerror(errornum) << std::endl;
+				std::clog << curl_easy_strerror(errornum) << std::endl;
 				return errornum;
 			}
 
@@ -123,7 +124,7 @@ class page {
 
 			std::string regex = "http://\\([a-z0-9:@-]\\+\\.\\)\\+[a-z0-9:@-]\\+\\(:[0-9]\\+\\)\\?\\(/[a-z0-9\\.\\?=&@-]\\+\\)*\\(/\\)\\?";
 			regex_content(regex.c_str(), this->content.c_str(), this->urls);
-			std::clog << "URLS " << this->urls.size() << std::endl;
+			std::clog << "URLS: " << this->urls.size() << std::endl;
 
 			::content = "";
 			return 0;
@@ -172,13 +173,19 @@ class spider {
 				std::list<std::string>::iterator iu = p.urls.begin();
 				while (iu != p.urls.end()) {
 					std::string s1 = *iu;
-					page pi(s1);
+					bool flag = false;
+					if (s1 == p.url) {
+						flag = true;
+					}
+
+					page pi(s1, flag);
 					this->urls.push_front(pi);
 					iu++;
 				}
 				i++;
 			}
 
+			std::reverse(this->urls.begin(), this->urls.end());
 			this->urls.sort();
 			this->urls.unique();
 
