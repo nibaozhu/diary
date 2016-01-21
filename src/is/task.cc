@@ -13,7 +13,6 @@ struct sockaddr_in addr;
 
 extern char *optarg;
 extern int optind, opterr, optopt;
-extern struct logging *l;
 bool quit;
 bool is_reconfigure;
 short int port = 12340;
@@ -183,20 +182,7 @@ int init(int argc, char **argv) {
 			}
 		}
 
-		l = (struct logging*) malloc(sizeof (struct logging));
-		memset(l, 0, sizeof *l);
-
-		char name[PATH_MAX];
-		memset(name, 0, sizeof name);
-
-		const char *ptr = rindex(argv[0], '/');
-		if (ptr == NULL) {
-			strncpy(name, argv[0], sizeof name - 1);
-		} else {
-			strncpy(name, ptr + 1, sizeof name - 1);
-		}
-
-		ret = initializing(name, "logdir", "w+", debug, debug, 1, 1, 1024*1024);
+		ret = initializing(argv[0], "logdir", "w+", debug, debug, 1, 1, 1024*1024);
 		if (ret == -1) {
 			break;
 		}
@@ -296,7 +282,6 @@ int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 		}
 
 		ret = uninitialized();
-		free(l);
 	} while (false);
 	return ret;
 }
