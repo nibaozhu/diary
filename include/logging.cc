@@ -259,17 +259,25 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 
 int initializing(const char *name, const char *path, const char *mode, enum elevel stream_level, enum elevel stdout_level, time_t diff, unsigned int cache_max, unsigned long size_max)
 {
-	assert(l != NULL);
+	if (l == NULL) {
+		l = (struct logging*)malloc(sizeof (struct logging));
+	}
 #ifdef DEBUG_LOGGING
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l = %p\n",
 			color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l);
 #endif
 
+	const char *ptr = rindex(name, '/');
+	if (ptr == NULL) {
+		strncpy(l->name, name, strlen(name));
+	} else {
+		strncpy(l->name, ptr + 1, sizeof name - 1);
+	}
+
 	l->pid = getpid();
 	l->diff = diff;
 	l->cache_max = cache_max;
 	l->size_max = size_max;
-	strncpy(l->name, name, strlen(name));
 	strncpy(l->path, path, strlen(path));
 	strncpy(l->mode, mode, strlen(mode));
 	l->stream_level = stream_level;
@@ -392,6 +400,8 @@ int uninitialized()
 #ifdef DEBUG_LOGGING
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s\n", color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "passed");
 #endif
+	free(l);
+	l = NULL;
 	return 0;
 }
 
