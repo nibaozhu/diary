@@ -132,7 +132,7 @@ class Transport {
 
 		void *set_rx(void *rx, size_t rs) {
 			while (rs >= this->rs - this->rp) {
-				plog(debug, "{rx = %p, rp = 0x%lx, rs = 0x%lx}, {0x%lx}\n", this->rx, this->rp, this->rs, rs);
+				plog(debug, "realloc {rx = %p, rp = 0x%lx, rs = 0x%lx}, {0x%lx}\n", this->rx, this->rp, this->rs, rs);
 				assert(this->rs > 0);
 				void *tx = realloc(this->rx, this->rs << 1);
 				if (tx == NULL) {
@@ -173,7 +173,7 @@ class Transport {
 
 		void *set_wx(void *wx, size_t ws) {
 			while (ws >= this->ws - this->wp) {
-				plog(debug, "{wx = %p, wp = 0x%lx, ws = 0x%lx}, {0x%lx}\n", this->wx, this->wp, this->ws, ws);
+				plog(debug, "realloc {wx = %p, wp = 0x%lx, ws = 0x%lx}, {0x%lx}\n", this->wx, this->wp, this->ws, ws);
 				assert(this->ws > 0);
 				void *tx = realloc(this->wx, this->ws << 1);
 				if (tx == NULL) {

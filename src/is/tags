@@ -123,7 +123,7 @@ task	task.cc	/^int task(int argc, char **argv) {$/;"	f
 task_r	task.cc	/^void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m) {$/;"	f
 task_w	task.cc	/^void task_w(std::list<Transport*> *w) {$/;"	f
 task_x	task.cc	/^void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *__m) {$/;"	f
-uninit	task.cc	/^int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *inferface) {$/;"	f
+uninit	task.cc	/^int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *__m) {$/;"	f
 uninitialized	../../include/logging.cc	/^int uninitialized()$/;"	f
 updated	transport.h	/^		time_t updated; \/* the lastest communication time *\/$/;"	m	class:Transport
 version	version.h	/^const char *version = "1.0-unstable";$/;"	v

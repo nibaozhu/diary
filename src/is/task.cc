@@ -44,8 +44,13 @@ int reads(Transport* t) {
 	void *buffer = malloc(BUFFER_MAX + 1);
 	size_t rl = 0;
 	time_t t0 = 0, t1 = 0;
+	struct timeval tv0, tv1;
 	double speed = 0;
+
+	/* Begin Time */
 	t0 = time(NULL);
+	gettimeofday(&tv0, NULL);
+
 	do {
 		memset(buffer, 0, BUFFER_MAX + 1);
 		ret = read(t->get_fd(), buffer, BUFFER_MAX);
@@ -63,12 +68,16 @@ int reads(Transport* t) {
 			}
 		}
 	} while (true);
+
+	/* End Time */
 	t1 = time(NULL);
-	if (t1 <= t0) {
+	gettimeofday(&tv1, NULL);
+
+	if (t1 <= t0 && tv1.tv_usec <= tv0.tv_usec) {
 		speed = -1;
 	} else {
-		speed = rl * 1. / ((t1 - t0) * 1024 * 1024);
-		plog(notice, "speed: %0.2f M/s\n", t->set_speed(speed));
+		speed = rl * 1000000. / (((t1 - t0) * 1000000.0 + (tv1.tv_usec - tv0.tv_usec)) * 1024 * 1024);
+		plog(notice, "speed: %0.2f MB/s\n", t->set_speed(speed));
 	}
 	free(buffer);
 
@@ -246,7 +255,7 @@ int init(int argc, char **argv) {
 	return ret;
 }
 
-int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *inferface) {
+int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *__m) {
 	int ret = 0;
 	do {
 		r->clear();
@@ -255,15 +264,27 @@ int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 		w->clear();
 		delete w;
 
-		std::map<int, Transport*>::iterator i = m->begin();
-		while (i != m->end()) {
-			delete i->second;
-			m->erase(i++);
+		std::map<int, Transport*>::iterator im = m->begin();
+		while (im != m->end()) {
+			Transport* t = im->second;
+			if (!t->get_alive()) {
+				int ret = 0;
+				plog(info, "Close()  closes a file descriptor = %d(%p), so that it no longer refers to any file and may be reused.\n", im->first, im->second);
+				ret = close(t->get_fd());
+				if (ret == -1) {
+					plog(warning, "%s(%d)\n", strerror(errno), errno);
+				}
+			}
+
+			__m->erase(t->get_id());
+			delete t;
+			m->erase(im++);
 		}
+		m->clear();
 		delete m;
 
-		inferface->clear();
-		delete inferface;
+		__m->clear();
+		delete __m;
 
 		if (listen_sock > 0) {
 			plog(info, "Close passive file = %d.\n", listen_sock);
