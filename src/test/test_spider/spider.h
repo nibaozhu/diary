@@ -26,7 +26,14 @@
 #include <list>
 #include <algorithm>
 
+#include <csignal>
 
+#include "logging.h"
+
+extern bool quit;
+
+int set_disposition();
+void handler(int signum);
 int regex_content(const char * regex, const char * string1, std::list<std::string> &urls);
 
 
@@ -61,7 +68,6 @@ class page {
 		int i_want_to_get_this_content() {
 
 			if (this->flag) {
-//				std::clog << "flag ======================= " << this->flag << std::endl;
 				return 0;
 			}
 
@@ -79,42 +85,42 @@ class page {
 
 			errornum = curl_easy_setopt(handle, option, parameter);
 			if (errornum != CURLE_OK) {
-				std::clog << curl_easy_strerror(errornum) << std::endl;
+				plog(error, "%s(%d)\n", curl_easy_strerror(errornum), errornum);
 				return errornum;
 			}
 
 			option = CURLOPT_TIMEOUT;
 			errornum = curl_easy_setopt(handle, option, 1);
 			if (errornum != CURLE_OK) {
-				std::clog << curl_easy_strerror(errornum) << std::endl;
+				plog(error, "%s(%d)\n", curl_easy_strerror(errornum), errornum);
 				return errornum;
 			}
 
 			option = CURLOPT_CONNECTTIMEOUT;
 			errornum = curl_easy_setopt(handle, option, 1);
 			if (errornum != CURLE_OK) {
-				std::clog << curl_easy_strerror(errornum) << std::endl;
+				plog(error, "%s(%d)\n", curl_easy_strerror(errornum), errornum);
 				return errornum;
 			}
 
 			option = CURLOPT_ENCODING;
 			errornum = curl_easy_setopt(handle, option, "deflate,gzip");
 			if (errornum != CURLE_OK) {
-				std::clog << curl_easy_strerror(errornum) << std::endl;
+				plog(error, "%s(%d)\n", curl_easy_strerror(errornum), errornum);
 				return errornum;
 			}
 
 			option = CURLOPT_WRITEFUNCTION;
 			errornum = curl_easy_setopt(handle, option, &my_write);
 			if (errornum != CURLE_OK) {
-				std::clog << curl_easy_strerror(errornum) << std::endl;
+				plog(error, "%s(%d)\n", curl_easy_strerror(errornum), errornum);
 				return errornum;
 			}
 
-			std::clog << "GET " << this->url.c_str() << std::endl;
+			plog(notice, "GET %s\n", this->url.c_str());
 			errornum = curl_easy_perform(handle);
 			if (errornum != CURLE_OK) {
-				std::clog << curl_easy_strerror(errornum) << std::endl;
+				plog(error, "%s(%d)\n", curl_easy_strerror(errornum), errornum);
 				return errornum;
 			}
 
@@ -124,9 +130,9 @@ class page {
 
 			std::string regex = "http://\\([a-z0-9:@-]\\+\\.\\)\\+[a-z0-9:@-]\\+\\(:[0-9]\\+\\)\\?\\(/[a-z0-9\\.\\?=&@-]\\+\\)*\\(/\\)\\?";
 			regex_content(regex.c_str(), this->content.c_str(), this->urls);
-			std::clog << "URLS: " << this->urls.size() << std::endl;
+			plog(notice, "this->urls.size() = %d\n", this->urls.size());
 
-			::content = "";
+			::content.clear();
 			return 0;
 		}
 
@@ -139,9 +145,9 @@ class spider {
 		std::list<page> urls;
 
 		spider(std::string root_url) {
-			std::clog << "Construct: " << __func__<< std::endl;
+			plog(debug, "Construct: %s\n", __func__);
 			this->root.url = root_url;
-			std::clog << "this->root.url = " << this->root.url << std::endl;
+			plog(debug, "this->root.url = %s\n", this->root.url.c_str());
 
 			urls.push_back(this->root);
 		}
@@ -150,20 +156,27 @@ class spider {
 
 			do {
 				this->doing();
-			} while (true);
+			} while (!quit);
 
+			std::list<page>::iterator i = this->urls.begin();
+			for (i = this->urls.begin(); i != this->urls.end(); i++) {
+				page p = *i;
+				plog(notice, "|%s|\n", p.url.c_str());
+			}
+
+			plog(notice, "this->urls.size() = %d\n", this->urls.size());
 			int ret = 0;
 			return ret;
 		}
 
 		int doing() {
-			std::clog << ": " << __func__<< std::endl;
+			plog(debug, ":..: %s\n", __func__);
 
 			std::list<page>::iterator i = this->urls.begin();
 
-			std::clog << "before this->urls.size = " << this->urls.size() << std::endl;
+			plog(info, "before this->urls.size() = %d\n", this->urls.size());
 
-			while (i != this->urls.end()) {
+			while (i != this->urls.end() && !quit) {
 				page p = *i;
 				this->get_page(p);
 
@@ -191,10 +204,10 @@ class spider {
 
 			for (i = this->urls.begin(); i != this->urls.end(); i++) {
 				page p = *i;
-				std::clog << p.url << std::endl;
+				plog(info, "p.url = %s\n", p.url.c_str());
 			}
 
-			std::clog << "after  this->urls.size = " << this->urls.size() << std::endl;
+			plog(info, "after this->urls.size() = %d\n", this->urls.size());
 			int ret = 0;
 			return ret;
 		}
@@ -208,7 +221,7 @@ class spider {
 		}
 
 		~spider() {
-			std::clog << "Deconstruct: " << __func__<< std::endl;
+			plog(debug, "Deconstruct: %s\n", __func__);
 		}
 };
 
