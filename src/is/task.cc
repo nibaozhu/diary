@@ -76,8 +76,14 @@ int reads(Transport* t) {
 	if (t1 <= t0 && tv1.tv_usec <= tv0.tv_usec) {
 		speed = -1;
 	} else {
-		speed = rl * 1000000. / (((t1 - t0) * 1000000.0 + (tv1.tv_usec - tv0.tv_usec)) * 1024 * 1024);
-		plog(notice, "speed: %0.2f MB/s\n", t->set_speed(speed));
+		speed = rl * 1000000. / (((t1 - t0) * 1000000. + (tv1.tv_usec - tv0.tv_usec)) * 1024 * 1024);
+		t->set_speed(speed);
+
+		if (speed < 1.) {
+			plog(notice, "Speed: %0.1f KiB/s\n", speed * 1024.);
+		} else {
+			plog(notice, "Speed: %0.1f MiB/s\n", speed);
+		}
 	}
 	free(buffer);
 
