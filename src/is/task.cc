@@ -40,6 +40,7 @@ int setnonblocking(int fd) {
 
 int reads(Transport* t) {
 	assert(t != NULL);
+
 	ssize_t ret = 0;
 	void *buffer = malloc(BUFFER_MAX + 1);
 	size_t rl = 0;
@@ -75,14 +76,15 @@ int reads(Transport* t) {
 
 	if (t1 <= t0 && tv1.tv_usec <= tv0.tv_usec) {
 		speed = -1;
-	} else {
-		speed = rl * 1000000. / (((t1 - t0) * 1000000. + (tv1.tv_usec - tv0.tv_usec)) * 1024 * 1024);
+	} else {									/* 1KiB = 1000B */
+		speed = rl * 1000000. / (((t1 - t0) * 1000000. + (tv1.tv_usec - tv0.tv_usec)) * 1000 * 1000);
 		t->set_speed(speed);
 
+		plog(notice, "Read 0x%lx bytes from file = %d.\n", rl, t->get_fd());
 		if (speed < 1.) {
-			plog(notice, "Speed: %0.1f KiB/s\n", speed * 1024.);
+			//plog(notice, "Download Speed %0.1f KiB/s\n", speed * 1000.);
 		} else {
-			plog(notice, "Speed: %0.1f MiB/s\n", speed);
+			plog(notice, "Download Speed %0.1f MiB/s\n", speed);
 		}
 	}
 	free(buffer);
@@ -96,8 +98,9 @@ int reads(Transport* t) {
 }
 
 void writes(Transport* t) {
-	ssize_t ret = 0;
 	assert(t != NULL);
+
+	ssize_t ret = 0;
 	size_t wl = 0;
 	do {
 		t->pw();
@@ -338,6 +341,7 @@ int task(int argc, char **argv) {
 
 void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m) {
 	assert(r != NULL && m != NULL);
+
 	int ret = 0;
 	do {
 		struct sockaddr_in peer_addr;
