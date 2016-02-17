@@ -26,7 +26,7 @@ __plog	../../include/logging.cc	/^int __plog(enum elevel x, const char *__file, 
 addr	task.cc	/^struct sockaddr_in addr;$/;"	v	typeref:struct:sockaddr_in
 alert	../../include/logging.h	/^	alert,			\/* action must be taken immediately *\/$/;"	e	enum:elevel
 alive	transport.h	/^		bool alive; \/* true: live; false: die *\/$/;"	m	class:Transport
-author	version.h	/^const char *author = "Ni Baozhu";$/;"	v
+author	version.h	/^const char *author = "Ni BaoZhu";$/;"	v
 cache	../../include/logging.h	/^	unsigned int cache; \/\/ logging has cache lines in memory$/;"	m	struct:logging
 cache_max	../../include/logging.h	/^	unsigned int cache_max; \/\/ cache_max lines in memory$/;"	m	struct:logging
 clear_color	../../include/logging.cc	/^const char *clear_color = "\\e[0m";$/;"	v
@@ -62,7 +62,7 @@ get_ws	transport.h	/^		size_t get_ws() {$/;"	f	class:Transport
 get_wx	transport.h	/^		void *get_wx() {$/;"	f	class:Transport
 handle	handle.cc	/^int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *__m, Transport* t) {$/;"	f
 handler	task.cc	/^void handler(int signum) {$/;"	f
-home	version.h	/^const char *home = "https:\/\/github.com\/nibaozhu\/mycode\/trunk\/src\/is";$/;"	v
+home	version.h	/^const char *home = "https:\/\/github.com\/nibaozhu\/mycode";$/;"	v
 id	transport.h	/^		uint32_t id; \/* unsigned int 32 *\/$/;"	m	class:Transport
 info	../../include/logging.h	/^	info,			\/* informational *\/$/;"	e	enum:elevel
 init	task.cc	/^int init(int argc, char **argv) {$/;"	f
