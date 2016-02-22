@@ -169,7 +169,7 @@ void set_disposition() {
 int init(int argc, char **argv) {
 	int ret = 0;
 	do {
-		const char *optstring = "hvi:p:";
+		const char *optstring = "hvi:p:e";
 		int opt;
 
 		while ((opt = getopt(argc, argv, optstring)) != -1) {
@@ -183,6 +183,11 @@ int init(int argc, char **argv) {
 				case 'p':
 					port = atoi(optarg);
 					break;
+				case 'e':
+					if (fork() > 0) _exit(0);
+					setsid(); // creates a session and sets the process group ID
+					if (fork() > 0) _exit(0);
+					break;
 				case 'h':
 				default: /* ? */
 					printf( "Usage: %s [OPTION]...\n"
@@ -191,6 +196,7 @@ int init(int argc, char **argv) {
 							"	-v	Output version information and exit\n"
 							"	-i IP	Set bind ip, default use %s\n"
 							"	-p PORT	Set bind port, default use %d\n"
+							"	-e	Daemon\n"
 							"\n"
 							"Report %s bugs to %s\n"
 							"Home page: <%s>\n"
