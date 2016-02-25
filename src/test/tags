@@ -60,7 +60,7 @@ main	test_pthread.c	/^int main() {$/;"	f
 main	test_pthread_with_lock.c	/^int main() {$/;"	f
 main	test_pthread_with_sync.c	/^int main() {$/;"	f
 main	test_regex.c	/^int main(int argc, char **argv)$/;"	f
-main	test_regex_2.cpp	/^int main(void) {$/;"	f
+main	test_regex.cpp	/^int main(void) {$/;"	f
 main	test_sizeof.c	/^int main() {$/;"	f
 main	test_sqlite3.c	/^int main(int argc, char **argv)$/;"	f
 main	test_string.cc	/^int main(void) {$/;"	f
@@ -84,7 +84,7 @@ plog	../../include/logging.h	82;"	d
 quit	test_client.c	/^int quit = 0;$/;"	v
 quit	test_logging.cc	/^unsigned int quit = 0;$/;"	v
 reads	test_client.c	/^int reads(int fd)$/;"	f
-regex_content	test_regex_2.cpp	/^int regex_content(const char * regex, const char * string1, std::list<std::string> urls)$/;"	f
+regex_content	test_regex.cpp	/^int regex_content(const char * regex, const char * string1, std::list<std::string> &urls) {$/;"	f
 set_disposition	test_logging.cc	/^int set_disposition()$/;"	f
 setnonblocking	test_client.c	/^int setnonblocking(int fd)$/;"	f
 size	../../include/logging.h	/^	unsigned long size; \/\/ logging has written bytes in file$/;"	m	struct:logging
