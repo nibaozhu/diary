@@ -261,6 +261,7 @@ int initializing(const char *name, const char *path, const char *mode, enum elev
 {
 	if (l == NULL) {
 		l = (struct logging*)malloc(sizeof (struct logging));
+		memset(l, 0, sizeof *l);
 	}
 #ifdef DEBUG_LOGGING
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l = %p\n",
@@ -271,7 +272,7 @@ int initializing(const char *name, const char *path, const char *mode, enum elev
 	if (ptr == NULL) {
 		strncpy(l->name, name, strlen(name));
 	} else {
-		strncpy(l->name, ptr + 1, sizeof name - 1);
+		strncpy(l->name, ptr + 1, strlen(ptr));
 	}
 
 	l->pid = getpid();
