@@ -169,7 +169,7 @@ void set_disposition() {
 int init(int argc, char **argv) {
 	int ret = 0;
 	do {
-		const char *optstring = "hvi:p:e";
+		const char *optstring = "ehvi:p:";
 		int opt;
 
 		while ((opt = getopt(argc, argv, optstring)) != -1) {
@@ -178,7 +178,7 @@ int init(int argc, char **argv) {
 					printf("%s %s %s\n", version, __DATE__, __TIME__);
 					exit(0);
 				case 'i':
-					memcpy(ip, optarg, sizeof ip);
+					strncpy(ip, optarg, sizeof ip - 1);
 					break;
 				case 'p':
 					port = atoi(optarg);
@@ -388,9 +388,8 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 					break;
 				}
 
-				char peer_ip[3 + 1 + 3 + 1 + 3 + 1 + 3 + 1];
-				memset(peer_ip, 0, sizeof ip);
-				strcpy(peer_ip, inet_ntoa(peer_addr.sin_addr));
+				char peer_ip[3 + 1 + 3 + 1 + 3 + 1 + 3 + 1] = {0};
+				strncpy(peer_ip, inet_ntoa(peer_addr.sin_addr), sizeof peer_ip - 1);
 				plog(notice, "NAME %s:%u->%s:%u\n", ip, htons(addr.sin_port), peer_ip, htons(peer_addr.sin_port));
 
 				t = new Transport(acceptfd, created, peer_addr, peer_addrlen);
