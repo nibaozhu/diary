@@ -23,7 +23,7 @@ int main() {
 	person->set_email("john@qq.com");
 
 	tutorial::PhoneNumber *phone_number = person->add_phone();
-	phone_number->set_number("+8613903062531");
+	phone_number->set_number("+8613903062123");
 	phone_number->set_type(tutorial::WORK);
 
 	int s0 = address_book.ByteSize();
