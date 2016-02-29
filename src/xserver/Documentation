@@ -1,5 +1,5 @@
-* How to start is? (inet_addr: 0.0.0.0, port: 12340)
-	$ ./is
+* How to start xserver? (inet_addr: 0.0.0.0, port: 12340)
+	$ ./xserver
 
 * How to register client to server?
 When TCP is established, client should be send a register-message.

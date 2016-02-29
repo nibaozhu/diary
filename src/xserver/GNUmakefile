@@ -1,9 +1,9 @@
 .PHONY: all clean
-all: is
+all: xserver
 clean:
-	rm -f ../../include/logging.o handle.o main.o task.o is
+	rm -f ../../include/logging.o handle.o main.o task.o xserver
 
-is: ../../include/logging.o handle.o main.o task.o
+xserver: ../../include/logging.o handle.o main.o task.o
 	$(CXX) -o $@ $^ && ctags * ../../include/*
 
 # gcc -I ../../include/ -MM *.cc ../../include/logging.cc -std=gnu++0x
