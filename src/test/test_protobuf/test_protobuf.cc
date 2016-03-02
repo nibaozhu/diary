@@ -9,29 +9,29 @@ int main() {
 
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-	tutorial::AddressBook address_book;
-	address_book.set_name("nibaozhu");
+	tutorial::AddressBook ab;
+	ab.set_name("nibaozhu");
 
-	tutorial::PhoneNumber *owner_phone_number = address_book.mutable_phone();
-	owner_phone_number->set_number("911");
-	owner_phone_number->set_type(tutorial::MOBILE);
+	tutorial::PhoneNumber *owner_pn = ab.mutable_phone();
+	owner_pn->set_number("911");
+	owner_pn->set_type(tutorial::MOBILE);
 
-	tutorial::Person *person = address_book.add_person();
+	tutorial::Person *p = ab.add_person();
 
-	person->set_name("John");
-	person->set_id(1333);
-	person->set_email("john@qq.com");
+	p->set_name("John");
+	p->set_id(1333);
+	p->set_email("john@qq.com");
 
-	tutorial::PhoneNumber *phone_number = person->add_phone();
-	phone_number->set_number("+8613903062123");
-	phone_number->set_type(tutorial::WORK);
+	tutorial::PhoneNumber *pn = p->add_phone();
+	pn->set_number("+8613903062123");
+	pn->set_type(tutorial::WORK);
 
-	int s0 = address_book.ByteSize();
+	int s0 = ab.ByteSize();
 	void *m0 = malloc(s0);
 	memset(m0, 0, s0);
 
-	std::cout << "address_book: " << address_book.DebugString();
-	bool b0 = address_book.SerializeToArray(m0, s0);
+	std::cout << "ab: " << ab.DebugString();
+	bool b0 = ab.SerializeToArray(m0, s0);
 	if (b0) {
 		std::cout << "ByteSize = " << s0 << std::endl;
 	}
@@ -44,7 +44,7 @@ int main() {
 	memset(m1, 0, s1);
 
 	std::cout << "\n\naddress_book1: " << address_book1.DebugString();
-	bool b1 = address_book.SerializeToArray(m1, s1);
+	bool b1 = ab.SerializeToArray(m1, s1);
 	if (b1) {
 		std::cout << "ByteSize = " << s1 << std::endl;
 	}
