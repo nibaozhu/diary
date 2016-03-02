@@ -8,7 +8,7 @@
 #define MAX_EVENTS (1<<8)
 #define BUFFER_MAX (1<<8)
 struct epoll_event ev, events[MAX_EVENTS];
-int listen_sock, conn_sock, nfds, epollfd;
+int listen_sock, nfds, epollfd;
 struct sockaddr_in addr;
 
 extern char *optarg;
