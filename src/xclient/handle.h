@@ -9,6 +9,7 @@
 
 
 int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *__m, Transport* t);
+int serializing(Transport *t);
 
 #endif
 

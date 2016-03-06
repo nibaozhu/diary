@@ -29,6 +29,9 @@
 /* 1024 bytes = 1KB */
 #define SIZE (1<<10)
 
+/* message content */
+#define CONTENT_MAX (1<<10)
+
 class Transport {
 	private:
 		uint32_t id; /* unsigned int 32 */
@@ -279,11 +282,11 @@ class Transport {
 			plog(debug, "--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
 			while (i < this->rp) {
 				if (i % width == 0) {
-					plog(debug, "%p ", (void *)((char *)this->rx + i));
+					printf("%p ", (void *)((char *)this->rx + i));
 				}
-				plog(debug, " 0x%02x", *((char*)this->rx + i));
+				printf(" 0x%02x", *((char*)this->rx + i));
 				if (b0) {
-					plog(debug, " %c", *((char*)this->rx + i));
+					printf(" %c", *((char*)this->rx + i));
 				}
 
 				i++;
@@ -291,7 +294,7 @@ class Transport {
 					puts("");
 				}
 			}
-			puts("\n--- end ---");
+			plog(debug, "--- end ---\n");
 #endif
 			return ;
 		}
@@ -317,11 +320,11 @@ class Transport {
 			plog(debug, "--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
 			while (i < this->wp) {
 				if (i % width == 0) {
-					plog(debug, "%p ", (void *)((char *)this->wx + i));
+					printf("%p ", (void *)((char *)this->wx + i));
 				}
-				plog(debug, " 0x%02x", *((char*)this->wx + i));
+				printf(" 0x%02x", *((char*)this->wx + i));
 				if (b0) {
-					plog(debug, " %c", *((char*)this->rx + i));
+					printf(" %c", *((char*)this->rx + i));
 				}
 
 				i++;
@@ -329,7 +332,7 @@ class Transport {
 					puts("");
 				}
 			}
-			puts("\n--- end ---");
+			plog(debug, "--- end ---\n");
 #endif
 			return ;
 		}

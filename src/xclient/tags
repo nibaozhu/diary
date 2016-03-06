@@ -5,6 +5,7 @@
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
 BUFFER_MAX	task.cc	9;"	d	file:
+CONTENT_MAX	transport.h	33;"	d
 CPPFLAGS	GNUmakefile	/^CPPFLAGS=-I ..\/..\/include$/;"	m
 CXXFLAGS	GNUmakefile	/^CXXFLAGS=-O0 -U NDEBUG -U DEBUG_LOGGING -funsigned-char -g3 -std=c++0x -Wall -Wextra -Werror -m64$/;"	m
 DATE_MAX	../../include/logging.h	37;"	d
@@ -26,7 +27,8 @@ __plog	../../include/logging.cc	/^int __plog(enum elevel x, const char *__file, 
 addr	task.cc	/^struct sockaddr_in addr;$/;"	v	typeref:struct:sockaddr_in
 alert	../../include/logging.h	/^	alert,			\/* action must be taken immediately *\/$/;"	e	enum:elevel
 alive	transport.h	/^		bool alive; \/* true: live; false: die *\/$/;"	m	class:Transport
-apply_id	task.cc	/^uint32_t apply_id = 0;$/;"	v
+apply_id0	task.cc	/^uint32_t apply_id0 = 0;$/;"	v
+apply_id1	task.cc	/^uint32_t apply_id1 = 0;$/;"	v
 author	version.h	/^const char *author = "Ni BaoZhu";$/;"	v
 cache	../../include/logging.h	/^	unsigned int cache; \/\/ logging has cache lines in memory$/;"	m	struct:logging
 cache_max	../../include/logging.h	/^	unsigned int cache_max; \/\/ cache_max lines in memory$/;"	m	struct:logging
@@ -96,6 +98,7 @@ reset	transport.h	/^		void reset() {$/;"	f	class:Transport
 rp	transport.h	/^		size_t rp; \/* transport data `Read' pointer position *\/$/;"	m	class:Transport
 rs	transport.h	/^		size_t rs; \/* transport data `Read' size  *\/$/;"	m	class:Transport
 rx	transport.h	/^		void *rx; \/* transport data `Read'  *\/$/;"	m	class:Transport
+serializing	handle.cc	/^int serializing(Transport *t) {$/;"	f
 set_alive	transport.h	/^		bool set_alive(bool alive) {$/;"	f	class:Transport
 set_disposition	task.cc	/^void set_disposition() {$/;"	f
 set_events	transport.h	/^		__uint32_t set_events(__uint32_t events) {$/;"	f	class:Transport

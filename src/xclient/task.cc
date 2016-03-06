@@ -18,7 +18,8 @@ bool is_reconfigure = false;
 short int port = 12340;
 char ip[3 + 1 + 3 + 1 + 3 + 1 + 3 + 1] = "0.0.0.0";
 bool is_register = false;
-uint32_t apply_id = 0;
+uint32_t apply_id0 = 0;
+uint32_t apply_id1 = 0;
 
 int setnonblocking(int fd) {
 	int ret = 0;
@@ -171,7 +172,7 @@ void set_disposition() {
 int init(int argc, char **argv, std::map<int, Transport*> *m) {
 	int ret = 0;
 	do {
-		const char *optstring = "ehva:i:p:";
+		const char *optstring = "ehva:b:i:p:";
 		int opt;
 
 		while ((opt = getopt(argc, argv, optstring)) != -1) {
@@ -191,7 +192,10 @@ int init(int argc, char **argv, std::map<int, Transport*> *m) {
 					if (fork() > 0) _exit(0);
 					break;
 				case 'a':
-					apply_id = atoi(optarg);
+					apply_id0 = atoi(optarg);
+					break;
+				case 'b':
+					apply_id1 = atoi(optarg);
 					break;
 				case 'h':
 				default: /* ? */
@@ -201,7 +205,8 @@ int init(int argc, char **argv, std::map<int, Transport*> *m) {
 							"	-v	Output version information and exit\n"
 							"	-i IP	Set connect ip, default use %s\n"
 							"	-p PORT	Set connect port, default use %d\n"
-							"	-a ID	Set apply id\n"
+							"	-a ID0	Set apply id0\n"
+							"	-b ID1	Set apply id1\n"
 							"	-e	Daemon\n"
 							"\n"
 							"Report %s bugs to %s\n"
@@ -212,7 +217,8 @@ int init(int argc, char **argv, std::map<int, Transport*> *m) {
 			}
 		}
 
-		if (apply_id == 0) { exit (1); }
+		if (apply_id0 == 0) { exit (1); }
+		if (apply_id1 == 0) { exit (1); }
 
 		ret = initializing(argv[0], "logdir", "w+", debug, debug, 1, 1, 1024*1024);
 		if (ret == -1) {
@@ -509,29 +515,10 @@ void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 	std::map<int, Transport*>::iterator im = m->begin();
 	while (im != m->end()) {
 		Transport* t = im->second;
-		// time_t expired = 120; /* measured in seconds */
-		// if (!t->get_alive() && ((t->get_rp() == 0 && t->get_wp() == 0) || ti - t->get_updated() >= expired)) {
-		if (!is_register) {
-			plog(info, "Register a file descriptor = %d(%p).\n", im->first, im->second);
-			void *register_message;
-			uint32_t length = sizeof (uint32_t) * 3;
-			register_message = malloc(length);
-			memset(register_message, 0, length);
 
-			uint32_t id = htonl(apply_id);
-			memcpy((void *) ((char *)register_message + sizeof (uint32_t)), &id, sizeof (uint32_t)); // message id
-			memcpy((void *) ((char *)register_message + sizeof (uint32_t) * 2), &id, sizeof (uint32_t)); // message id
-
-			t->set_wx(register_message, sizeof (uint32_t) * 3);
-
-			free(register_message);
-			register_message = NULL;
-
-			w->push_back(t);
-			im++;
-		} else {
-			im++;
-		}
+		serializing(t);
+		w->push_back(t);
+		im++;
 	}
 	return ;
 }

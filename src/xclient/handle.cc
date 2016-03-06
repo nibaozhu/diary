@@ -5,6 +5,8 @@
 #include "handle.h"
 
 extern bool is_register;
+extern uint32_t apply_id0;
+extern uint32_t apply_id1;
 
 int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *__m, Transport* t) {
 	int ret = 0;
@@ -53,8 +55,8 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 //			w->push_back(t);
 		} else if (t->get_rp() >= (3 * sizeof (uint32_t) + length)) {
 			plog(notice, "Message completed(=0x%x).\n", (unsigned int)(3 * sizeof (uint32_t)) + length);
-			if (t->get_id() != id[0]) {
-				plog(warning, "id = 0x%x, Non self(0x%x).\n", id[0], t->get_id());
+			if (t->get_id() != id[1]) {
+				plog(warning, "id = 0x%x, It's NOT me(0x%x)!\n", id[0], t->get_id());
 				t->clear_rx();
 				break;
 			}
@@ -78,10 +80,11 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 				break;
 			}
 
-			tx->set_wx(t->get_rx(), (3 * sizeof (uint32_t) + length));
+//			tx->set_wx(t->get_rx(), (3 * sizeof (uint32_t) + length));
 			memmove(t->get_rx(), (const void *)((char *)t->get_rx() + (3 * sizeof (uint32_t) + length)), t->get_rp() - (3 * sizeof (uint32_t) + length));
 			t->set_rp(t->get_rp() - (3 * sizeof (uint32_t) + length));
-			w->push_back(tx);
+//			w->push_back(tx);
+			plog(debug, "w = %p\n", w);
 		} else {
 			/* Back to wait message. */
 			break;
@@ -95,3 +98,50 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 	}
 	return ret;
 }
+
+int serializing(Transport *t) {
+	int ret = 0;
+	assert(t != NULL);
+
+	void *message = 0;
+	uint32_t length = 0;
+
+	length = sizeof (uint32_t) * 3 + CONTENT_MAX;
+	message = malloc(length);
+	memset(message, 0, length);
+
+	uint32_t id0 = htonl(apply_id0);
+	uint32_t id1 = htonl(apply_id1);
+	memcpy((void *) ((char *)message + sizeof (uint32_t)), &id0, sizeof (uint32_t)); // message id0
+
+	char content[CONTENT_MAX] = {0};
+	char str[DATE_MAX];
+	sysdate(str);
+	char string0[] = {"abcdefg"};
+
+	snprintf(content, sizeof content, "random %s, sysdate = %s", strfry(string0), str);
+	size_t content_length = strlen(content);
+
+	do {
+	if (is_register) {
+		if (id0 == id1) { break; }
+		plog(notice, "Generate normal request:\n");
+		memcpy((void *) ((char *)message + sizeof (uint32_t) * 2), &id1, sizeof (uint32_t)); // message id1
+	} else {
+		plog(notice, "Generate register request:\n");
+		memcpy((void *) ((char *)message + sizeof (uint32_t) * 2), &id0, sizeof (uint32_t)); // message id1
+	}
+	} while (0);
+
+	memcpy((void *) ((char *)message + sizeof (uint32_t) * 3), &content, content_length); // message content
+	uint32_t length0 = htonl(content_length);
+	memcpy(message, &length0, sizeof (uint32_t));
+
+	t->set_wx(message, sizeof (uint32_t) * 3 + content_length);
+
+	free(message);
+	message = NULL;
+
+	return ret;
+}
+
