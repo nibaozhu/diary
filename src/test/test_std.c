@@ -16,7 +16,10 @@ int main(void) {
 	write(STDERR_FILENO, buf, count);
 
 	/* set stderr non-block */
-	fcntl(STDERR_FILENO, F_SETFL, O_NONBLOCK);
+	int r = fcntl(STDERR_FILENO, F_SETFL, O_NONBLOCK);
+	if (r == -1) {
+		printf("%s(%d)\n", strerror(errno), errno);
+	}
 
 	int ret;
 	ret = scanf("%d", &i1);
