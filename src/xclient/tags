@@ -73,6 +73,7 @@ initializing	../../include/logging.cc	/^int initializing(const char *name, const
 ip	task.cc	/^char ip[3 + 1 + 3 + 1 + 3 + 1 + 3 + 1] = "0.0.0.0";$/;"	v
 is_reconfigure	task.cc	/^bool is_reconfigure = false;$/;"	v
 is_register	task.cc	/^bool is_register = false;$/;"	v
+is_triggered	task.cc	/^bool is_triggered = false;$/;"	v
 l	../../include/logging.cc	/^struct logging *l;$/;"	v	typeref:struct:logging
 level	../../include/logging.cc	/^const char *level[debug + 1] = $/;"	v
 logging	../../include/logging.h	/^struct logging {$/;"	s

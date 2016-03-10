@@ -15,6 +15,7 @@ extern char *optarg;
 extern int optind, opterr, optopt;
 bool quit = false;
 bool is_reconfigure = false;
+bool is_triggered = false;
 short int port = 12340;
 char ip[3 + 1 + 3 + 1 + 3 + 1 + 3 + 1] = "0.0.0.0";
 bool is_register = false;
@@ -138,6 +139,7 @@ void handler(int signum) {
 	switch (signum) {
 		case SIGHUP: /* causes auditd to reconfigure. */
 			is_reconfigure = true;
+			is_triggered = true;
 			break;
 		case SIGQUIT: /* shortcut: Ctrl + \ */
 		case SIGINT : /* shortcut: Ctrl + C */
@@ -516,8 +518,15 @@ void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 	while (im != m->end()) {
 		Transport* t = im->second;
 
-		serializing(t);
-		w->push_back(t);
+		if (is_triggered) {
+
+			serializing(t);
+			w->push_back(t);
+
+			is_triggered = false;
+			continue;
+		}
+
 		im++;
 	}
 	return ;

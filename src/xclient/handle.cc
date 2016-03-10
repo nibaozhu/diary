@@ -117,20 +117,21 @@ int serializing(Transport *t) {
 	char content[CONTENT_MAX] = {0};
 	char str[DATE_MAX];
 	sysdate(str);
-	char string0[] = {"abcdefg"};
+	char string0[] = {"abcdefghijklmnopqrstuvwxyz"};
 
-	snprintf(content, sizeof content, "random %s, sysdate = %s", strfry(string0), str);
+	string0[rand() % strlen(string0)] = 0x0;
+	snprintf(content, sizeof content, "sysdate = %s, random = %s", str, strfry(string0));
 	size_t content_length = strlen(content);
 
 	do {
-	if (is_register) {
-		if (id0 == id1) { break; }
-		plog(notice, "Generate normal request:\n");
-		memcpy((void *) ((char *)message + sizeof (uint32_t) * 2), &id1, sizeof (uint32_t)); // message id1
-	} else {
-		plog(notice, "Generate register request:\n");
-		memcpy((void *) ((char *)message + sizeof (uint32_t) * 2), &id0, sizeof (uint32_t)); // message id1
-	}
+		if (is_register) {
+			if (id0 == id1) { break; }
+			memcpy((void *) ((char *)message + sizeof (uint32_t) * 2), &id1, sizeof (uint32_t)); // message id1
+			plog(notice, "Generate normal request: |0x%lx|0x%x|0x%x|%s|\n", content_length, apply_id0, apply_id1, content);
+		} else {
+			memcpy((void *) ((char *)message + sizeof (uint32_t) * 2), &id0, sizeof (uint32_t)); // message id1
+			plog(notice, "Generate register request: |0x%lx|0x%x|0x%x|%s|\n", content_length, apply_id0, apply_id0, content);
+		}
 	} while (0);
 
 	memcpy((void *) ((char *)message + sizeof (uint32_t) * 3), &content, content_length); // message content
