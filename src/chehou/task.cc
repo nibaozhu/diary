@@ -268,7 +268,7 @@ int init(int argc, char **argv) {
 	return ret;
 }
 
-int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *__m) {
+int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *__m) {
 	int ret = 0;
 	do {
 		r->clear();
@@ -289,7 +289,7 @@ int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 				}
 			}
 
-			__m->erase(t->get_id());
+			__m->erase(t->get_key());
 			delete t;
 			m->erase(im++);
 		}
@@ -325,7 +325,7 @@ int task(int argc, char **argv) {
 	std::list<Transport*> *r = new std::list<Transport*>();
 	std::list<Transport*> *w = new std::list<Transport*>();
 	std::map<int, Transport*> *m = new std::map<int, Transport*>(); /* ONE-FILE-DESCRIPTER versus ONE-TRANSPORT-OBJECT */
-	std::map<uint32_t, int> *__m = new std::map<uint32_t, int>(); /* ONE-ID versus ONE-FILE-DESCRIPTER */
+	std::map<std::string, int> *__m = new std::map<std::string, int>(); /* deprecated */
 	do {
 		srand(getpid());
 		ret = init(argc, argv);
@@ -470,7 +470,7 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 	return ;
 }
 
-void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *__m) {
+void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *__m) {
 	assert(r != NULL && w != NULL && m != NULL);
 
 	time_t ti = time(NULL); /* time() returns the time since the Epoch (00:00:00 UTC, January 1, 1970), measured in seconds. */
@@ -488,7 +488,7 @@ void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 
 			r->remove(t);
 			w->remove(t);
-			__m->erase(t->get_id());
+			__m->erase(t->get_key());
 			m->erase(im++);
 			delete t;
 		} else {
@@ -502,7 +502,7 @@ void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 	std::list<Transport*>::iterator i = r->begin();
 	while (i != r->end()) {
 		Transport* t = *i;
-		int ret = handle(w, m, __m, t);
+		int ret = handle(t, w, m, __m);
 		if (ret == -1) {
 			plog(error, "Handle fail.\n");
 		}

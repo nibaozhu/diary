@@ -31,7 +31,7 @@
 
 class Transport {
 	private:
-		uint32_t id; /* unsigned int 32 */
+		std::string key; /* unused variable */
 		time_t created; /* the first communication time */
 		time_t updated; /* the lastest communication time */
 		bool alive; /* true: live; false: die */
@@ -54,7 +54,7 @@ class Transport {
 			this->created = created;
 			this->updated = this->created;
 
-			this->id = 0;
+			this->key = "";
 			this->fd = fd;
 			this->peer_addr = peer_addr;
 			this->peer_addrlen = peer_addrlen;
@@ -80,13 +80,13 @@ class Transport {
 					this, this->rx, this->rp, this->rs, this->wx, this->wp, this->ws);
 		}
 
-		uint32_t set_id(uint32_t id) {
+		std::string set_key(std::string &key) {
 			this->created = time(NULL);
-			return this->id = id;
+			return this->key = key;
 		}
 
-		uint32_t get_id() {
-			return this->id;
+		std::string get_key() {
+			return this->key;
 		}
 
 		time_t set_updated() {
