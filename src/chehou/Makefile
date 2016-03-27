@@ -1,6 +1,7 @@
 .PHONY: all clean
 all: chehou
 clean:
+	rm -f core.*
 	rm -f logging.o handle.o main.o task.o chehou
 	rm -fr logdir
 

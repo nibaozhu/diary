@@ -8,12 +8,15 @@ BUFFER_MAX	task.cc	9;"	d	file:
 CPPFLAGS	Makefile	/^CPPFLAGS=-I .\/$/;"	m
 CXXFLAGS	Makefile	/^CXXFLAGS=-O0 -U NDEBUG -U DEBUG_LOGGING -funsigned-char -g3 -std=c++0x -Wall -Wextra -m64$/;"	m
 DATE_MAX	logging.h	37;"	d
+DELETE_PRODUCT	handle.h	/^	DELETE_PRODUCT,$/;"	e	enum:__anon1
 HANDLE_H	handle.h	6;"	d
+INSERT_PRODUCT	handle.h	/^	INSERT_PRODUCT,$/;"	e	enum:__anon1
 LDFLAGS	Makefile	/^LDFLAGS=$/;"	m
 LOGGING_H	logging.h	9;"	d
 MAIN_H	main.h	6;"	d
 MAX_EVENTS	task.cc	8;"	d	file:
 MODE_MAX	logging.h	36;"	d
+SELECT_PRODUCT	handle.h	/^	SELECT_PRODUCT,$/;"	e	enum:__anon1
 SIZE	transport.h	27;"	d
 SIZE_MAX	logging.h	16;"	d
 SIZE_MAX	logging.h	18;"	d
@@ -21,11 +24,13 @@ TASK_H	task.h	6;"	d
 TRANSPORT_H	transport.h	6;"	d
 Transport	transport.h	/^		Transport(int fd, time_t created, struct sockaddr_in peer_addr, socklen_t peer_addrlen, size_t size = SIZE) {$/;"	f	class:Transport
 Transport	transport.h	/^class Transport {$/;"	c
+UPDATE_PRODUCT	handle.h	/^	UPDATE_PRODUCT,$/;"	e	enum:__anon1
 __plog	logging.cc	/^int __plog(enum elevel x, const char *__file, unsigned int __line, const char *__function, const char *fmt, ...)$/;"	f
 addr	task.cc	/^struct sockaddr_in addr;$/;"	v	typeref:struct:sockaddr_in
 alert	logging.h	/^	alert,			\/* action must be taken immediately *\/$/;"	e	enum:elevel
 alive	transport.h	/^		bool alive; \/* true: live; false: die *\/$/;"	m	class:Transport
 author	version.h	/^const char *author = "Ni BaoZhu";$/;"	v
+business	handle.cc	/^void business(Transport *t, std::string request_location, std::map<std::string, std::string> *variable_value) {$/;"	f
 cache	logging.h	/^	unsigned int cache; \/\/ logging has cache lines in memory$/;"	m	struct:logging
 cache_max	logging.h	/^	unsigned int cache_max; \/\/ cache_max lines in memory$/;"	m	struct:logging
 clear_color	logging.cc	/^const char *clear_color = "\\e[0m";$/;"	v
@@ -77,6 +82,7 @@ nfds	task.cc	/^int listen_sock, nfds, epollfd;$/;"	v
 none	logging.h	/^	none = -1,		\/* none logging *\/$/;"	e	enum:elevel
 notice	logging.h	/^	notice,			\/* normal but significant condition *\/$/;"	e	enum:elevel
 number	logging.h	/^	unsigned int number; \/\/ logging file's suffix number when splits file$/;"	m	struct:logging
+parse_variable_value	handle.cc	/^void parse_variable_value(std::map<std::string, std::string> *variable_value, const char* src, size_t size) {$/;"	f
 path	logging.h	/^	char path[PATH_MAX]; \/\/ logging file's path$/;"	m	struct:logging
 peer_addr	transport.h	/^		struct sockaddr_in peer_addr;$/;"	m	class:Transport	typeref:struct:Transport::sockaddr_in
 peer_addrlen	transport.h	/^		socklen_t peer_addrlen;$/;"	m	class:Transport
