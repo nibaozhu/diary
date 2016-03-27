@@ -23,9 +23,6 @@
 #include <sys/types.h>
 #include "logging.h"
 
-/* output BYTES bytes per line */
-#define WIDTH (1<<3)
-
 /* 1024 bytes = 1KB */
 #define SIZE (1<<10)
 
@@ -258,12 +255,7 @@ class Transport {
 			return this->events;
 		}
 
-		void pr(size_t width = WIDTH, bool b0 = false) {
-			if (width <= 0 || width > 1024) {
-				width = WIDTH;
-			}
-			assert(b0 == false);
-
+		void pr(void) {
 			struct sockaddr_in peer_addr;
 			socklen_t peer_addrlen;
 			this->get_peer(&peer_addr, &peer_addrlen);
@@ -274,34 +266,12 @@ class Transport {
 
 			plog(info, "|%s:%u| this = %p, this->rx = %p, this->rp = 0x%lx, this->rs = 0x%lx\n",
 					peer_ip, htons(peer_addr.sin_port), this, this->rx, this->rp, this->rs);
-#if 0
-			size_t i = 0;
-			plog(debug, "--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
-			while (i < this->rp) {
-				if (i % width == 0) {
-					plog(debug, "%p ", (void *)((char *)this->rx + i));
-				}
-				plog(debug, " 0x%02x", *((char*)this->rx + i));
-				if (b0) {
-					plog(debug, " %c", *((char*)this->rx + i));
-				}
-
-				i++;
-				if (i % width == 0) {
-					puts("");
-				}
-			}
-			puts("\n--- end ---");
-#endif
+			plog(debug, "--- begin --- -- %s --\n%s\n", __func__, (char*)this->rx);
+			plog(debug, "--- end ---\n");
 			return ;
 		}
 
-		void pw(size_t width = WIDTH, bool b0 = false) {
-			if (width <= 0 || width > 1024) {
-				width = WIDTH;
-			}
-			assert(b0 == false);
-
+		void pw(void) {
 			struct sockaddr_in peer_addr;
 			socklen_t peer_addrlen;
 			this->get_peer(&peer_addr, &peer_addrlen);
@@ -312,25 +282,8 @@ class Transport {
 
 			plog(info, "|%s:%u| this = %p, this->wx = %p, this->wp = 0x%lx, this->ws = 0x%lx\n",
 					peer_ip, htons(peer_addr.sin_port), this, this->wx, this->wp, this->ws);
-#if 0
-			size_t i = 0;
-			plog(debug, "--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
-			while (i < this->wp) {
-				if (i % width == 0) {
-					plog(debug, "%p ", (void *)((char *)this->wx + i));
-				}
-				plog(debug, " 0x%02x", *((char*)this->wx + i));
-				if (b0) {
-					plog(debug, " %c", *((char*)this->rx + i));
-				}
-
-				i++;
-				if (i % width == 0) {
-					puts("");
-				}
-			}
-			puts("\n--- end ---");
-#endif
+			plog(debug, "--- begin --- -- %s --\n%s\n", __func__, (char*)this->wx);
+			plog(debug, "--- end ---\n");
 			return ;
 		}
 

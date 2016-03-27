@@ -6,7 +6,7 @@
 !_TAG_PROGRAM_VERSION	5.8	//
 BUFFER_MAX	task.cc	9;"	d	file:
 CPPFLAGS	Makefile	/^CPPFLAGS=-I .\/$/;"	m
-CXXFLAGS	Makefile	/^CXXFLAGS=-O0 -U NDEBUG -U DEBUG_LOGGING -funsigned-char -g3 -std=c++0x -Wall -Wextra -Werror -m64$/;"	m
+CXXFLAGS	Makefile	/^CXXFLAGS=-O0 -U NDEBUG -U DEBUG_LOGGING -funsigned-char -g3 -std=c++0x -Wall -Wextra -m64$/;"	m
 DATE_MAX	logging.h	37;"	d
 HANDLE_H	handle.h	6;"	d
 LDFLAGS	Makefile	/^LDFLAGS=$/;"	m
@@ -14,14 +14,13 @@ LOGGING_H	logging.h	9;"	d
 MAIN_H	main.h	6;"	d
 MAX_EVENTS	task.cc	8;"	d	file:
 MODE_MAX	logging.h	36;"	d
-SIZE	transport.h	30;"	d
+SIZE	transport.h	27;"	d
 SIZE_MAX	logging.h	16;"	d
 SIZE_MAX	logging.h	18;"	d
 TASK_H	task.h	6;"	d
 TRANSPORT_H	transport.h	6;"	d
 Transport	transport.h	/^		Transport(int fd, time_t created, struct sockaddr_in peer_addr, socklen_t peer_addrlen, size_t size = SIZE) {$/;"	f	class:Transport
 Transport	transport.h	/^class Transport {$/;"	c
-WIDTH	transport.h	27;"	d
 __plog	logging.cc	/^int __plog(enum elevel x, const char *__file, unsigned int __line, const char *__function, const char *fmt, ...)$/;"	f
 addr	task.cc	/^struct sockaddr_in addr;$/;"	v	typeref:struct:sockaddr_in
 alert	logging.h	/^	alert,			\/* action must be taken immediately *\/$/;"	e	enum:elevel
@@ -85,8 +84,8 @@ pflush	logging.cc	/^int pflush()$/;"	f
 pid	logging.h	/^	pid_t pid; \/\/ program process id$/;"	m	struct:logging
 plog	logging.h	82;"	d
 port	task.cc	/^short int port = 12340;$/;"	v
-pr	transport.h	/^		void pr(size_t width = WIDTH, bool b0 = false) {$/;"	f	class:Transport
-pw	transport.h	/^		void pw(size_t width = WIDTH, bool b0 = false) {$/;"	f	class:Transport
+pr	transport.h	/^		void pr(void) {$/;"	f	class:Transport
+pw	transport.h	/^		void pw(void) {$/;"	f	class:Transport
 quit	task.cc	/^bool quit;$/;"	v
 reads	task.cc	/^int reads(Transport* t) {$/;"	f
 reset	transport.h	/^		void reset() {$/;"	f	class:Transport

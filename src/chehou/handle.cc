@@ -19,8 +19,8 @@ int handle(Transport* t, std::list<Transport*> *w, std::map<int, Transport*> *m,
  * http, json, mysql
  * *************************/
 
-
-
+		memmove(t->get_rx(), (const void *)((char *)t->get_rx() + length), t->get_rp() - length);
+		t->set_rp(t->get_rp() - length);
 
 		/* MESSAGE BODY */
 		plog(info, "[x] Transaction(%d) Passed.\n", i++);
