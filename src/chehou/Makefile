@@ -14,5 +14,5 @@ task.o: task.cc task.h transport.h logging.h handle.h version.h
 
 
 CPPFLAGS=-I ./
-CXXFLAGS=-O0 -U NDEBUG -U DEBUG_LOGGING -funsigned-char -g3 -std=c++0x -Wall -Wextra -Werror -m64
+CXXFLAGS=-O0 -U NDEBUG -U DEBUG_LOGGING -funsigned-char -g3 -std=c++0x -Wall -Wextra -m64
 LDFLAGS=
