@@ -2,9 +2,11 @@
 all: xserver
 clean:
 	rm -f ../../include/logging.o handle.o main.o task.o xserver
+	rm -f core.*
+	rm -rf logdir
 
 xserver: ../../include/logging.o handle.o main.o task.o
-	$(CXX) -o $@ $^ && ctags * ../../include/*
+	$(CXX) -o $@ $^ && ctags * ../../include/* && test -d logdir || mkdir logdir
 
 # gcc -I ../../include/ -MM *.cc ../../include/logging.cc -std=gnu++0x
 handle.o: handle.cc handle.h transport.h ../../include/logging.h
