@@ -1,0 +1,58 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+__construct	db.class.php	/^	function __construct($server, $username, $password, $database_name) {$/;"	f
+__construct	handle.class.php	/^	function __construct() {$/;"	f
+__destruct	db.class.php	/^	function __destruct() {$/;"	f
+__destruct	handle.class.php	/^	function __destruct() {  }$/;"	f
+__get	handle.class.php	/^	function __get($variable) {$/;"	f
+__set	handle.class.php	/^	function __set($variable, $value) {$/;"	f
+all_fetched_row	db.class.php	/^		$all_fetched_row = null;$/;"	v
+connect	db.class.php	/^	function connect() {$/;"	f
+database_name	db.class.php	/^		$this->database_name = $database_name;$/;"	v
+database_name	db.class.php	/^	private $database_name;$/;"	v
+db	db.class.php	/^class db {$/;"	c
+delete_something	handle.class.php	/^	function delete_something($service_id) {$/;"	f
+execute_modify	db.class.php	/^	function execute_modify($query) {$/;"	f
+execute_query	db.class.php	/^	function execute_query($query) {$/;"	f
+h	handle.php	/^$h = new handle();$/;"	v
+handle	handle.class.php	/^class handle {$/;"	c
+i_want_to_play_a_game	handle.class.php	/^	function i_want_to_play_a_game() {$/;"	f
+insert_something	handle.class.php	/^	function insert_something($service_id, $service_name) {$/;"	f
+link_identifier	db.class.php	/^		$this->link_identifier = mysql_connect($this->server, $this->username, $this->password)$/;"	v
+link_identifier	db.class.php	/^	private $link_identifier;$/;"	v
+m_db	handle.class.php	/^		$this->m_db = new db("localhost", "root", "toor", "chehou");$/;"	v
+m_db	handle.class.php	/^	private $m_db;$/;"	v
+method	handle.class.php	/^		else if ($variable == "method") { $this->method = $value; }$/;"	v
+method	handle.class.php	/^	private $method;$/;"	v
+offset	handle.class.php	/^		$this->offset = 0;$/;"	v
+offset	handle.class.php	/^		if ($variable == "offset") { $this->offset = $value; }$/;"	v
+offset	handle.class.php	/^	private $offset;$/;"	v
+password	db.class.php	/^		$this->password = $password;$/;"	v
+password	db.class.php	/^	private $password;$/;"	v
+query	handle.class.php	/^			$query = "select l0_id, l0_name from {$this->table_name} limit {$this->offset}, {$this->row_limit}";$/;"	v
+query	handle.class.php	/^			$query = "select l1_id, l1_name, l0_id from {$this->table_name} limit {$this->offset}, {$this->row_limit}";$/;"	v
+query	handle.class.php	/^			$query = "select l2_id, l2_name, l1_id from {$this->table_name} limit {$this->offset}, {$this->row_limit}";$/;"	v
+query	handle.class.php	/^		$query = "delete from t_service where p_id = '{$service_id}'";$/;"	v
+query	handle.class.php	/^		$query = "insert t_service(p_id, p_name) values('{$service_id}', '{$service_name}')";$/;"	v
+query	handle.class.php	/^		$query = "update {$table_name} set p_name = '{$service_name}', p_count = '{$service_count}' where p_id = '{$service_id}'";$/;"	v
+resource	db.class.php	/^		$resource = mysql_query($query);$/;"	v
+result	db.class.php	/^			$result = $resource;$/;"	v
+row_limit	handle.class.php	/^		$this->row_limit = 10;$/;"	v
+row_limit	handle.class.php	/^		else if ($variable == "row_limit") { $this->row_limit = $value; }$/;"	v
+row_limit	handle.class.php	/^	private $row_limit;$/;"	v
+select_something	handle.class.php	/^	function select_something() {$/;"	f
+server	db.class.php	/^		$this->server = $server;$/;"	v
+server	db.class.php	/^	private $server;$/;"	v
+table_name	handle.class.php	/^		else if ($variable == "table_name") { $this->table_name = $value; }$/;"	v
+table_name	handle.class.php	/^	private $table_name;$/;"	v
+the_number_of_affected_rows	db.class.php	/^			$the_number_of_affected_rows = mysql_affected_rows($this->link_identifier);$/;"	v
+the_number_of_row	db.class.php	/^			$the_number_of_row = mysql_num_rows($result);$/;"	v
+the_number_of_row	handle.class.php	/^		$the_number_of_row = $this->m_db->execute_modify($query);$/;"	v
+the_number_of_row	handle.class.php	/^		$the_number_of_row = $this->m_db->execute_query($query);$/;"	v
+update_something	handle.class.php	/^	function update_something($table_name) {$/;"	f
+username	db.class.php	/^		$this->username = $username;$/;"	v
+username	db.class.php	/^	private $username;$/;"	v
