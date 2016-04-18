@@ -229,6 +229,14 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 	if (x <= l->stream_level)
 	{
 		vfprintf(l->stream, fmt, ap);
+		if (x <= warning)
+		{
+			ret = pflush();
+			assert(ret == 0);
+			// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
+			//	on January 1, 1970, Coordinated Universal Time (UTC).
+			localtime_r(&t1.tv_sec, &l->t1);
+		}
 	}
 	va_end(ap);
 
