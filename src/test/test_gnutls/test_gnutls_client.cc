@@ -158,8 +158,8 @@ int tcp_connect (void) {
   struct sockaddr_in addr;
   memset(&addr, 0, sizeof addr);
   addr.sin_family = domain;
-  uint16_t port = 443;
-  addr.sin_port = htons(443);
+  uint16_t port = 5556;
+  addr.sin_port = htons(port);
 
   struct hostent *ht;
   ht = gethostbyname(url);

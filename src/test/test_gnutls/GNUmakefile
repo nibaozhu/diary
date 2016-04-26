@@ -1,11 +1,18 @@
-test_gnutls: test_gnutls.o
+all: test_gnutls_client test_gnutls_server
+
+test_gnutls_client: test_gnutls_client.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-test_gnutls.o: test_gnutls.cc
+test_gnutls_server: test_gnutls_server.o
+	$(CXX) -o $@ $^ $(LDFLAGS)
 
-.PHONY:
+test_gnutls_client.o: test_gnutls_client.cc
+test_gnutls_server.o: test_gnutls_server.cc
+
+.PHONY: all clean
 clean:
-	rm test_gnutls test_gnutls.o
+	rm test_gnutls_client test_gnutls_client.o
+	rm test_gnutls_server test_gnutls_server.o
 
 CFLAGS=-g
 LDFLAGS=-lgnutls
