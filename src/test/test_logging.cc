@@ -54,15 +54,6 @@ int set_disposition()
 int main(int argc, char **argv)
 {
 	int retval = 0;
-	retval = set_disposition();
-	if (retval == EXIT_FAILURE)
-	{
-		return EXIT_FAILURE;
-	}
-
-	l = (struct logging*) malloc(sizeof (struct logging));
-	memset(l, 0, sizeof *l);
-
 	char name[PATH_MAX];
 	memset(name, 0, sizeof name);
 	if (argc > 0) {
@@ -76,6 +67,13 @@ int main(int argc, char **argv)
 			strncpy(name, ptr + 1, sizeof name - 1);
 		}
 
+	}
+
+	// retval = initializing(name, path, mode, stream_level, stdout_level, diff, cache_max, size_max);
+	retval = initializing(name);
+	if (retval == EXIT_FAILURE)
+	{
+		return EXIT_FAILURE;
 	}
 
 	struct timeval t0;
@@ -102,8 +100,7 @@ int main(int argc, char **argv)
 	// enum elevel stream_level = debug;
 	// enum elevel stdout_level = debug;
 
-	// retval = initializing(name, path, mode, stream_level, stdout_level, diff, cache_max, size_max);
-	retval = initializing(name);
+	retval = set_disposition();
 	if (retval == EXIT_FAILURE)
 	{
 		return EXIT_FAILURE;
@@ -142,6 +139,5 @@ int main(int argc, char **argv)
 	}
 
 	retval = uninitialized();
-	free(l);
 	return retval;
 }

@@ -13,6 +13,7 @@ void *start_routine(void *arg) {
 	pid_t pid = getpid();
 	pthread_t ptid = pthread_self();
 	printf("process_id = %d (0x%lx), thread_id = %lu (0x%lx), [%s] %d\n", pid, pid, ptid, ptid, (char*)arg, count++);
+
 	pthread_mutex_unlock(&mutex);
 	return arg;
 }
@@ -55,9 +56,8 @@ int main() {
 
 	int i;
 	for (i = 0; i < __MAX; i++) {
+		pthread_mutex_lock(&mutex);
 
-
-	pthread_mutex_lock(&mutex);
 		sprintf(arg, "Y%d", i);
 		ret = pthread_create(thread + i, attr, start_routine, arg);
 		if (ret != 0) {

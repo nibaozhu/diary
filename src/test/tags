@@ -15,9 +15,9 @@ MAX_EVENTS	test_client.c	17;"	d	file:
 MODE_MAX	../../include/logging.h	36;"	d
 SIZE_MAX	../../include/logging.h	16;"	d
 SIZE_MAX	../../include/logging.h	18;"	d
-__MAX	test_pthread.c	16;"	d	file:
-__MAX	test_pthread_with_lock.c	20;"	d	file:
-__MAX	test_pthread_with_sync.c	20;"	d	file:
+__MAX	test_pthread.c	17;"	d	file:
+__MAX	test_pthread_with_lock.c	24;"	d	file:
+__MAX	test_pthread_with_sync.c	21;"	d	file:
 __plog	../../include/logging.cc	/^int __plog(enum elevel x, const char *__file, unsigned int __line, const char *__function, const char *fmt, ...)$/;"	f
 alert	../../include/logging.h	/^	alert,			\/* action must be taken immediately *\/$/;"	e	enum:elevel
 cache	../../include/logging.h	/^	unsigned int cache; \/\/ logging has cache lines in memory$/;"	m	struct:logging
@@ -49,6 +49,8 @@ main	test_client.c	/^int main(int argc, char **argv)$/;"	f
 main	test_const.cc	/^int main()$/;"	f
 main	test_curl.c	/^int main(int ac, char **av) {$/;"	f
 main	test_digit.c	/^int main(void)$/;"	f
+main	test_equal.c	/^int main(){$/;"	f
+main	test_file.c	/^int main(int argc, char **argv) {$/;"	f
 main	test_gethostbyaddr.c	/^int main(int argc, char **argv) {$/;"	f
 main	test_gnu.c	/^int main(void) {$/;"	f
 main	test_list.cc	/^int main(void) {$/;"	f
@@ -56,13 +58,16 @@ main	test_logging.cc	/^int main(int argc, char **argv)$/;"	f
 main	test_map.cc	/^int main(void) {$/;"	f
 main	test_multimap.cc	/^int main(void) {$/;"	f
 main	test_or.c	/^int main(int ac, char **argv) {$/;"	f
+main	test_protobuf.cc	/^int main() {$/;"	f
 main	test_pthread.c	/^int main() {$/;"	f
 main	test_pthread_with_lock.c	/^int main() {$/;"	f
 main	test_pthread_with_sync.c	/^int main() {$/;"	f
 main	test_regex.c	/^int main(int argc, char **argv)$/;"	f
 main	test_regex.cpp	/^int main(void) {$/;"	f
+main	test_rlimit.c	/^int main() {$/;"	f
 main	test_sizeof.c	/^int main() {$/;"	f
 main	test_sqlite3.c	/^int main(int argc, char **argv)$/;"	f
+main	test_std.c	/^int main(void) {$/;"	f
 main	test_string.cc	/^int main(void) {$/;"	f
 main	test_thread.cc	/^int main() {$/;"	f
 main	test_unorderedmap.cc	/^int main(void) {$/;"	f

@@ -9,10 +9,14 @@
 pthread_mutex_t mutex; // = PTHREAD_MUTEX_INITIALIZER;
 
 void *start_routine(void *arg) {
+
+	static int g_i = 0;
+	pthread_mutex_lock(&mutex);
+
 	pid_t pid = getpid();
 	pthread_t ptid = pthread_self();
 
-	printf("process_id = %d (0x%lx), thread_id = %lu (0x%lx), [%s]\n", pid, pid, ptid, ptid, (char*)arg);
+	printf("process_id = %d (0x%lx), thread_id = %lu (0x%lx), [%s], [g_i=%x]\n", pid, pid, ptid, ptid, (char*)arg, g_i++);
 	pthread_mutex_unlock(&mutex);
 	return arg;
 }
@@ -56,9 +60,7 @@ int main() {
 	int i;
 	for (i = 0; i < __MAX; i++) {
 
-		pthread_mutex_lock(&mutex);
-
-		sprintf(arg, "YES%x", i);
+		sprintf(arg, "YES%d", i);
 		ret = pthread_create(thread + i, attr, start_routine, arg);
 		if (ret != 0) {
 			printf("%s(%d)\n", strerror(ret), ret);
@@ -86,5 +88,12 @@ int main() {
 
 	free(arg);
 	free(thread);
+
+	ret = pthread_mutex_destroy(&mutex);
+	if (ret != 0) {
+		printf("%s(%d)\n", strerror(ret), ret);
+		return ret;
+	}
+
 	return ret;
 }

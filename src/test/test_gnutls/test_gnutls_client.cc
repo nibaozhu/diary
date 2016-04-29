@@ -82,7 +82,6 @@ main (int argc, char **argv)
   /* connect to the peer
    */
   sd = tcp_connect ();
-  // gnutls_transport_set_ptr (session, (gnutls_transport_ptr_t) gl_fd_to_handle(sd));
   gnutls_transport_set_ptr (session, (gnutls_transport_ptr_t) reinterpret_cast<void*>(sd));
 
   /* Perform the TLS handshake
@@ -158,7 +157,7 @@ int tcp_connect (void) {
   struct sockaddr_in addr;
   memset(&addr, 0, sizeof addr);
   addr.sin_family = domain;
-  uint16_t port = 5556;
+  uint16_t port = 443;
   addr.sin_port = htons(port);
 
   struct hostent *ht;

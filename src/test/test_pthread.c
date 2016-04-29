@@ -9,6 +9,7 @@
 void *start_routine(void *arg) {
 	pid_t pid = getpid();
 	pthread_t ptid = pthread_self();
+	usleep(rand() % 100);
 	printf("[%s], process_id = %d (0x%lx), thread_id = %lu (0x%lx)\n", (char*)arg, pid, pid, ptid, ptid);
 	return arg;
 }
