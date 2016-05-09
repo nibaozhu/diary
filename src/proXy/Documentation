@@ -1,0 +1,83 @@
+* How to start proXy? (inet_addr: 0.0.0.0, port: 12340)
+	$ ./proXy
+
+* How to register client to server?
+When TCP is established, client should be send a register-message.
+For example: Use ID = 1
+
+	+---------------+---------------+---------------+---------------+
+	|uint32_t	|uint32_t	|uint32_t	|byte		/
+	+---------------+---------------+---------------+---------------/
+	|0		|1		|1		|(nil)		/
+	+---------------+---------------+---------------+---------------+
+
+* Message Protocol
+For example: Sender ID = 1, Receiver ID = 2. Body = "Hello", Length = 5
+
+	+---------------+---------------+---------------+---------------+
+	|Length		|ID[0]		|ID[1]		|Body		|
+	+---------------+---------------+---------------+---------------+
+	|uint32_t	|uint32_t	|uint32_t	|byte		/
+	+---------------+---------------+---------------+---------------/
+	|5		|1		|2		|Hello		/
+	+---------------+---------------+---------------+---------------+
+
+* Send HeartBeat
+Set ID[1] = ID[0].
+For example: ID[0] = 1
+
+	+---------------+---------------+---------------+---------------+
+	|uint32_t	|uint32_t	|uint32_t	|byte		/
+	+---------------+---------------+---------------+---------------/
+	|0		|1		|1		|(nil)		/
+	+---------------+---------------+---------------+---------------+
+
+* Exception Handle
+If sender's ID[0] is not equal the register ID, it will discard Message, and close client socket.
+
+* Note
+	(nil) means void or nothing.
+
+
+$ vim +44 /usr/include/sys/epoll.h
+...
+enum EPOLL_EVENTS
+  {
+    EPOLLIN = 0x001,
+#define EPOLLIN EPOLLIN
+    EPOLLPRI = 0x002,
+#define EPOLLPRI EPOLLPRI
+    EPOLLOUT = 0x004,
+#define EPOLLOUT EPOLLOUT
+    EPOLLRDNORM = 0x040,
+#define EPOLLRDNORM EPOLLRDNORM
+    EPOLLRDBAND = 0x080,
+#define EPOLLRDBAND EPOLLRDBAND
+    EPOLLWRNORM = 0x100,
+#define EPOLLWRNORM EPOLLWRNORM
+    EPOLLWRBAND = 0x200,
+#define EPOLLWRBAND EPOLLWRBAND
+    EPOLLMSG = 0x400,
+#define EPOLLMSG EPOLLMSG
+    EPOLLERR = 0x008,
+#define EPOLLERR EPOLLERR
+    EPOLLHUP = 0x010,
+#define EPOLLHUP EPOLLHUP
+    EPOLLRDHUP = 0x2000,
+#define EPOLLRDHUP EPOLLRDHUP
+    EPOLLONESHOT = (1 << 30),
+#define EPOLLONESHOT EPOLLONESHOT
+    EPOLLET = (1 << 31)
+#define EPOLLET EPOLLET
+  };
+...
+
+
+*Bugs1:
+
+======
+Fixed!
+======
+$ lsof -i:12340
+If Transport::rp != 0 or Transport::wp != 0, When Client ACTIVE closes, and Connection will be set "(CLOSE_WAIT)" status.
+
