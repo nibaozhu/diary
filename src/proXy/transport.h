@@ -21,6 +21,8 @@
 
 #include <arpa/inet.h>
 #include <sys/types.h>
+#include <netdb.h>
+extern int h_errno;
 #include "logging.h"
 
 /* output BYTES bytes per line */
@@ -29,9 +31,11 @@
 /* 1024 bytes = 1KB */
 #define SIZE (1<<10)
 
+#define MAX_EVENTS (1<<8)
+#define BUFFER_MAX (1<<8)
+
 class Transport {
 	private:
-		uint32_t id; /* unsigned int 32 */
 		time_t created; /* the first communication time */
 		time_t updated; /* the lastest communication time */
 		bool alive; /* true: live; false: die */
@@ -54,7 +58,6 @@ class Transport {
 			this->created = created;
 			this->updated = this->created;
 
-			this->id = 0;
 			this->fd = fd;
 			this->peer_addr = peer_addr;
 			this->peer_addrlen = peer_addrlen;
@@ -78,15 +81,6 @@ class Transport {
 
 			plog(debug, "Construct %p. malloc rx = %p, rp = 0x%lx, rs = 0x%lx, malloc wx = %p, wp = 0x%lx, ws = 0x%lx\n", 
 					this, this->rx, this->rp, this->rs, this->wx, this->wp, this->ws);
-		}
-
-		uint32_t set_id(uint32_t id) {
-			this->created = time(NULL);
-			return this->id = id;
-		}
-
-		uint32_t get_id() {
-			return this->id;
 		}
 
 		time_t set_updated() {

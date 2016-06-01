@@ -5,8 +5,6 @@
 #include "task.h"
 #include "version.h"
 
-#define MAX_EVENTS (1<<8)
-#define BUFFER_MAX (1<<8)
 struct epoll_event ev, events[MAX_EVENTS];
 int listen_sock, nfds, epollfd;
 struct sockaddr_in addr;
@@ -291,7 +289,8 @@ int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 				}
 			}
 
-			__m->erase(t->get_id());
+			// XXX
+			// __m->erase(t->get_id());
 			delete t;
 			m->erase(im++);
 		}
@@ -490,7 +489,8 @@ void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 
 			r->remove(t);
 			w->remove(t);
-			__m->erase(t->get_id());
+			// XXX
+			// __m->erase(t->get_id());
 			m->erase(im++);
 			delete t;
 		} else {

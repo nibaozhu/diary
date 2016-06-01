@@ -9,22 +9,72 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 	int ret = 0;
 	int i = 0;
 	uint32_t length = 0;
-	uint32_t id[2] = {0, 0};
+	const char *iterator_position = (const char *)t->get_rx();
 
 	t->pr();
 	do {
-		/* MESSAGE HEAD */
+		/* TODO: HTTP PROTOCOL PROXY */
+
+		/* HTTP HEADER */
+		const char *haystack = iterator_position;
+		const char *needle = (const char *)"\r\n\r\n";
+		const char *occurrence_RNRN = strstr(haystack, needle);
+		plog(debug, "occurrence_RNRN(\\r\\n\\r\\n) = %p\n", occurrence_RNRN);
+		if (occurrence_RNRN) {
+
+			size_t http_header_length = occurrence_RNRN - haystack + 1;
+			char *http_header = (char *)malloc(http_header_length + 1);
+			memset(http_header, 0, http_header_length + 1);
+			memcpy(http_header, t->get_rx(), http_header_length);
+			plog(info, "--- HTTP HEADER ---\n%s\n-------------------\n", http_header);
+
+			haystack = (const char *)http_header;
+			needle = (const char *)"Host: ";
+			const char *occurrence_H = strstr(haystack, needle);
+			if (occurrence_H) {
+
+			} else {
+				break;
+			}
+
+			haystack = occurrence_H;
+			needle = (const char *)"\r\n";
+			const char *occurrence_line_ending = strstr(haystack, needle);
+			if (occurrence_line_ending) {
+
+			} else {
+				break;
+			}
+
+			size_t http_header_host_length = occurrence_line_ending - occurrence_H - strlen("Host: ");
+			char *http_header_host = (char *)malloc(http_header_host_length + 1);
+			memset(http_header_host, 0, http_header_host_length + 1);
+			memcpy(http_header_host, occurrence_H + strlen("Host: "), http_header_host_length);
+
+			plog(debug, "Host: %s\n", http_header_host);
+
+			int connect_sock = 0;
+			ret = connect_to_host(http_header_host, connect_sock);
+			if (ret == -1) {
+				continue;
+			}
+
+
+			free(http_header_host);
+			http_header_host = NULL;
+
+			free(http_header);
+			http_header = NULL;
+
+			iterator_position = occurrence_RNRN + strlen("\r\n\r\n");
+		} else {
+			break;
+		}
+
+#if 0
 		if (t->get_rp() >= 3 * sizeof (uint32_t)) {
 			memcpy(&length, t->get_rx(), sizeof (uint32_t));
-			length = ntohl(length);
 
-			memcpy(&id[0], (char *)t->get_rx() + sizeof (uint32_t), sizeof (uint32_t));
-			id[0] = ntohl(id[0]);
-
-			memcpy(&id[1], (char *)t->get_rx() + 2 * sizeof (uint32_t), sizeof (uint32_t));
-			id[1] = ntohl(id[1]);
-
-			plog(notice, "[+] Transaction(%d) Begin: length = 0x%x, id = {0x%x(0x%x), 0x%x}\n", i, length, id[0], t->get_id(), id[1]);
 		} else {
 			/* Back to wait message. */
 			break;
@@ -85,6 +135,7 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 		}
 
 		plog(info, "[x] Transaction(%d) Passed.\n", i++);
+#endif
 	} while (true);
 
 	if (t->get_rp() != 0) {

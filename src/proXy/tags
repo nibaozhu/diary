@@ -4,24 +4,24 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
-BUFFER_MAX	task.cc	9;"	d	file:
+BUFFER_MAX	transport.h	35;"	d
 CPPFLAGS	GNUmakefile	/^CPPFLAGS=-I ..\/..\/include$/;"	m
-CXXFLAGS	GNUmakefile	/^CXXFLAGS=-O0 -U NDEBUG -U DEBUG_LOGGING -funsigned-char -g3 -std=c++0x -Wall -Wextra -Werror -m64$/;"	m
+CXXFLAGS	GNUmakefile	/^CXXFLAGS=-O0 -U NDEBUG -U DEBUG_LOGGING -funsigned-char -g3 -std=c++0x -Wall -m64$/;"	m
 DATE_MAX	../../include/logging.h	37;"	d
 HANDLE_H	handle.h	6;"	d
 LDFLAGS	GNUmakefile	/^LDFLAGS=$/;"	m
 LOGGING_H	../../include/logging.h	9;"	d
 MAIN_H	main.h	6;"	d
-MAX_EVENTS	task.cc	8;"	d	file:
+MAX_EVENTS	transport.h	34;"	d
 MODE_MAX	../../include/logging.h	36;"	d
-SIZE	transport.h	30;"	d
+SIZE	transport.h	32;"	d
 SIZE_MAX	../../include/logging.h	16;"	d
 SIZE_MAX	../../include/logging.h	18;"	d
 TASK_H	task.h	6;"	d
 TRANSPORT_H	transport.h	6;"	d
 Transport	transport.h	/^		Transport(int fd, time_t created, struct sockaddr_in peer_addr, socklen_t peer_addrlen, size_t size = SIZE) {$/;"	f	class:Transport
 Transport	transport.h	/^class Transport {$/;"	c
-WIDTH	transport.h	27;"	d
+WIDTH	transport.h	29;"	d
 __plog	../../include/logging.cc	/^int __plog(enum elevel x, const char *__file, unsigned int __line, const char *__function, const char *fmt, ...)$/;"	f
 addr	task.cc	/^struct sockaddr_in addr;$/;"	v	typeref:struct:sockaddr_in
 alert	../../include/logging.h	/^	alert,			\/* action must be taken immediately *\/$/;"	e	enum:elevel
@@ -33,6 +33,7 @@ clear_color	../../include/logging.cc	/^const char *clear_color = "\\e[0m";$/;"	v
 clear_rx	transport.h	/^		void *clear_rx(size_t size = SIZE) {$/;"	f	class:Transport
 clear_wx	transport.h	/^		void *clear_wx(size_t size = SIZE) {$/;"	f	class:Transport
 color	../../include/logging.cc	/^const char *color[debug + 1] = $/;"	v
+connect_to_host	client.cc	/^int connect_to_host(const char *host, int &connect_sock) {$/;"	f
 created	transport.h	/^		time_t created; \/* the first communication time *\/$/;"	m	class:Transport
 critical	../../include/logging.h	/^	critical,		\/* critical conditions *\/$/;"	e	enum:elevel
 debug	../../include/logging.h	/^	debug,			\/* debug-level messages *\/$/;"	e	enum:elevel
@@ -49,7 +50,6 @@ fd	transport.h	/^		int fd; \/* file descriptor *\/$/;"	m	class:Transport
 get_alive	transport.h	/^		bool get_alive() {$/;"	f	class:Transport
 get_events	transport.h	/^		__uint32_t get_events() {$/;"	f	class:Transport
 get_fd	transport.h	/^		int get_fd() {$/;"	f	class:Transport
-get_id	transport.h	/^		uint32_t get_id() {$/;"	f	class:Transport
 get_peer	transport.h	/^		struct sockaddr_in get_peer(struct sockaddr_in *peer_addr, socklen_t *peer_addrlen) {$/;"	f	class:Transport
 get_rp	transport.h	/^		size_t get_rp() {$/;"	f	class:Transport
 get_rs	transport.h	/^		size_t get_rs() {$/;"	f	class:Transport
@@ -62,7 +62,6 @@ get_wx	transport.h	/^		void *get_wx() {$/;"	f	class:Transport
 handle	handle.cc	/^int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *__m, Transport* t) {$/;"	f
 handler	task.cc	/^void handler(int signum) {$/;"	f
 home	version.h	/^const char *home = "https:\/\/github.com\/nibaozhu\/mycode";$/;"	v
-id	transport.h	/^		uint32_t id; \/* unsigned int 32 *\/$/;"	m	class:Transport
 info	../../include/logging.h	/^	info,			\/* informational *\/$/;"	e	enum:elevel
 init	task.cc	/^int init(int argc, char **argv) {$/;"	f
 initializing	../../include/logging.cc	/^int initializing(const char *name, const char *path, const char *mode, enum elevel stream_level, enum elevel stdout_level, time_t diff, unsigned int cache_max, unsigned long size_max)$/;"	f
@@ -98,7 +97,6 @@ set_alive	transport.h	/^		bool set_alive(bool alive) {$/;"	f	class:Transport
 set_disposition	task.cc	/^void set_disposition() {$/;"	f
 set_events	transport.h	/^		__uint32_t set_events(__uint32_t events) {$/;"	f	class:Transport
 set_fd	transport.h	/^		int set_fd(int fd) {$/;"	f	class:Transport
-set_id	transport.h	/^		uint32_t set_id(uint32_t id) {$/;"	f	class:Transport
 set_peer	transport.h	/^		struct sockaddr_in set_peer(struct sockaddr_in peer_addr, socklen_t peer_addrlen) {$/;"	f	class:Transport
 set_rp	transport.h	/^		size_t set_rp(size_t rp) {$/;"	f	class:Transport
 set_rs	transport.h	/^		size_t set_rs(size_t rs) {$/;"	f	class:Transport
