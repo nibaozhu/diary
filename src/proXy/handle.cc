@@ -26,7 +26,7 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 			char *http_header = (char *)malloc(http_header_length + 1);
 			memset(http_header, 0, http_header_length + 1);
 			memcpy(http_header, t->get_rx(), http_header_length);
-			plog(info, "--- HTTP HEADER ---\n%s\n-------------------\n", http_header);
+			plog(info, "--- HTTP HEADER ---\n%s\n------------------------------------------- HTTP ----------\n", http_header);
 
 			haystack = (const char *)http_header;
 			needle = (const char *)"Host: ";

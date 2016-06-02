@@ -5,11 +5,11 @@
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
 BUFFER_MAX	transport.h	35;"	d
-CPPFLAGS	GNUmakefile	/^CPPFLAGS=-I ..\/..\/include$/;"	m
-CXXFLAGS	GNUmakefile	/^CXXFLAGS=-O0 -U NDEBUG -U DEBUG_LOGGING -funsigned-char -g3 -std=c++0x -Wall -m64$/;"	m
+CPPFLAGS	Makefile	/^CPPFLAGS=-I ..\/..\/include$/;"	m
+CXXFLAGS	Makefile	/^CXXFLAGS=-O0 -U NDEBUG -U DEBUG_LOGGING -funsigned-char -g3 -std=c++0x -Wall -m64$/;"	m
 DATE_MAX	../../include/logging.h	37;"	d
 HANDLE_H	handle.h	6;"	d
-LDFLAGS	GNUmakefile	/^LDFLAGS=$/;"	m
+LDFLAGS	Makefile	/^LDFLAGS=$/;"	m
 LOGGING_H	../../include/logging.h	9;"	d
 MAIN_H	main.h	6;"	d
 MAX_EVENTS	transport.h	34;"	d
