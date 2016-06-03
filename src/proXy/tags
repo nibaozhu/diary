@@ -13,7 +13,13 @@ LDFLAGS	Makefile	/^LDFLAGS=$/;"	m
 LOGGING_H	../../include/logging.h	9;"	d
 MAIN_H	main.h	6;"	d
 MAX_EVENTS	transport.h	34;"	d
+METHOD_CONNECT	transport.h	44;"	d
+METHOD_GET	transport.h	42;"	d
+METHOD_POST	transport.h	43;"	d
 MODE_MAX	../../include/logging.h	36;"	d
+PORT	transport.h	/^enum PORT{$/;"	g
+PORT_HTTP	transport.h	/^	PORT_HTTP = 80,$/;"	e	enum:PORT
+PORT_HTTPS	transport.h	/^	PORT_HTTPS = 443,$/;"	e	enum:PORT
 SIZE	transport.h	32;"	d
 SIZE_MAX	../../include/logging.h	16;"	d
 SIZE_MAX	../../include/logging.h	18;"	d
@@ -33,7 +39,7 @@ clear_color	../../include/logging.cc	/^const char *clear_color = "\\e[0m";$/;"	v
 clear_rx	transport.h	/^		void *clear_rx(size_t size = SIZE) {$/;"	f	class:Transport
 clear_wx	transport.h	/^		void *clear_wx(size_t size = SIZE) {$/;"	f	class:Transport
 color	../../include/logging.cc	/^const char *color[debug + 1] = $/;"	v
-connect_to_host	client.cc	/^int connect_to_host(const char *host, int &connect_sock) {$/;"	f
+connect_to_host	client.cc	/^int connect_to_host(const char *host, uint16_t port, const char *buf, size_t count) {$/;"	f
 created	transport.h	/^		time_t created; \/* the first communication time *\/$/;"	m	class:Transport
 critical	../../include/logging.h	/^	critical,		\/* critical conditions *\/$/;"	e	enum:elevel
 debug	../../include/logging.h	/^	debug,			\/* debug-level messages *\/$/;"	e	enum:elevel

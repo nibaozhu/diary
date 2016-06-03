@@ -19,10 +19,20 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 		const char *haystack = iterator_position;
 		const char *needle = (const char *)"\r\n\r\n";
 		const char *occurrence_RNRN = strstr(haystack, needle);
+		uint16_t port = PORT_HTTP;
 		plog(debug, "occurrence_RNRN(\\r\\n\\r\\n) = %p\n", occurrence_RNRN);
 		if (occurrence_RNRN) {
 
-			size_t http_header_length = occurrence_RNRN - haystack + 1;
+			if (strncmp(haystack, METHOD_GET, strlen(METHOD_GET)) == 0) {
+				plog(debug, "%s\n", METHOD_GET);
+			} else if (strncmp(haystack, METHOD_POST, strlen(METHOD_POST)) == 0) {
+				plog(debug, "%s\n", METHOD_POST);
+			} else if (strncmp(haystack, METHOD_CONNECT, strlen(METHOD_CONNECT)) == 0) {
+				port = PORT_HTTPS;
+				plog(debug, "%s\n", METHOD_CONNECT);
+			}
+
+			size_t http_header_length = occurrence_RNRN - haystack + strlen(needle);
 			char *http_header = (char *)malloc(http_header_length + 1);
 			memset(http_header, 0, http_header_length + 1);
 			memcpy(http_header, t->get_rx(), http_header_length);
@@ -30,14 +40,14 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 
 			haystack = (const char *)http_header;
 			needle = (const char *)"Host: ";
-			const char *occurrence_H = strstr(haystack, needle);
-			if (occurrence_H) {
+			const char *occurrence_Host = strstr(haystack, needle);
+			if (occurrence_Host) {
 
 			} else {
 				break;
 			}
 
-			haystack = occurrence_H;
+			haystack = occurrence_Host;
 			needle = (const char *)"\r\n";
 			const char *occurrence_line_ending = strstr(haystack, needle);
 			if (occurrence_line_ending) {
@@ -46,15 +56,14 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 				break;
 			}
 
-			size_t http_header_host_length = occurrence_line_ending - occurrence_H - strlen("Host: ");
+			size_t http_header_host_length = occurrence_line_ending - occurrence_Host - strlen("Host: ");
 			char *http_header_host = (char *)malloc(http_header_host_length + 1);
 			memset(http_header_host, 0, http_header_host_length + 1);
-			memcpy(http_header_host, occurrence_H + strlen("Host: "), http_header_host_length);
+			memcpy(http_header_host, occurrence_Host + strlen("Host: "), http_header_host_length);
 
 			plog(debug, "Host: %s\n", http_header_host);
 
-			int connect_sock = 0;
-			ret = connect_to_host(http_header_host, connect_sock);
+			ret = connect_to_host(http_header_host, port, iterator_position, http_header_length);
 			if (ret == -1) {
 				continue;
 			}
@@ -71,71 +80,6 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint
 			break;
 		}
 
-#if 0
-		if (t->get_rp() >= 3 * sizeof (uint32_t)) {
-			memcpy(&length, t->get_rx(), sizeof (uint32_t));
-
-		} else {
-			/* Back to wait message. */
-			break;
-		}
-
-		/* MESSAGE BODY */
-		if (id[0] == id[1] && id[0] != 0 && t->get_rp() >= (3 * sizeof (uint32_t) + length)) {
-			if (t->get_id() != id[0]) {
-				if (t->get_id() != 0) {
-					__m->erase(t->get_id());
-					plog(warning, "Erase pair{id(0x%x), fd(%d)} from __m(%p)\n", t->get_id(), t->get_fd(), __m);
-				}
-
-				t->set_id(id[0]);
-				__m->insert(std::make_pair(t->get_id(), t->get_fd()));
-				plog(info, "Insert pair{id(0x%x), fd(%d)} into __m(%p)\n", t->get_id(), t->get_fd(), __m);
-				plog(notice, "Welcome and Echo. id = 0x%x\n", id[0]);
-			}
-
-			t->set_wx(t->get_rx(), 3 * sizeof (uint32_t) + length);
-			memmove(t->get_rx(), (const void *)((char *)t->get_rx() + (3 * sizeof (uint32_t) + length)), t->get_rp() - (3 * sizeof (uint32_t) + length));
-			t->set_rp(t->get_rp() - (3 * sizeof (uint32_t) + length));
-			w->push_back(t);
-		} else if (t->get_rp() >= (3 * sizeof (uint32_t) + length)) {
-			plog(notice, "Message completed(=0x%x).\n", (unsigned int)(3 * sizeof (uint32_t)) + length);
-			if (t->get_id() != id[0]) {
-				plog(warning, "id = 0x%x, Non self(0x%x).\n", id[0], t->get_id());
-				t->clear_rx();
-				break;
-			}
-
-			int fx = 0;
-			Transport* tx = NULL;
-
-			std::map<uint32_t, int>::iterator ie = __m->find(id[1]);
-			if (ie != __m->end()) {
-				fx = ie->second;
-			} else {
-				plog(info, "Back to wait id(0x%x)\n", id[1]);
-				break;
-			}
-
-			std::map<int, Transport*>::iterator im = m->find(fx);
-			if (im != m->end()) {
-				tx = im->second;
-			} else {
-				plog(info, "Back to wait id(0x%x)\n", id[1]);
-				break;
-			}
-
-			tx->set_wx(t->get_rx(), (3 * sizeof (uint32_t) + length));
-			memmove(t->get_rx(), (const void *)((char *)t->get_rx() + (3 * sizeof (uint32_t) + length)), t->get_rp() - (3 * sizeof (uint32_t) + length));
-			t->set_rp(t->get_rp() - (3 * sizeof (uint32_t) + length));
-			w->push_back(tx);
-		} else {
-			/* Back to wait message. */
-			break;
-		}
-
-		plog(info, "[x] Transaction(%d) Passed.\n", i++);
-#endif
 	} while (true);
 
 	if (t->get_rp() != 0) {

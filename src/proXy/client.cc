@@ -7,13 +7,15 @@
 
 extern struct epoll_event ev, events[MAX_EVENTS];
 extern int listen_sock, nfds, epollfd;
+extern bool quit;
 
-int connect_to_host(const char *host, int &connect_sock) {
+int connect_to_host(const char *host, uint16_t port, const char *buf, size_t count) {
 	int ret = 0;
 
 	int domain = AF_INET;
 	int type = SOCK_STREAM;
 	int protocol = 0;
+	int connect_sock = 0;
 
 	do {
 		connect_sock = socket(domain, type, protocol);
@@ -24,7 +26,6 @@ int connect_to_host(const char *host, int &connect_sock) {
 		}
 
 		char name[NAME_MAX] = {0};
-		uint16_t port = 80;
 
 		const char *haystack = host;
 		const char *needle = (const char *)":";
@@ -92,33 +93,66 @@ int connect_to_host(const char *host, int &connect_sock) {
 			break;
 		}
 
-#if 0
-		time_t created = time(NULL);
 		plog(notice, "It creates a new connected socket = %d.\n", connect_sock);
 		ret = setnonblocking(connect_sock); /* Set Non Blocking */
 		if (ret == -1) {
 			break;
 		}
 
-		ev.events = EPOLLIN | EPOLLRDHUP; /* Level Triggered */
-		ev.data.fd = connect_sock;
-		ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, ev.data.fd, &ev);
-		if (ret == -1) {
+
+		ssize_t rets = write(connect_sock, buf, count);
+		if (rets == -1) {
 			plog(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		}
+		plog(notice, "buf[%ld] = %s\n", rets, buf);
 
-		plog(notice, "NAME %s:%u\n", dst, port);
-		socklen_t dst_addrlen = sizeof (struct sockaddr_in);
-		Transport* t = NULL;
 
-		struct sockaddr_in peer_addr;
-		socklen_t peer_addrlen = sizeof (struct sockaddr_in);
-		memset(&peer_addr, 0, sizeof (struct sockaddr_in));
+		int nfds = connect_sock + 1;
+		fd_set readfds;
+		fd_set writefds;
+		fd_set exceptfds;
+		struct timeval timeout;
 
-		t = new Transport(connect_sock, created, dst, dst_addrlen);
-		m->insert(std::make_pair(connect_sock, t));
-#endif
+		FD_ZERO(&readfds);
+		FD_ZERO(&writefds);
+		FD_ZERO(&exceptfds);
+		FD_SET(connect_sock, &readfds);
+
+		do {
+			timeout.tv_sec = 3; /* seconds */
+
+			ret = select(nfds, &readfds, &writefds, &exceptfds, &timeout);
+			if (ret == -1) {
+				plog(error, "%s(%d)\n", strerror(errno), errno);
+				break;
+			} else if (ret == 0) {
+				plog(error, "timeout\n");
+			} else if (ret > 0) {
+				plog(debug, "FD_ISSET(%d, %p) = %d\n", connect_sock, &readfds, FD_ISSET(connect_sock, &readfds));
+
+
+				char rbuf[BUFFER_MAX] = {0};
+				size_t rcount = BUFFER_MAX;
+				rets = read(connect_sock, rbuf, rcount);
+
+				plog(notice, "rbuf[%ld] = %s\n", rets, rbuf);
+				memset(rbuf, 0, rets);
+
+				if (rets == -1) {
+					plog(error, "%s(%d)\n", strerror(errno), errno);
+				} else if ((size_t)rets == rcount) {
+					;
+				} else if ((size_t)rets == 0) {
+					break; // Closed
+				}
+
+			}
+
+			if (quit) {
+				break;
+			}
+		} while (true);
 
 	} while (false);
 

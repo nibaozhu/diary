@@ -31,8 +31,18 @@ extern int h_errno;
 /* 1024 bytes = 1KB */
 #define SIZE (1<<10)
 
-#define MAX_EVENTS (1<<8)
-#define BUFFER_MAX (1<<8)
+#define MAX_EVENTS (1<<16)
+#define BUFFER_MAX (1<<16)
+
+enum PORT{
+	PORT_HTTP = 80,
+	PORT_HTTPS = 443,
+};
+
+#define METHOD_GET "GET"
+#define METHOD_POST "POST"
+#define METHOD_CONNECT "CONNECT"
+
 
 class Transport {
 	private:
