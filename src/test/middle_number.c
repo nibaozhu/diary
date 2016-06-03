@@ -1,10 +1,10 @@
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 
-#define NMEMB_MAX (1<<0x14) // 1MB
 #define ARR_MAX (1<<0x10) // 64KB
+#define NMEMB_MAX (1<<0x14) // 1MB
 
 int main() {
 	int r = 0;
@@ -18,10 +18,10 @@ int main() {
 	size_t arr[ARR_MAX] = {0};
 	size_t size = sizeof (unsigned int);
 	size_t nmemb = NMEMB_MAX;
-	unsigned int *ptr = malloc(nmemb * size);
 	size_t rs = 0;
 	size_t count = 0;
 	size_t i = 0;
+	unsigned int *ptr = malloc(nmemb * size);
 	memset(ptr, 0, nmemb * size);
 	do {
 		i = 0;
