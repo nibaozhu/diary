@@ -533,7 +533,7 @@ void task_w(std::list<Transport*> *w) {
 			ev.events = EPOLLIN | EPOLLRDHUP; /* Level Triggered */
 			ev.data.fd = t->get_fd();
 
-			int _ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, ev.data.fd, &ev);
+			int _ret = epoll_ctl(epollfd, EPOLL_CTL_MOD, ev.data.fd, &ev);
 			if (_ret == -1) {
 				plog(warning, "%s(%d)\n", strerror(errno), errno);
 			}
