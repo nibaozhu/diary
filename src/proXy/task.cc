@@ -268,7 +268,7 @@ int init(int argc, char **argv) {
 	return ret;
 }
 
-int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *__m) {
+int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::list<Transport*> *c) {
 	int ret = 0;
 	do {
 		r->clear();
@@ -289,16 +289,14 @@ int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 				}
 			}
 
-			// XXX
-			// __m->erase(t->get_id());
 			delete t;
 			m->erase(im++);
 		}
 		m->clear();
 		delete m;
 
-		__m->clear();
-		delete __m;
+		c->clear();
+		delete c;
 
 		if (listen_sock > 0) {
 			plog(info, "Close passive file = %d.\n", listen_sock);
@@ -325,8 +323,8 @@ int task(int argc, char **argv) {
 	int ret = 0;
 	std::list<Transport*> *r = new std::list<Transport*>();
 	std::list<Transport*> *w = new std::list<Transport*>();
+	std::list<Transport*> *c = new std::list<Transport*>();
 	std::map<int, Transport*> *m = new std::map<int, Transport*>(); /* ONE-FILE-DESCRIPTER versus ONE-TRANSPORT-OBJECT */
-	std::map<uint32_t, int> *__m = new std::map<uint32_t, int>(); /* ONE-ID versus ONE-FILE-DESCRIPTER */
 	do {
 		srand(getpid());
 		ret = init(argc, argv);
@@ -336,11 +334,11 @@ int task(int argc, char **argv) {
 
 		do {
 			task_r(r, w, m);
-			task_x(r, w, m, __m);
+			task_x(r, w, m, c);
 			task_w(w);
 		} while (!quit);
 	} while (false);
-	ret = uninit(r, w, m, __m);
+	ret = uninit(r, w, m, c);
 	return ret;
 }
 
@@ -471,7 +469,7 @@ void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 	return ;
 }
 
-void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<uint32_t, int> *__m) {
+void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::list<Transport*> *c) {
 	assert(r != NULL && w != NULL && m != NULL);
 
 	time_t ti = time(NULL); /* time() returns the time since the Epoch (00:00:00 UTC, January 1, 1970), measured in seconds. */
@@ -489,8 +487,6 @@ void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 
 			r->remove(t);
 			w->remove(t);
-			// XXX
-			// __m->erase(t->get_id());
 			m->erase(im++);
 			delete t;
 		} else {
@@ -501,15 +497,31 @@ void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 	r->sort();
 	r->unique();
 
-	std::list<Transport*>::iterator i = r->begin();
+	int ret = 0;
+	Transport *t = NULL;
+	std::list<Transport*>::iterator i;
+
+	i = r->begin();
 	while (i != r->end()) {
-		Transport* t = *i;
-		int ret = handle(w, m, __m, t);
+		t = *i;
+		ret = handle(w, m, c, t);
 		if (ret == -1) {
-			plog(error, "Handle fail.\n");
+			plog(error, "handle fail.\n");
 		}
 		i = r->erase(i);
 	}
+
+	i = c->begin();
+	while (i != c->end()) {
+		t = *i;
+		plog(error, "t = %p\n", t);
+		ret = task_c(m, w, t);
+		if (ret == -1) {
+			plog(error, "task_c fail.\n");
+		}
+		i = c->erase(i);
+	}
+
 	return ;
 }
 
@@ -529,11 +541,11 @@ void task_w(std::list<Transport*> *w) {
 
 		writes(t);
 
-		if (t->get_wp() == 0 && t->get_events() & EPOLLOUT) {
+		if (t->get_wp() == 0 && (t->get_events() & EPOLLOUT)) {
 			ev.events = EPOLLIN | EPOLLRDHUP; /* Level Triggered */
 			ev.data.fd = t->get_fd();
 
-			int _ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, ev.data.fd, &ev);
+			int _ret = epoll_ctl(epollfd, EPOLL_CTL_MOD, ev.data.fd, &ev);
 			if (_ret == -1) {
 				plog(warning, "%s(%d)\n", strerror(errno), errno);
 			}
@@ -542,5 +554,179 @@ void task_w(std::list<Transport*> *w) {
 		i = w->erase(i);
 	}
 	return ;
+}
+
+int task_c(std::map<int, Transport*> *m, std::list<Transport*> *w, Transport *__t) {
+	int ret = 0;
+
+	const char *host = (__t->get_host()).c_str();
+	uint16_t port = __t->get_port();
+
+	int domain = AF_INET;
+	int type = SOCK_STREAM;
+	int protocol = 0;
+	int connect_sock = 0;
+
+	do {
+		connect_sock = socket(domain, type, protocol);
+		if (connect_sock < 0) {
+			plog(error, "%s(%d)\n", strerror(errno), errno);
+			ret = -1;
+			break;
+		}
+
+		char name[NAME_MAX] = {0};
+
+		const char *haystack = host;
+		const char *needle = (const char *)":";
+		const char *occurrence_COLON = strstr(haystack, needle);
+		plog(debug, "occurrence_COLON(:) = %p\n", occurrence_COLON);
+		if (occurrence_COLON == NULL) {
+			if (strlen(host) < NAME_MAX) {
+				strncpy(name, host, strlen(host));
+			} else {
+				ret = -1;
+				plog(error, "Too long DOMAIN. %s\n", host);
+				break;
+			}
+		} else {
+			size_t n = occurrence_COLON - host;
+			if (n < NAME_MAX) {
+				strncpy(name, host, occurrence_COLON - host);
+			} else {
+				ret = -1;
+				plog(error, "Too long DOMAIN. %s\n", host);
+				break;
+			}
+			const char *nptr = occurrence_COLON + 1;
+			port = (uint16_t)atoi(nptr);
+		}
+
+		struct hostent *ht = NULL;
+		ht = gethostbyname(name);
+		if (ht == NULL) {
+			plog(error, "%s(%d)\n", hstrerror(h_errno), h_errno);
+		        break;
+		} else {
+			plog(debug, "ht = %p\n", ht);
+		}
+		
+		char dst[NAME_MAX] = {0};
+		socklen_t slt = sizeof dst;
+
+		// On success, inet_ntop() returns a non-null pointer to dst.  NULL is returned if there was an error, with errno set to indicate the error.
+		inet_ntop(domain, (void *)*(ht->h_addr_list), dst, slt);
+		if (dst == NULL) {
+			ret = -1;
+			plog(error, "%s(%d)\n", strerror(errno), errno);
+		        break;
+		} else {
+			plog(debug, "dst = %s, port = %u\n", dst, port);
+		}
+
+		struct sockaddr_in peer_addr;
+		socklen_t addrlen = sizeof (struct sockaddr_in);
+
+		memset(&peer_addr, 0, sizeof (struct sockaddr_in));
+		peer_addr.sin_family = domain;
+		peer_addr.sin_port = htons(port);
+		ret = inet_pton(domain, dst, (struct sockaddr *) &peer_addr.sin_addr.s_addr);
+		if (ret != 1) {
+		        ret = -1;
+		        plog(error, "%s(%d)\n", strerror(errno), errno);
+		        break;
+		}
+
+		ret = connect(connect_sock, (struct sockaddr *)&peer_addr, addrlen);
+		if (ret == -1) {
+			plog(error, "%s(%d)\n", strerror(errno), errno);
+			break;
+		}
+
+
+		// time_t created = time(NULL);
+		plog(notice, "It creates a new connected socket = %d.\n", connect_sock);
+		ret = setnonblocking(connect_sock); /* Set Non Blocking */
+		if (ret == -1) {
+			break;
+		}
+
+		ev.events = EPOLLIN | EPOLLRDHUP; /* Level Triggered */
+		ev.data.fd = connect_sock;
+		ret = epoll_ctl(epollfd, EPOLL_CTL_ADD, ev.data.fd, &ev);
+		if (ret == -1) {
+			plog(error, "%s(%d)\n", strerror(errno), errno);
+			break;
+		}
+
+		char peer_ip[3 + 1 + 3 + 1 + 3 + 1 + 3 + 1] = {0};
+		strncpy(peer_ip, inet_ntoa(peer_addr.sin_addr), sizeof peer_ip - 1);
+		plog(notice, "NAME ?:?->%s:%u\n", peer_ip, htons(peer_addr.sin_port));
+
+		__t->set_fd(connect_sock);
+		m->insert(std::make_pair(connect_sock, __t));
+
+		w->push_back(__t);
+#if 0
+		const void *buf = __t->get_wx();
+		size_t count = __t->get_ws();
+		ssize_t rets = write(connect_sock, buf, count);
+		if (rets == -1) {
+			plog(error, "%s(%d)\n", strerror(errno), errno);
+			break;
+		}
+		plog(notice, "buf[%ld] = %s\n", rets, (char*)buf);
+
+
+		int nfds = connect_sock + 1;
+		fd_set readfds;
+		fd_set writefds;
+		fd_set exceptfds;
+		struct timeval timeout;
+
+		FD_ZERO(&readfds);
+		FD_ZERO(&writefds);
+		FD_ZERO(&exceptfds);
+		FD_SET(connect_sock, &readfds);
+
+		do {
+			timeout.tv_sec = 3; /* seconds */
+
+			ret = select(nfds, &readfds, &writefds, &exceptfds, &timeout);
+			if (ret == -1) {
+				plog(error, "%s(%d)\n", strerror(errno), errno);
+				break;
+			} else if (ret == 0) {
+				plog(error, "timeout\n");
+			} else if (ret > 0) {
+				plog(debug, "FD_ISSET(%d, %p) = %d\n", connect_sock, &readfds, FD_ISSET(connect_sock, &readfds));
+
+
+				char rbuf[BUFFER_MAX] = {0};
+				size_t rcount = BUFFER_MAX;
+				rets = read(connect_sock, rbuf, rcount);
+
+				plog(notice, "rbuf[%ld] = %s\n", rets, rbuf);
+				memset(rbuf, 0, rets);
+
+				if (rets == -1) {
+					plog(error, "%s(%d)\n", strerror(errno), errno);
+				} else if ((size_t)rets == rcount) {
+					;
+				} else if ((size_t)rets == 0) {
+					break; // Closed
+				}
+
+			}
+
+			if (quit) {
+				break;
+			}
+		} while (true);
+#endif
+
+	} while (false);
+
+	return ret;
 }
 

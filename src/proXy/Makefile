@@ -6,7 +6,8 @@ clean:
 	rm -rf logdir
 
 proXy: ../../include/logging.o client.o handle.o main.o task.o
-	$(CXX) -o $@ $^ && ctags * ../../include/* && test -d logdir || mkdir logdir
+	$(CXX) -o $@ $^ && ctags * ../../include/*
+	test -d logdir || mkdir logdir
 
 # gcc -I ../../include/ -MM *.cc ../../include/logging.cc -std=gnu++0x
 client.o: client.cc client.h

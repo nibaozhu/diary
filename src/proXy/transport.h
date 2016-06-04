@@ -42,6 +42,7 @@ enum PORT{
 #define METHOD_GET "GET"
 #define METHOD_POST "POST"
 #define METHOD_CONNECT "CONNECT"
+#define METHOD_HTTP "HTTP"
 
 
 class Transport {
@@ -50,6 +51,7 @@ class Transport {
 		time_t updated; /* the lastest communication time */
 		bool alive; /* true: live; false: die */
 		int fd; /* file descriptor */
+		int backfd; /* back file descriptor */
 		void *rx; /* transport data `Read'  */
 		void *wx; /* transport data `Write' */
 		size_t rp; /* transport data `Read' pointer position */
@@ -61,7 +63,36 @@ class Transport {
 		struct sockaddr_in peer_addr;
 		socklen_t peer_addrlen;
 		__uint32_t events;
+
+		std::string host;
+		uint16_t port;
+		bool flag; /* true: client, false: server */
+
 	public:
+		std::string set_host(std::string host) {
+			return this->host = host;
+		}
+
+		std::string get_host() {
+			return this->host.c_str();
+		}
+
+		uint16_t set_port(uint16_t port) {
+			return this->port = port;
+		}
+
+		uint16_t get_port() {
+			return this->port;
+		}
+
+		bool set_flag(bool flag) {
+			return this->flag = flag;
+		}
+
+		bool get_flag() {
+			return this->flag;
+		}
+
 		Transport(int fd, time_t created, struct sockaddr_in peer_addr, socklen_t peer_addrlen, size_t size = SIZE) {
 			assert(size > 0);
 
@@ -116,6 +147,14 @@ class Transport {
 
 		int get_fd() {
 			return this->fd;
+		}
+
+		int set_backfd(int backfd) {
+			return this->backfd = backfd;
+		}
+
+		int get_backfd() {
+			return this->backfd;
 		}
 
 		size_t set_rp(size_t rp) {
