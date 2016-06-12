@@ -86,5 +86,7 @@ int main() {
 	pop_front(q);
 	pop_front(q);
 
+	free(q);
+	q = NULL;
 	return 0;
 }
