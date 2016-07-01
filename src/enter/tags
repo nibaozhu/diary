@@ -4,14 +4,27 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
+CXXFLAGS	Makefile	/^CXXFLAGS=-D DEBUG$/;"	m
+Connection	connection.cpp	/^Connection::Connection(int value): value(value) {$/;"	f	class:Connection
+Connection	connection.h	/^class Connection {$/;"	c
 Enter	enter.cpp	/^Enter::Enter(int value): value(value) {$/;"	f	class:Enter
 Enter	enter.h	/^class Enter {$/;"	c
+get_str	connection.cpp	/^std::string Connection::get_str() {$/;"	f	class:Connection
+get_value	connection.cpp	/^int Connection::get_value() {$/;"	f	class:Connection
 get_value	enter.cpp	/^int Enter::get_value() {$/;"	f	class:Enter
 main	main.cpp	/^int main(int argc, char **argv) {$/;"	f
+map_connection	enter.h	/^	std::map<int, Connection*> *map_connection; \/* fd versus connection *\/$/;"	m	class:Enter
 message_processing	enter.cpp	/^int Enter::message_processing() {$/;"	f	class:Enter
 receive_from_socket	enter.cpp	/^int Enter::receive_from_socket() {$/;"	f	class:Enter
+received_message	enter.h	/^	std::list<Connection*> *received_message; \/* it has been received message from socket *\/$/;"	m	class:Enter
 send_to_socket	enter.cpp	/^int Enter::send_to_socket() {$/;"	f	class:Enter
+sending_message	enter.h	/^	std::list<Connection*> *sending_message; \/* there is message that will be sending *\/$/;"	m	class:Enter
+set_str	connection.cpp	/^void Connection::set_str(std::string str) {$/;"	f	class:Connection
+set_value	connection.cpp	/^void Connection::set_value(int value) {$/;"	f	class:Connection
 set_value	enter.cpp	/^void Enter::set_value(int value) {$/;"	f	class:Enter
+str	connection.h	/^	std::string str;$/;"	m	class:Connection
+value	connection.h	/^	int value;$/;"	m	class:Connection
 value	enter.h	/^	int value;$/;"	m	class:Enter
 working	enter.cpp	/^void Enter::working() {$/;"	f	class:Enter
+~Connection	connection.cpp	/^Connection::~Connection() {$/;"	f	class:Connection
 ~Enter	enter.cpp	/^Enter::~Enter() {$/;"	f	class:Enter
