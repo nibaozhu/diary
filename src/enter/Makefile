@@ -9,4 +9,4 @@ connection.o: connection.cpp connection.h common.h
 clean:
 	rm -rf main.o enter.o connection.o a1
 
-CXXFLAGS=-D DEBUG
+CXXFLAGS=-D DEBUG -g

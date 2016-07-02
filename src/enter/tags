@@ -4,25 +4,35 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
-CXXFLAGS	Makefile	/^CXXFLAGS=-D DEBUG$/;"	m
+COMMON_H	common.h	2;"	d
+CXXFLAGS	Makefile	/^CXXFLAGS=-D DEBUG -g$/;"	m
 Connection	connection.cpp	/^Connection::Connection(int value): value(value) {$/;"	f	class:Connection
 Connection	connection.h	/^class Connection {$/;"	c
+ERROR_socket_bind_listen_epoll	common.h	/^	ERROR_socket_bind_listen_epoll,$/;"	e	enum:__anon1
 Enter	enter.cpp	/^Enter::Enter(int value): value(value) {$/;"	f	class:Enter
 Enter	enter.h	/^class Enter {$/;"	c
+MAXEVENTS	common.h	26;"	d
+epfd	enter.h	/^	int epfd; \/* a file descriptor referring to the new epoll instance. *\/$/;"	m	class:Enter
+events	enter.h	/^	struct epoll_event events[MAXEVENTS];$/;"	m	class:Enter	typeref:struct:Enter::epoll_event
 get_str	connection.cpp	/^std::string Connection::get_str() {$/;"	f	class:Connection
 get_value	connection.cpp	/^int Connection::get_value() {$/;"	f	class:Connection
 get_value	enter.cpp	/^int Enter::get_value() {$/;"	f	class:Enter
 main	main.cpp	/^int main(int argc, char **argv) {$/;"	f
 map_connection	enter.h	/^	std::map<int, Connection*> *map_connection; \/* fd versus connection *\/$/;"	m	class:Enter
+maxevents	enter.h	/^	int maxevents; \/* The epoll_wait() system call waits for events on the epoll instance referred to by the file descriptor epfd. The memory area pointed$/;"	m	class:Enter
 message_processing	enter.cpp	/^int Enter::message_processing() {$/;"	f	class:Enter
 receive_from_socket	enter.cpp	/^int Enter::receive_from_socket() {$/;"	f	class:Enter
 received_message	enter.h	/^	std::list<Connection*> *received_message; \/* it has been received message from socket *\/$/;"	m	class:Enter
 send_to_socket	enter.cpp	/^int Enter::send_to_socket() {$/;"	f	class:Enter
 sending_message	enter.h	/^	std::list<Connection*> *sending_message; \/* there is message that will be sending *\/$/;"	m	class:Enter
+set_non_blocking	enter.cpp	/^int Enter::set_non_blocking(int sockfd) {$/;"	f	class:Enter
 set_str	connection.cpp	/^void Connection::set_str(std::string str) {$/;"	f	class:Connection
 set_value	connection.cpp	/^void Connection::set_value(int value) {$/;"	f	class:Connection
 set_value	enter.cpp	/^void Enter::set_value(int value) {$/;"	f	class:Enter
+socket_bind_listen_epoll	enter.cpp	/^int Enter::socket_bind_listen_epoll() {$/;"	f	class:Enter
+sockfd	enter.h	/^	int sockfd;$/;"	m	class:Enter
 str	connection.h	/^	std::string str;$/;"	m	class:Connection
+timeout	enter.h	/^	int timeout; \/* The call waits for a maximum time of timeout milliseconds. Specifying a timeout of -1 makes epoll_wait() wait indefinitely, while$/;"	m	class:Enter
 value	connection.h	/^	int value;$/;"	m	class:Connection
 value	enter.h	/^	int value;$/;"	m	class:Enter
 working	enter.cpp	/^void Enter::working() {$/;"	f	class:Enter
