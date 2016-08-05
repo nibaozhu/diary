@@ -9,8 +9,9 @@ void printF(const_DES_cblock *s) {
 
 int main(int argc, char **argv) {
 
-	const char *des3_key = "012345670123456701234567";
-	const char *cleartext = "01234567";
+	// const char *des3_key = "012345670123456701234567";
+	const char *des3_key = "ZGFyayBtYXR0ZXIgZXNjYXBl";
+	const char *cleartext = "abcde";
 
 	if (argc > 1) { cleartext = argv[1]; }
 
@@ -33,13 +34,22 @@ int main(int argc, char **argv) {
 	const_DES_cblock input;
 	DES_cblock output;
 
-	memcpy(input, cleartext, 8);
-
 	int enc = DES_ENCRYPT;
 
-	printF(&input);
-	DES_ecb3_encrypt(&input, &output, &ks1, &ks2, &ks3, enc);
-	printF(&output);
+	int i = 0, j = 0;
+	for ( ; i < strlen(cleartext); i += 8) {
+		memset(input, 0, 8);
+		if (i + 8 > strlen(cleartext)) {
+			memcpy(input, cleartext + i, strlen(cleartext) - i);
+		} else {
+			memcpy(input, cleartext + i, 8);
+		}
+		printf("S %d\t", j);
+		printF(&input);
+		DES_ecb3_encrypt(&input, &output, &ks1, &ks2, &ks3, enc);
+		printf("D %d\t", j++);
+		printF(&output);
+	}
 
 	return 0;
 }
