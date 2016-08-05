@@ -1,5 +1,5 @@
 * How to start xserver? (inet_addr: 0.0.0.0, port: 12340)
-	$ ./xserver
+	(shell) ./xserver
 
 * How to register client to server?
 When TCP is established, client should be send a register-message.
@@ -39,7 +39,7 @@ If sender's ID[0] is not equal the register ID, it will discard Message, and clo
 	(nil) means void or nothing.
 
 
-$ vim +44 /usr/include/sys/epoll.h
+(shell) vim +44 /usr/include/sys/epoll.h
 ...
 enum EPOLL_EVENTS
   {
@@ -78,6 +78,6 @@ enum EPOLL_EVENTS
 ======
 Fixed!
 ======
-$ lsof -i:12340
+(shell) lsof -i:12340
 If Transport::rp != 0 or Transport::wp != 0, When Client ACTIVE closes, and Connection will be set "(CLOSE_WAIT)" status.
 

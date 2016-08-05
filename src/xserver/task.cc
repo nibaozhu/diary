@@ -282,13 +282,10 @@ int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 		std::map<int, Transport*>::iterator im = m->begin();
 		while (im != m->end()) {
 			Transport* t = im->second;
-			if (!t->get_alive()) {
-				int ret = 0;
-				plog(info, "Close()  closes a file descriptor = %d(%p), so that it no longer refers to any file and may be reused.\n", im->first, im->second);
-				ret = close(t->get_fd());
-				if (ret == -1) {
-					plog(warning, "%s(%d)\n", strerror(errno), errno);
-				}
+			plog(info, "Close()  closes a file descriptor = %d(%p), so that it no longer refers to any file and may be reused.\n", im->first, im->second);
+			ret = close(t->get_fd());
+			if (ret == -1) {
+				plog(warning, "%s(%d)\n", strerror(errno), errno);
 			}
 
 			__m->erase(t->get_id());
