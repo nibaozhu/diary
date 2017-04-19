@@ -1,0 +1,31 @@
+package hello;
+
+
+
+// 心跳请求
+message HeartbeatRequest {
+	required string sequence = 1;
+}
+
+// 心跳应答
+message HeartbeatRespond {
+	required string sequence = 1;
+}
+
+// 默认请求
+message DefaultRequest {
+	required string sequence = 1;
+	required int32 type = 2;
+	required int32 column3 = 3;
+	required int32 column4 = 4;
+	required int32 column5 = 5;
+	required int32 column6 = 6;
+	required int32 column7 = 7;
+}
+
+// 默认应答
+message DefaultRespond {
+	required string sequence = 1;
+	required int32 type = 2;
+	required string return = 3;
+}
