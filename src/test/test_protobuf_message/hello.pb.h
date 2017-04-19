@@ -36,6 +36,7 @@ void protobuf_ShutdownFile_hello_2eproto();
 class HeartbeatRequest;
 class HeartbeatRespond;
 class DefaultRequest;
+class DefaultRequest_Article;
 class DefaultRespond;
 
 // ===================================================================
@@ -214,6 +215,108 @@ class HeartbeatRespond : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
+class DefaultRequest_Article : public ::google::protobuf::Message {
+ public:
+  DefaultRequest_Article();
+  virtual ~DefaultRequest_Article();
+
+  DefaultRequest_Article(const DefaultRequest_Article& from);
+
+  inline DefaultRequest_Article& operator=(const DefaultRequest_Article& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const DefaultRequest_Article& default_instance();
+
+  void Swap(DefaultRequest_Article* other);
+
+  // implements Message ----------------------------------------------
+
+  DefaultRequest_Article* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const DefaultRequest_Article& from);
+  void MergeFrom(const DefaultRequest_Article& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required string title = 1;
+  inline bool has_title() const;
+  inline void clear_title();
+  static const int kTitleFieldNumber = 1;
+  inline const ::std::string& title() const;
+  inline void set_title(const ::std::string& value);
+  inline void set_title(const char* value);
+  inline void set_title(const char* value, size_t size);
+  inline ::std::string* mutable_title();
+  inline ::std::string* release_title();
+  inline void set_allocated_title(::std::string* title);
+
+  // required string author = 2;
+  inline bool has_author() const;
+  inline void clear_author();
+  static const int kAuthorFieldNumber = 2;
+  inline const ::std::string& author() const;
+  inline void set_author(const ::std::string& value);
+  inline void set_author(const char* value);
+  inline void set_author(const char* value, size_t size);
+  inline ::std::string* mutable_author();
+  inline ::std::string* release_author();
+  inline void set_allocated_author(::std::string* author);
+
+  // @@protoc_insertion_point(class_scope:hello.DefaultRequest.Article)
+ private:
+  inline void set_has_title();
+  inline void clear_has_title();
+  inline void set_has_author();
+  inline void clear_has_author();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::std::string* title_;
+  ::std::string* author_;
+
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+
+  friend void  protobuf_AddDesc_hello_2eproto();
+  friend void protobuf_AssignDesc_hello_2eproto();
+  friend void protobuf_ShutdownFile_hello_2eproto();
+
+  void InitAsDefaultInstance();
+  static DefaultRequest_Article* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class DefaultRequest : public ::google::protobuf::Message {
  public:
   DefaultRequest();
@@ -265,6 +368,8 @@ class DefaultRequest : public ::google::protobuf::Message {
   ::google::protobuf::Metadata GetMetadata() const;
 
   // nested types ----------------------------------------------------
+
+  typedef DefaultRequest_Article Article;
 
   // accessors -------------------------------------------------------
 
@@ -322,6 +427,18 @@ class DefaultRequest : public ::google::protobuf::Message {
   inline ::google::protobuf::int32 column7() const;
   inline void set_column7(::google::protobuf::int32 value);
 
+  // repeated .hello.DefaultRequest.Article articlelist = 8;
+  inline int articlelist_size() const;
+  inline void clear_articlelist();
+  static const int kArticlelistFieldNumber = 8;
+  inline const ::hello::DefaultRequest_Article& articlelist(int index) const;
+  inline ::hello::DefaultRequest_Article* mutable_articlelist(int index);
+  inline ::hello::DefaultRequest_Article* add_articlelist();
+  inline const ::google::protobuf::RepeatedPtrField< ::hello::DefaultRequest_Article >&
+      articlelist() const;
+  inline ::google::protobuf::RepeatedPtrField< ::hello::DefaultRequest_Article >*
+      mutable_articlelist();
+
   // @@protoc_insertion_point(class_scope:hello.DefaultRequest)
  private:
   inline void set_has_sequence();
@@ -348,9 +465,10 @@ class DefaultRequest : public ::google::protobuf::Message {
   ::google::protobuf::int32 column5_;
   ::google::protobuf::int32 column6_;
   ::google::protobuf::int32 column7_;
+  ::google::protobuf::RepeatedPtrField< ::hello::DefaultRequest_Article > articlelist_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(7 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(8 + 31) / 32];
 
   friend void  protobuf_AddDesc_hello_2eproto();
   friend void protobuf_AssignDesc_hello_2eproto();
@@ -624,6 +742,150 @@ inline void HeartbeatRespond::set_allocated_sequence(::std::string* sequence) {
 
 // -------------------------------------------------------------------
 
+// DefaultRequest_Article
+
+// required string title = 1;
+inline bool DefaultRequest_Article::has_title() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void DefaultRequest_Article::set_has_title() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void DefaultRequest_Article::clear_has_title() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void DefaultRequest_Article::clear_title() {
+  if (title_ != &::google::protobuf::internal::kEmptyString) {
+    title_->clear();
+  }
+  clear_has_title();
+}
+inline const ::std::string& DefaultRequest_Article::title() const {
+  return *title_;
+}
+inline void DefaultRequest_Article::set_title(const ::std::string& value) {
+  set_has_title();
+  if (title_ == &::google::protobuf::internal::kEmptyString) {
+    title_ = new ::std::string;
+  }
+  title_->assign(value);
+}
+inline void DefaultRequest_Article::set_title(const char* value) {
+  set_has_title();
+  if (title_ == &::google::protobuf::internal::kEmptyString) {
+    title_ = new ::std::string;
+  }
+  title_->assign(value);
+}
+inline void DefaultRequest_Article::set_title(const char* value, size_t size) {
+  set_has_title();
+  if (title_ == &::google::protobuf::internal::kEmptyString) {
+    title_ = new ::std::string;
+  }
+  title_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* DefaultRequest_Article::mutable_title() {
+  set_has_title();
+  if (title_ == &::google::protobuf::internal::kEmptyString) {
+    title_ = new ::std::string;
+  }
+  return title_;
+}
+inline ::std::string* DefaultRequest_Article::release_title() {
+  clear_has_title();
+  if (title_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = title_;
+    title_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void DefaultRequest_Article::set_allocated_title(::std::string* title) {
+  if (title_ != &::google::protobuf::internal::kEmptyString) {
+    delete title_;
+  }
+  if (title) {
+    set_has_title();
+    title_ = title;
+  } else {
+    clear_has_title();
+    title_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// required string author = 2;
+inline bool DefaultRequest_Article::has_author() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void DefaultRequest_Article::set_has_author() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void DefaultRequest_Article::clear_has_author() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void DefaultRequest_Article::clear_author() {
+  if (author_ != &::google::protobuf::internal::kEmptyString) {
+    author_->clear();
+  }
+  clear_has_author();
+}
+inline const ::std::string& DefaultRequest_Article::author() const {
+  return *author_;
+}
+inline void DefaultRequest_Article::set_author(const ::std::string& value) {
+  set_has_author();
+  if (author_ == &::google::protobuf::internal::kEmptyString) {
+    author_ = new ::std::string;
+  }
+  author_->assign(value);
+}
+inline void DefaultRequest_Article::set_author(const char* value) {
+  set_has_author();
+  if (author_ == &::google::protobuf::internal::kEmptyString) {
+    author_ = new ::std::string;
+  }
+  author_->assign(value);
+}
+inline void DefaultRequest_Article::set_author(const char* value, size_t size) {
+  set_has_author();
+  if (author_ == &::google::protobuf::internal::kEmptyString) {
+    author_ = new ::std::string;
+  }
+  author_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* DefaultRequest_Article::mutable_author() {
+  set_has_author();
+  if (author_ == &::google::protobuf::internal::kEmptyString) {
+    author_ = new ::std::string;
+  }
+  return author_;
+}
+inline ::std::string* DefaultRequest_Article::release_author() {
+  clear_has_author();
+  if (author_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = author_;
+    author_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void DefaultRequest_Article::set_allocated_author(::std::string* author) {
+  if (author_ != &::google::protobuf::internal::kEmptyString) {
+    delete author_;
+  }
+  if (author) {
+    set_has_author();
+    author_ = author;
+  } else {
+    clear_has_author();
+    author_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// -------------------------------------------------------------------
+
 // DefaultRequest
 
 // required string sequence = 1;
@@ -826,6 +1088,31 @@ inline ::google::protobuf::int32 DefaultRequest::column7() const {
 inline void DefaultRequest::set_column7(::google::protobuf::int32 value) {
   set_has_column7();
   column7_ = value;
+}
+
+// repeated .hello.DefaultRequest.Article articlelist = 8;
+inline int DefaultRequest::articlelist_size() const {
+  return articlelist_.size();
+}
+inline void DefaultRequest::clear_articlelist() {
+  articlelist_.Clear();
+}
+inline const ::hello::DefaultRequest_Article& DefaultRequest::articlelist(int index) const {
+  return articlelist_.Get(index);
+}
+inline ::hello::DefaultRequest_Article* DefaultRequest::mutable_articlelist(int index) {
+  return articlelist_.Mutable(index);
+}
+inline ::hello::DefaultRequest_Article* DefaultRequest::add_articlelist() {
+  return articlelist_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::hello::DefaultRequest_Article >&
+DefaultRequest::articlelist() const {
+  return articlelist_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::hello::DefaultRequest_Article >*
+DefaultRequest::mutable_articlelist() {
+  return &articlelist_;
 }
 
 // -------------------------------------------------------------------

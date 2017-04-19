@@ -56,6 +56,20 @@ int main(int argc, char **argv) {
 	defaultRequest.set_column6(rand());
 	defaultRequest.set_column7(rand());
 
+	hello::DefaultRequest::Article *article = NULL;
+	article = defaultRequest.add_articlelist();
+	article->set_title("APUE");
+	article->set_author("Stevens");
+
+	article = defaultRequest.add_articlelist();
+	article->set_title("UNP");
+	article->set_author("Richard");
+
+	article = defaultRequest.add_articlelist();
+	article->set_title("Linux pthread Programming");
+	article->set_author("Chen Shuo");
+
+
 	Print(&defaultRequest);
 
 	std::string serializedString = "";

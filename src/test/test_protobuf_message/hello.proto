@@ -21,6 +21,13 @@ message DefaultRequest {
 	required int32 column5 = 5;
 	required int32 column6 = 6;
 	required int32 column7 = 7;
+
+	// 文章列表
+	message Article {
+		required string title = 1;
+		required string author = 2;
+	}
+	repeated Article articlelist = 8;
 }
 
 // 默认应答
@@ -29,3 +36,5 @@ message DefaultRespond {
 	required int32 type = 2;
 	required string return = 3;
 }
+
+

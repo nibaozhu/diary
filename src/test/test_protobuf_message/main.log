@@ -1,3 +1,4 @@
+====================
 DebugString: 
 sequence: "95f901b4-6d6f-4661-aa39-077cdd0c12f2"
 type: 1804289383
@@ -6,11 +7,23 @@ column4: 1681692777
 column5: 1714636915
 column6: 1957747793
 column7: 424238335
+articlelist {
+  title: "APUE"
+  author: "Stevens"
+}
+articlelist {
+  title: "UNP"
+  author: "Richard"
+}
+articlelist {
+  title: "Linux pthread Programming"
+  author: "Chen Shuo"
+}
 
-====================
+____________________
 ShortDebugString: 
-sequence: "95f901b4-6d6f-4661-aa39-077cdd0c12f2" type: 1804289383 column3: 846930886 column4: 1681692777 column5: 1714636915 column6: 1957747793 column7: 424238335
-====================
+sequence: "95f901b4-6d6f-4661-aa39-077cdd0c12f2" type: 1804289383 column3: 846930886 column4: 1681692777 column5: 1714636915 column6: 1957747793 column7: 424238335 articlelist { title: "APUE" author: "Stevens" } articlelist { title: "UNP" author: "Richard" } articlelist { title: "Linux pthread Programming" author: "Chen Shuo" }
+____________________
 Utf8DebugString: 
 sequence: "95f901b4-6d6f-4661-aa39-077cdd0c12f2"
 type: 1804289383
@@ -19,8 +32,20 @@ column4: 1681692777
 column5: 1714636915
 column6: 1957747793
 column7: 424238335
+articlelist {
+  title: "APUE"
+  author: "Stevens"
+}
+articlelist {
+  title: "UNP"
+  author: "Richard"
+}
+articlelist {
+  title: "Linux pthread Programming"
+  author: "Chen Shuo"
+}
 
-====================
+____________________
 PrintDebugString: 
 sequence: "95f901b4-6d6f-4661-aa39-077cdd0c12f2"
 type: 1804289383
@@ -29,12 +54,31 @@ column4: 1681692777
 column5: 1714636915
 column6: 1957747793
 column7: 424238335
+articlelist {
+  title: "APUE"
+  author: "Stevens"
+}
+articlelist {
+  title: "UNP"
+  author: "Richard"
+}
+articlelist {
+  title: "Linux pthread Programming"
+  author: "Chen Shuo"
+}
 ====================
 :[]
 SerializeAsString:[
-$95f901b4-6d6f-4661-aa39-077cdd0c12f2Áä≠‹∆«Ïì È∞Ú°(ÛêÕ±0—∏√•8ˇπ• ]
+$95f901b4-6d6f-4661-aa39-077cdd0c12f2Áä≠‹∆«Ïì È∞Ú°(ÛêÕ±0—∏√•8ˇπ• B
+APUEStevensB
+UNPRichardB&
+Linux pthread Programming	Chen Shuo]
 SerializeToString:[
-$95f901b4-6d6f-4661-aa39-077cdd0c12f2Áä≠‹∆«Ïì È∞Ú°(ÛêÕ±0—∏√•8ˇπ• ]
+$95f901b4-6d6f-4661-aa39-077cdd0c12f2Áä≠‹∆«Ïì È∞Ú°(ÛêÕ±0—∏√•8ˇπ• B
+APUEStevensB
+UNPRichardB&
+Linux pthread Programming	Chen Shuo]
+====================
 DebugString: 
 sequence: "95f901b4-6d6f-4661-aa39-077cdd0c12f2"
 type: 1804289383
@@ -43,11 +87,23 @@ column4: 1681692777
 column5: 1714636915
 column6: 1957747793
 column7: 424238335
+articlelist {
+  title: "APUE"
+  author: "Stevens"
+}
+articlelist {
+  title: "UNP"
+  author: "Richard"
+}
+articlelist {
+  title: "Linux pthread Programming"
+  author: "Chen Shuo"
+}
 
-====================
+____________________
 ShortDebugString: 
-sequence: "95f901b4-6d6f-4661-aa39-077cdd0c12f2" type: 1804289383 column3: 846930886 column4: 1681692777 column5: 1714636915 column6: 1957747793 column7: 424238335
-====================
+sequence: "95f901b4-6d6f-4661-aa39-077cdd0c12f2" type: 1804289383 column3: 846930886 column4: 1681692777 column5: 1714636915 column6: 1957747793 column7: 424238335 articlelist { title: "APUE" author: "Stevens" } articlelist { title: "UNP" author: "Richard" } articlelist { title: "Linux pthread Programming" author: "Chen Shuo" }
+____________________
 Utf8DebugString: 
 sequence: "95f901b4-6d6f-4661-aa39-077cdd0c12f2"
 type: 1804289383
@@ -56,8 +112,20 @@ column4: 1681692777
 column5: 1714636915
 column6: 1957747793
 column7: 424238335
+articlelist {
+  title: "APUE"
+  author: "Stevens"
+}
+articlelist {
+  title: "UNP"
+  author: "Richard"
+}
+articlelist {
+  title: "Linux pthread Programming"
+  author: "Chen Shuo"
+}
 
-====================
+____________________
 PrintDebugString: 
 sequence: "95f901b4-6d6f-4661-aa39-077cdd0c12f2"
 type: 1804289383
@@ -66,4 +134,16 @@ column4: 1681692777
 column5: 1714636915
 column6: 1957747793
 column7: 424238335
+articlelist {
+  title: "APUE"
+  author: "Stevens"
+}
+articlelist {
+  title: "UNP"
+  author: "Richard"
+}
+articlelist {
+  title: "Linux pthread Programming"
+  author: "Chen Shuo"
+}
 ====================

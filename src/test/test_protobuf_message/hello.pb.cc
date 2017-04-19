@@ -29,6 +29,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* DefaultRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   DefaultRequest_reflection_ = NULL;
+const ::google::protobuf::Descriptor* DefaultRequest_Article_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  DefaultRequest_Article_reflection_ = NULL;
 const ::google::protobuf::Descriptor* DefaultRespond_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   DefaultRespond_reflection_ = NULL;
@@ -73,7 +76,7 @@ void protobuf_AssignDesc_hello_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(HeartbeatRespond));
   DefaultRequest_descriptor_ = file->message_type(2);
-  static const int DefaultRequest_offsets_[7] = {
+  static const int DefaultRequest_offsets_[8] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DefaultRequest, sequence_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DefaultRequest, type_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DefaultRequest, column3_),
@@ -81,6 +84,7 @@ void protobuf_AssignDesc_hello_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DefaultRequest, column5_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DefaultRequest, column6_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DefaultRequest, column7_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DefaultRequest, articlelist_),
   };
   DefaultRequest_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -93,6 +97,22 @@ void protobuf_AssignDesc_hello_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(DefaultRequest));
+  DefaultRequest_Article_descriptor_ = DefaultRequest_descriptor_->nested_type(0);
+  static const int DefaultRequest_Article_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DefaultRequest_Article, title_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DefaultRequest_Article, author_),
+  };
+  DefaultRequest_Article_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      DefaultRequest_Article_descriptor_,
+      DefaultRequest_Article::default_instance_,
+      DefaultRequest_Article_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DefaultRequest_Article, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DefaultRequest_Article, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(DefaultRequest_Article));
   DefaultRespond_descriptor_ = file->message_type(3);
   static const int DefaultRespond_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DefaultRespond, sequence_),
@@ -129,6 +149,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     DefaultRequest_descriptor_, &DefaultRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    DefaultRequest_Article_descriptor_, &DefaultRequest_Article::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     DefaultRespond_descriptor_, &DefaultRespond::default_instance());
 }
 
@@ -141,6 +163,8 @@ void protobuf_ShutdownFile_hello_2eproto() {
   delete HeartbeatRespond_reflection_;
   delete DefaultRequest::default_instance_;
   delete DefaultRequest_reflection_;
+  delete DefaultRequest_Article::default_instance_;
+  delete DefaultRequest_Article_reflection_;
   delete DefaultRespond::default_instance_;
   delete DefaultRespond_reflection_;
 }
@@ -154,21 +178,25 @@ void protobuf_AddDesc_hello_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\013hello.proto\022\005hello\"$\n\020HeartbeatRequest"
     "\022\020\n\010sequence\030\001 \002(\t\"$\n\020HeartbeatRespond\022\020"
-    "\n\010sequence\030\001 \002(\t\"\205\001\n\016DefaultRequest\022\020\n\010s"
+    "\n\010sequence\030\001 \002(\t\"\343\001\n\016DefaultRequest\022\020\n\010s"
     "equence\030\001 \002(\t\022\014\n\004type\030\002 \002(\005\022\017\n\007column3\030\003"
     " \002(\005\022\017\n\007column4\030\004 \002(\005\022\017\n\007column5\030\005 \002(\005\022\017"
-    "\n\007column6\030\006 \002(\005\022\017\n\007column7\030\007 \002(\005\"@\n\016Defa"
-    "ultRespond\022\020\n\010sequence\030\001 \002(\t\022\014\n\004type\030\002 \002"
-    "(\005\022\016\n\006return\030\003 \002(\t", 298);
+    "\n\007column6\030\006 \002(\005\022\017\n\007column7\030\007 \002(\005\0222\n\013arti"
+    "clelist\030\010 \003(\0132\035.hello.DefaultRequest.Art"
+    "icle\032(\n\007Article\022\r\n\005title\030\001 \002(\t\022\016\n\006author"
+    "\030\002 \002(\t\"@\n\016DefaultRespond\022\020\n\010sequence\030\001 \002"
+    "(\t\022\014\n\004type\030\002 \002(\005\022\016\n\006return\030\003 \002(\t", 392);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "hello.proto", &protobuf_RegisterTypes);
   HeartbeatRequest::default_instance_ = new HeartbeatRequest();
   HeartbeatRespond::default_instance_ = new HeartbeatRespond();
   DefaultRequest::default_instance_ = new DefaultRequest();
+  DefaultRequest_Article::default_instance_ = new DefaultRequest_Article();
   DefaultRespond::default_instance_ = new DefaultRespond();
   HeartbeatRequest::default_instance_->InitAsDefaultInstance();
   HeartbeatRespond::default_instance_->InitAsDefaultInstance();
   DefaultRequest::default_instance_->InitAsDefaultInstance();
+  DefaultRequest_Article::default_instance_->InitAsDefaultInstance();
   DefaultRespond::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_hello_2eproto);
 }
@@ -635,6 +663,289 @@ void HeartbeatRespond::Swap(HeartbeatRespond* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
+const int DefaultRequest_Article::kTitleFieldNumber;
+const int DefaultRequest_Article::kAuthorFieldNumber;
+#endif  // !_MSC_VER
+
+DefaultRequest_Article::DefaultRequest_Article()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void DefaultRequest_Article::InitAsDefaultInstance() {
+}
+
+DefaultRequest_Article::DefaultRequest_Article(const DefaultRequest_Article& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void DefaultRequest_Article::SharedCtor() {
+  _cached_size_ = 0;
+  title_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  author_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+DefaultRequest_Article::~DefaultRequest_Article() {
+  SharedDtor();
+}
+
+void DefaultRequest_Article::SharedDtor() {
+  if (title_ != &::google::protobuf::internal::kEmptyString) {
+    delete title_;
+  }
+  if (author_ != &::google::protobuf::internal::kEmptyString) {
+    delete author_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void DefaultRequest_Article::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* DefaultRequest_Article::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return DefaultRequest_Article_descriptor_;
+}
+
+const DefaultRequest_Article& DefaultRequest_Article::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_hello_2eproto();
+  return *default_instance_;
+}
+
+DefaultRequest_Article* DefaultRequest_Article::default_instance_ = NULL;
+
+DefaultRequest_Article* DefaultRequest_Article::New() const {
+  return new DefaultRequest_Article;
+}
+
+void DefaultRequest_Article::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (has_title()) {
+      if (title_ != &::google::protobuf::internal::kEmptyString) {
+        title_->clear();
+      }
+    }
+    if (has_author()) {
+      if (author_ != &::google::protobuf::internal::kEmptyString) {
+        author_->clear();
+      }
+    }
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool DefaultRequest_Article::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required string title = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_title()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->title().data(), this->title().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(18)) goto parse_author;
+        break;
+      }
+
+      // required string author = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_author:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_author()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->author().data(), this->author().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void DefaultRequest_Article::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // required string title = 1;
+  if (has_title()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->title().data(), this->title().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      1, this->title(), output);
+  }
+
+  // required string author = 2;
+  if (has_author()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->author().data(), this->author().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      2, this->author(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* DefaultRequest_Article::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // required string title = 1;
+  if (has_title()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->title().data(), this->title().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        1, this->title(), target);
+  }
+
+  // required string author = 2;
+  if (has_author()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->author().data(), this->author().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        2, this->author(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int DefaultRequest_Article::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required string title = 1;
+    if (has_title()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->title());
+    }
+
+    // required string author = 2;
+    if (has_author()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->author());
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void DefaultRequest_Article::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const DefaultRequest_Article* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const DefaultRequest_Article*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void DefaultRequest_Article::MergeFrom(const DefaultRequest_Article& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_title()) {
+      set_title(from.title());
+    }
+    if (from.has_author()) {
+      set_author(from.author());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void DefaultRequest_Article::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void DefaultRequest_Article::CopyFrom(const DefaultRequest_Article& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool DefaultRequest_Article::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
+
+  return true;
+}
+
+void DefaultRequest_Article::Swap(DefaultRequest_Article* other) {
+  if (other != this) {
+    std::swap(title_, other->title_);
+    std::swap(author_, other->author_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata DefaultRequest_Article::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = DefaultRequest_Article_descriptor_;
+  metadata.reflection = DefaultRequest_Article_reflection_;
+  return metadata;
+}
+
+
+// -------------------------------------------------------------------
+
+#ifndef _MSC_VER
 const int DefaultRequest::kSequenceFieldNumber;
 const int DefaultRequest::kTypeFieldNumber;
 const int DefaultRequest::kColumn3FieldNumber;
@@ -642,6 +953,7 @@ const int DefaultRequest::kColumn4FieldNumber;
 const int DefaultRequest::kColumn5FieldNumber;
 const int DefaultRequest::kColumn6FieldNumber;
 const int DefaultRequest::kColumn7FieldNumber;
+const int DefaultRequest::kArticlelistFieldNumber;
 #endif  // !_MSC_VER
 
 DefaultRequest::DefaultRequest()
@@ -717,6 +1029,7 @@ void DefaultRequest::Clear() {
     column6_ = 0;
     column7_ = 0;
   }
+  articlelist_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
@@ -835,6 +1148,21 @@ bool DefaultRequest::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
+        if (input->ExpectTag(66)) goto parse_articlelist;
+        break;
+      }
+
+      // repeated .hello.DefaultRequest.Article articlelist = 8;
+      case 8: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_articlelist:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+                input, add_articlelist()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(66)) goto parse_articlelist;
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -896,6 +1224,12 @@ void DefaultRequest::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(7, this->column7(), output);
   }
 
+  // repeated .hello.DefaultRequest.Article articlelist = 8;
+  for (int i = 0; i < this->articlelist_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      8, this->articlelist(i), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -942,6 +1276,13 @@ void DefaultRequest::SerializeWithCachedSizes(
   // required int32 column7 = 7;
   if (has_column7()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(7, this->column7(), target);
+  }
+
+  // repeated .hello.DefaultRequest.Article articlelist = 8;
+  for (int i = 0; i < this->articlelist_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        8, this->articlelist(i), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -1005,6 +1346,14 @@ int DefaultRequest::ByteSize() const {
     }
 
   }
+  // repeated .hello.DefaultRequest.Article articlelist = 8;
+  total_size += 1 * this->articlelist_size();
+  for (int i = 0; i < this->articlelist_size(); i++) {
+    total_size +=
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        this->articlelist(i));
+  }
+
   if (!unknown_fields().empty()) {
     total_size +=
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
@@ -1030,6 +1379,7 @@ void DefaultRequest::MergeFrom(const ::google::protobuf::Message& from) {
 
 void DefaultRequest::MergeFrom(const DefaultRequest& from) {
   GOOGLE_CHECK_NE(&from, this);
+  articlelist_.MergeFrom(from.articlelist_);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (from.has_sequence()) {
       set_sequence(from.sequence());
@@ -1071,6 +1421,9 @@ void DefaultRequest::CopyFrom(const DefaultRequest& from) {
 bool DefaultRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x0000007f) != 0x0000007f) return false;
 
+  for (int i = 0; i < articlelist_size(); i++) {
+    if (!this->articlelist(i).IsInitialized()) return false;
+  }
   return true;
 }
 
@@ -1083,6 +1436,7 @@ void DefaultRequest::Swap(DefaultRequest* other) {
     std::swap(column5_, other->column5_);
     std::swap(column6_, other->column6_);
     std::swap(column7_, other->column7_);
+    articlelist_.Swap(&other->articlelist_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
