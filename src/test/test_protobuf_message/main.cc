@@ -80,6 +80,8 @@ int main(int argc, char **argv) {
 	Print(&defaultRequest2);
 
 
+	google::protobuf::ShutdownProtobufLibrary();
+
 	return 0;
 }
 
