@@ -25,16 +25,16 @@ CopyFrom	./hello.pb.cc	/^void HeartbeatRequest::CopyFrom(const ::google::protobu
 CopyFrom	./hello.pb.cc	/^void HeartbeatRequest::CopyFrom(const HeartbeatRequest& from) {$/;"	f	class:hello::HeartbeatRequest
 CopyFrom	./hello.pb.cc	/^void HeartbeatRespond::CopyFrom(const ::google::protobuf::Message& from) {$/;"	f	class:hello::HeartbeatRespond
 CopyFrom	./hello.pb.cc	/^void HeartbeatRespond::CopyFrom(const HeartbeatRespond& from) {$/;"	f	class:hello::HeartbeatRespond
-DO_	./hello.pb.cc	1039;"	d	file:
-DO_	./hello.pb.cc	1183;"	d	file:
-DO_	./hello.pb.cc	1541;"	d	file:
-DO_	./hello.pb.cc	1607;"	d	file:
-DO_	./hello.pb.cc	284;"	d	file:
-DO_	./hello.pb.cc	317;"	d	file:
-DO_	./hello.pb.cc	510;"	d	file:
-DO_	./hello.pb.cc	543;"	d	file:
-DO_	./hello.pb.cc	746;"	d	file:
-DO_	./hello.pb.cc	796;"	d	file:
+DO_	./hello.pb.cc	1110;"	d	file:
+DO_	./hello.pb.cc	1257;"	d	file:
+DO_	./hello.pb.cc	1623;"	d	file:
+DO_	./hello.pb.cc	1698;"	d	file:
+DO_	./hello.pb.cc	286;"	d	file:
+DO_	./hello.pb.cc	329;"	d	file:
+DO_	./hello.pb.cc	530;"	d	file:
+DO_	./hello.pb.cc	573;"	d	file:
+DO_	./hello.pb.cc	786;"	d	file:
+DO_	./hello.pb.cc	846;"	d	file:
 DefaultRequest	./hello.pb.cc	/^DefaultRequest::DefaultRequest()$/;"	f	class:hello::DefaultRequest
 DefaultRequest	./hello.pb.cc	/^DefaultRequest::DefaultRequest(const DefaultRequest& from)$/;"	f	class:hello::DefaultRequest
 DefaultRequest	./hello.pb.h	/^class DefaultRequest : public ::google::protobuf::Message {$/;"	c	namespace:hello
@@ -101,6 +101,8 @@ New	./hello.pb.cc	/^DefaultRequest_Article* DefaultRequest_Article::New() const 
 New	./hello.pb.cc	/^DefaultRespond* DefaultRespond::New() const {$/;"	f	class:hello::DefaultRespond
 New	./hello.pb.cc	/^HeartbeatRequest* HeartbeatRequest::New() const {$/;"	f	class:hello::HeartbeatRequest
 New	./hello.pb.cc	/^HeartbeatRespond* HeartbeatRespond::New() const {$/;"	f	class:hello::HeartbeatRespond
+OFFSET_OF_FIELD_	./hello.pb.cc	1081;"	d	file:
+OFFSET_OF_FIELD_	./hello.pb.cc	1100;"	d	file:
 PROTOBUF_hello_2eproto__INCLUDED	./hello.pb.h	5;"	d
 Print	./main.cc	/^int Print(::google::protobuf::Message* message) {$/;"	f
 SerializeWithCachedSizes	./hello.pb.cc	/^void DefaultRequest::SerializeWithCachedSizes($/;"	f	class:hello::DefaultRequest
@@ -135,16 +137,18 @@ Swap	./hello.pb.cc	/^void DefaultRequest_Article::Swap(DefaultRequest_Article* o
 Swap	./hello.pb.cc	/^void DefaultRespond::Swap(DefaultRespond* other) {$/;"	f	class:hello::DefaultRespond
 Swap	./hello.pb.cc	/^void HeartbeatRequest::Swap(HeartbeatRequest* other) {$/;"	f	class:hello::HeartbeatRequest
 Swap	./hello.pb.cc	/^void HeartbeatRespond::Swap(HeartbeatRespond* other) {$/;"	f	class:hello::HeartbeatRespond
+ZR_	./hello.pb.cc	1085;"	d	file:
+ZR_	./hello.pb.cc	1101;"	d	file:
 _cached_size_	./hello.pb.h	/^  mutable int _cached_size_;$/;"	m	class:hello::DefaultRequest
 _cached_size_	./hello.pb.h	/^  mutable int _cached_size_;$/;"	m	class:hello::DefaultRequest_Article
 _cached_size_	./hello.pb.h	/^  mutable int _cached_size_;$/;"	m	class:hello::DefaultRespond
 _cached_size_	./hello.pb.h	/^  mutable int _cached_size_;$/;"	m	class:hello::HeartbeatRequest
 _cached_size_	./hello.pb.h	/^  mutable int _cached_size_;$/;"	m	class:hello::HeartbeatRespond
-_has_bits_	./hello.pb.h	/^  ::google::protobuf::uint32 _has_bits_[(1 + 31) \/ 32];$/;"	m	class:hello::HeartbeatRequest
-_has_bits_	./hello.pb.h	/^  ::google::protobuf::uint32 _has_bits_[(1 + 31) \/ 32];$/;"	m	class:hello::HeartbeatRespond
-_has_bits_	./hello.pb.h	/^  ::google::protobuf::uint32 _has_bits_[(2 + 31) \/ 32];$/;"	m	class:hello::DefaultRequest_Article
-_has_bits_	./hello.pb.h	/^  ::google::protobuf::uint32 _has_bits_[(3 + 31) \/ 32];$/;"	m	class:hello::DefaultRespond
-_has_bits_	./hello.pb.h	/^  ::google::protobuf::uint32 _has_bits_[(8 + 31) \/ 32];$/;"	m	class:hello::DefaultRequest
+_has_bits_	./hello.pb.h	/^  ::google::protobuf::uint32 _has_bits_[1];$/;"	m	class:hello::DefaultRequest
+_has_bits_	./hello.pb.h	/^  ::google::protobuf::uint32 _has_bits_[1];$/;"	m	class:hello::DefaultRequest_Article
+_has_bits_	./hello.pb.h	/^  ::google::protobuf::uint32 _has_bits_[1];$/;"	m	class:hello::DefaultRespond
+_has_bits_	./hello.pb.h	/^  ::google::protobuf::uint32 _has_bits_[1];$/;"	m	class:hello::HeartbeatRequest
+_has_bits_	./hello.pb.h	/^  ::google::protobuf::uint32 _has_bits_[1];$/;"	m	class:hello::HeartbeatRespond
 _unknown_fields_	./hello.pb.h	/^  ::google::protobuf::UnknownFieldSet _unknown_fields_;$/;"	m	class:hello::DefaultRequest
 _unknown_fields_	./hello.pb.h	/^  ::google::protobuf::UnknownFieldSet _unknown_fields_;$/;"	m	class:hello::DefaultRequest_Article
 _unknown_fields_	./hello.pb.h	/^  ::google::protobuf::UnknownFieldSet _unknown_fields_;$/;"	m	class:hello::DefaultRespond

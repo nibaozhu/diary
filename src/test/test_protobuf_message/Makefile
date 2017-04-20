@@ -1,8 +1,8 @@
 CXXFLAGS=-g
 
-# libprotobuf.so.8 => /usr/local/lib/libprotobuf.so.8 (0x00007f612edb1000)
-LDFLAGS=-lprotobuf -L/usr/local/lib/
+# LDFLAGS=-lprotobuf -L/usr/local/lib/
 # LDFLAGS=/usr/local/lib/libprotobuf.a
+LDFLAGS=`pkg-config --libs protobuf`
 
 .PHONY: all clean
 
