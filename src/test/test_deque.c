@@ -1,92 +1,94 @@
+// NOTE: temporary code
+#define DEQUE_MAIN
+
+/* VIM: tabstop=2 */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+// NOTE: malloc safe version
+#define malloc_s(size)  										\
+({  																				\
+ void *ptr = malloc(size);  								\
+ ptr == NULL ? NULL : memset(ptr, 0, size); \
+})  																				\
 
-struct entry {
-	struct entry *previous;
-	struct entry *next;
-	int data;
-};
+// NOTE: free safe version
+#define free_s(ptr)  												\
+do {                                        \
+  free(ptr);                                \
+  ptr = NULL;                               \
+} while (0)  																\
 
-struct queue {
-	struct entry *head;
-	struct entry *tail;
+typedef struct __entry {
+  struct __entry *prev;
+  struct __entry *next;
+  int data;
+} entry;
 
-	size_t length;
-};
+// NOTE: double ended queue
+typedef struct __deque {
+  entry *head;
+  entry *tail;
+  size_t length;
+} deque;
 
-int push_back(struct queue *q, int data) {
+int push_back(deque *q, int data) {
+  if (q == NULL) return -1;
 
-	if (q == NULL) {
-		return -1;
-	}
+  entry *e = (entry*) malloc_s(sizeof (entry));
+  if (e == NULL) return -1;
+  e->data = data;
 
-	struct entry *e = (struct entry*) malloc(sizeof (struct entry));
-	memset(e, 0, sizeof (struct entry));
-	e->data = data;
+  if (q->tail == NULL) {
+  	q->tail = q->head = e;
+  } else {
+  	e->prev = q->tail;
+  	q->tail = q->tail->next = e;
+  }
 
-	if (q->tail == NULL) {
-		q->tail = e;
-		q->head = e;
-		q->length = 1;
-		printf("PUSH_BACK %d\n", e->data);
-	} else {
-		e->previous = q->tail; // XXX
-		q->tail->next = e;
-		q->tail = e;
-		q->length += 1;
-		printf("push_back %d\n", e->data);
-	}
-
-	return 0;
+  q->length++;
+  return 0;
 }
 
-int pop_front(struct queue *q) {
+int pop_front(deque *q) {
+  if (q == NULL) return -1;
+  if (q->head == NULL) return 0;
+ 
+  entry *e = q->head;
+  if (e->next == NULL) {
+  	q->tail = q->head = NULL;
+  } else {
+  	q->head = e->next;
+  	q->head->prev = NULL;
+  }
 
-	if (q == NULL) {
-		return -1;
-	}
-
-	struct entry *ptr = NULL;
-
-	if (q->head == NULL) {
-		return 0;
-	} else {
-		q->length -= 1;
-		ptr = q->head;
-		printf("pop_front %d\n", ptr->data);
-		q->head = ptr->next; // XXX
-
-		if (q->head == NULL) {
-			q->tail = NULL;
-			q->length = 0;
-			printf("Has Empty\n");
-		} else {
-			q->head->previous = NULL;
-		}
-
-		free(ptr);
-		ptr = NULL;
-	}
-
-	return 0;
+  free_s(e);
+  q->length--;
+  return 0;
 }
 
-
+#ifdef DEQUE_MAIN
 int main() {
-	struct queue *q = (struct queue*) malloc(sizeof (struct queue));
-	memset(q, 0, sizeof (struct queue));
+  deque *q = (deque*) malloc_s(sizeof (deque));
 
-	push_back(q, 4);
-	push_back(q, 5);
-	push_back(q, 6);
+  unsigned int seed = getpid();
+  srand(seed);
 
-	pop_front(q);
-	pop_front(q);
-	pop_front(q);
+  int i = 0;
+  int rd = 0;
+  for (i = 0; i < (1<<2); i++)
+  {
+  	rd = rand();
+  	push_back(q, rd);
+  }
 
-	free(q);
-	q = NULL;
-	return 0;
+  for (i = 0; i < (1<<3); i++)
+  {
+  	pop_front(q);
+  }
+
+  free_s(q);
+  return 0;
 }
+#endif
