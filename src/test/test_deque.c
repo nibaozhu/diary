@@ -23,7 +23,7 @@ do {                                        \
 typedef struct __entry {
   struct __entry *prev;
   struct __entry *next;
-  int data;
+  void *data;
 } entry;
 
 // NOTE: double ended queue
@@ -33,7 +33,7 @@ typedef struct __deque {
   size_t length;
 } deque;
 
-int push_back(deque *q, int data) {
+int push_back(deque *q, void *data) {
   if (q == NULL) return -1;
 
   entry *e = (entry*) malloc_s(sizeof (entry));
@@ -51,7 +51,7 @@ int push_back(deque *q, int data) {
   return 0;
 }
 
-int pop_front(deque *q) {
+int pop_front(deque *q, void **data) {
   if (q == NULL) return -1;
   if (q->head == NULL) return 0;
  
@@ -63,6 +63,7 @@ int pop_front(deque *q) {
     q->head->prev = NULL;
   }
 
+  *data = e->data;
   free_s(e);
   q->length--;
   return 0;
@@ -77,15 +78,21 @@ int main() {
 
   int i = 0;
   int rd = 0;
-  for (i = 0; i < (1<<2); i++)
+  void *data = NULL;
+  for (i = 0; i < (1<<20); i++)
   {
     rd = rand();
-    push_back(q, rd);
+    data = malloc_s(sizeof (int));
+    if (data == NULL) continue;
+    memcpy(data, &rd, sizeof (int));
+
+    push_back(q, data);
   }
 
-  for (i = 0; i < (1<<3); i++)
+  for (i = 0; i < (1<<23); i++)
   {
-    pop_front(q);
+    pop_front(q, &data);
+    free_s(data);
   }
 
   free_s(q);
