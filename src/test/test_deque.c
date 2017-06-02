@@ -7,18 +7,18 @@
 #include <string.h>
 
 // NOTE: malloc safe version
-#define malloc_s(size)  										\
-({  																				\
- void *ptr = malloc(size);  								\
+#define malloc_s(size)                      \
+({                                          \
+ void *ptr = malloc(size);                  \
  ptr == NULL ? NULL : memset(ptr, 0, size); \
-})  																				\
+})                                          \
 
 // NOTE: free safe version
-#define free_s(ptr)  												\
+#define free_s(ptr)                         \
 do {                                        \
   free(ptr);                                \
   ptr = NULL;                               \
-} while (0)  																\
+} while (0)                                 \
 
 typedef struct __entry {
   struct __entry *prev;
@@ -41,10 +41,10 @@ int push_back(deque *q, int data) {
   e->data = data;
 
   if (q->tail == NULL) {
-  	q->tail = q->head = e;
+    q->tail = q->head = e;
   } else {
-  	e->prev = q->tail;
-  	q->tail = q->tail->next = e;
+    e->prev = q->tail;
+    q->tail = q->tail->next = e;
   }
 
   q->length++;
@@ -57,10 +57,10 @@ int pop_front(deque *q) {
  
   entry *e = q->head;
   if (e->next == NULL) {
-  	q->tail = q->head = NULL;
+    q->tail = q->head = NULL;
   } else {
-  	q->head = e->next;
-  	q->head->prev = NULL;
+    q->head = e->next;
+    q->head->prev = NULL;
   }
 
   free_s(e);
@@ -79,13 +79,13 @@ int main() {
   int rd = 0;
   for (i = 0; i < (1<<2); i++)
   {
-  	rd = rand();
-  	push_back(q, rd);
+    rd = rand();
+    push_back(q, rd);
   }
 
   for (i = 0; i < (1<<3); i++)
   {
-  	pop_front(q);
+    pop_front(q);
   }
 
   free_s(q);
