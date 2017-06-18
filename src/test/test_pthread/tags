@@ -1,0 +1,13 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+A_H	./a.h	2;"	d
+WORKER_H	./worker.h	2;"	d
+a_s	./a.h	/^typedef struct a_s {$/;"	s
+a_t	./a.h	/^} a_t;$/;"	t	typeref:struct:a_s
+main	./a.c	/^int main(int argc, char **argv) {$/;"	f
+worker	./worker.c	/^void *worker(void *arg) {$/;"	f
+worker_number	./a.h	/^				size_t worker_number;$/;"	m	struct:a_s
