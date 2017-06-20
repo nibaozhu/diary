@@ -13,7 +13,7 @@ void *reception(void *arg) {
 
 
 
-	// sleep(10);
+	sleep(10);
 
 
 

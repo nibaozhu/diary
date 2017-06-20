@@ -13,7 +13,7 @@ void *waiter(void *arg) {
 
 
 
-	// sleep(10);
+	sleep(10);
 
 	int i;
 	for(i = 0; i < 1024; i++)

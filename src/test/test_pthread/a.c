@@ -5,8 +5,10 @@ pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 int main(int argc, char **argv) {
 
-	// NOTE: Just use 4 sub-thread.
-	a_t a = { .waiter_number = 4 };
+	// NOTE: Just use 10 sub-thread.
+	a_t a = { 	.staff_number = 10, 
+				.reception_number = 1,
+				.waiter_number = 3 };
 	int r;
 
 	pthread_mutexattr_t *mutexattr = (pthread_mutexattr_t*)malloc(sizeof(pthread_mutexattr_t));
@@ -33,7 +35,7 @@ int main(int argc, char **argv) {
 		return EXIT_FAILURE;
 	}
 
-	pthread_t *pthread = (pthread_t *)malloc(a.waiter_number * sizeof(pthread_t));
+	pthread_t *pthread = (pthread_t *)malloc(a.staff_number * sizeof(pthread_t));
 	if (pthread == NULL) {
 		return EXIT_FAILURE;
 	}
@@ -52,10 +54,10 @@ int main(int argc, char **argv) {
 	void *(*start_routine) (void *) = NULL;
 	void *arg = NULL;
 
-	int i;
-	for (i = 0; i < a.waiter_number; i++) {
+	size_t i;
+	for (i = 0; i < a.staff_number; i++) {
 
-		if (i == 0) {
+		if (i <= a.reception_number) {
 			// NOTE: First waiter is `reception'.
 			start_routine = reception;
 		} else {
@@ -83,7 +85,7 @@ int main(int argc, char **argv) {
 
 	void *retval;
 
-	for (i = 0; i < a.waiter_number; i++) {
+	for (i = 0; i < a.staff_number; i++) {
 
 		r = pthread_join(*(pthread + i), &retval);
 		if (r != 0) {

@@ -8,9 +8,16 @@
 
 
 typedef struct a_s {
-	size_t waiter_number;
 
+	size_t staff_number; // NOTE: default 10
 
+	size_t cleaners_number; // NOTE: default 1
+	size_t cook_number; // NOTE: default 1
+	size_t dishwasher_number; // NOTE: default 1
+	size_t lobby_manager_number; // NOTE: default 1
+	size_t reception_number; // NOTE: default 1
+	size_t typist_number; // NOTE: default 1
+	size_t waiter_number; // NOTE: default x
 
 
 } a_t;
