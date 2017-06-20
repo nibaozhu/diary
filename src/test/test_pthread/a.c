@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
 		return r;
 	}
 
-	r = initializing(argv[0], "./", "w+", debug, debug, 0, 1, 1024 * 1024);
+	r = initializing(argv[0], "./", "w+", debug, debug, 0, 1, 1024 * (1024-1));
 	if (r == -1)
 	{
 		plog(critical, "%s(%d)\n", strerror(errno), errno);
