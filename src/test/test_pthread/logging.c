@@ -37,6 +37,7 @@ struct logging *l;
 
 int pflush()
 {
+	int ret;
 	assert(l != NULL);
 
 #ifdef DEBUG_LOGGING
@@ -51,7 +52,7 @@ int pflush()
 
 	// The function fflush() forces a write of all user-space buffered data for the given output or update stream via the stream's
 	//		underlying write function.
-	int ret = fflush(l->stream);
+	ret = fflush(l->stream);
 	if (ret == EOF)
 	{
 		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, strerror(errno), errno);
@@ -269,7 +270,6 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 	//	on January 1, 1970, Coordinated Universal Time (UTC).
 	localtime_r(&t1.tv_sec, &l->t1);
 
-// int pthread_mutex_trylock(pthread_mutex_t *mutex);
 	ret = pthread_mutex_unlock(&mutex);
 	if (ret != 0)
 	{

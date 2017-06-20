@@ -1,7 +1,7 @@
 
 
-CPPFLAGS		= -O0
-CFLAGS			= -g
+CPPFLAGS		= -D DEBUG_LOGGING
+CFLAGS			= -O0 -g
 LDFLAGS			= -pthread
 
 
