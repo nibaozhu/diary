@@ -14,4 +14,6 @@
 void *reception(void *arg);
 
 
+#include "logging.h"
+
 #endif

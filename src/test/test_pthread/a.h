@@ -1,14 +1,14 @@
 #ifndef A_H
 #define A_H
 
+#include <errno.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <pthread.h>
-#include <errno.h>
 
 
 typedef struct a_s {
-				size_t worker_number;
+	size_t waiter_number;
 
 
 
@@ -16,6 +16,10 @@ typedef struct a_s {
 } a_t;
 
 
+#include "common.h"
 
+
+#include "reception.h"
+#include "waiter.h"
 
 #endif

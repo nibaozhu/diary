@@ -1,5 +1,5 @@
-#ifndef WORKER_H
-#define WORKER_H
+#ifndef WAITER_H
+#define WAITER_H
 
 
 #include <stdio.h>
@@ -11,7 +11,9 @@
 
 
 
-void *worker(void *arg);
+void *waiter(void *arg);
 
+
+#include "logging.h"
 
 #endif
