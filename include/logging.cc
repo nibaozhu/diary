@@ -431,7 +431,13 @@ int sysdate(char *str)
 	//	on January 1, 1970, Coordinated Universal Time (UTC).
 	localtime_r(&t1.tv_sec, &t0);
 
+#ifdef  __USE_BSD
 	// The function snprintf() writes at most size bytes (including the trailing null byte ('\0')) to str.
-	return snprintf(str, size, "%04d-%02d-%02d %02d:%02d:%02d.%06ld", 
-			t0.tm_year + 1900, t0.tm_mon + 1, t0.tm_mday, t0.tm_hour, t0.tm_min, t0.tm_sec, t1.tv_usec);
+	return snprintf(str, size, "%04d-%02d-%02d %02d:%02d:%02d.%06ld %s", 
+			t0.tm_year + 1900, t0.tm_mon + 1, t0.tm_mday, t0.tm_hour, t0.tm_min, t0.tm_sec, t1.tv_usec, t0.tm_zone);
+#else
+	// The function snprintf() writes at most size bytes (including the trailing null byte ('\0')) to str.
+	return snprintf(str, size, "%04d-%02d-%02d %02d:%02d:%02d.%06ld %z", 
+			t0.tm_year + 1900, t0.tm_mon + 1, t0.tm_mday, t0.tm_hour, t0.tm_min, t0.tm_sec, t1.tv_usec, t0.__tm_zone);
+#endif
 }

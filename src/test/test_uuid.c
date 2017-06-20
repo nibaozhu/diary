@@ -10,6 +10,11 @@
 int main()
 {
 
+  int i;
+  int n = 1024 * 1024;
+  for (i = 0; i < n; i++)
+  {
+
   uuid_t *_uuid = NULL;
   uuid_rc_t rc = uuid_create(&_uuid);
   if (rc != UUID_RC_OK) return 0;
@@ -18,9 +23,6 @@ int main()
   rc = uuid_load( _uuid, _name);
   if (rc != UUID_RC_OK) return 0;
 
-  int i;
-  for (i = 0; i < 1024 * 1024; i++)
-  {
     unsigned int _mode = UUID_MAKE_V1;
     rc = uuid_make(_uuid, _mode);
     if (rc != UUID_RC_OK) return 0;
@@ -34,10 +36,10 @@ int main()
     fprintf(stdout, "%s\n", _data_ptr);
     free(_data_ptr);
     _data_ptr = NULL;
-  }
 
   rc = uuid_destroy(_uuid);
   if (rc != UUID_RC_OK) return 0;
+  }
 
   return 0;
 }

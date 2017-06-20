@@ -1,8 +1,9 @@
+CPPFLAGS=-D PROTOBUF4C_MAIN
 CXXFLAGS=-g
 
 # LDFLAGS=-lprotobuf -L/usr/local/lib/
-# LDFLAGS=/usr/local/lib/libprotobuf.a
-LDFLAGS=`pkg-config --libs protobuf`
+LDFLAGS=/usr/local/lib/libprotobuf.a
+# LDFLAGS=`pkg-config --libs protobuf`
 
 .PHONY: all clean
 

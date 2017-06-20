@@ -27,6 +27,8 @@ int Print(::google::protobuf::Message* message) {
 }
 
 
+#ifdef PROTOBUF4C_MAIN
+ 
 int main(int argc, char **argv) {
 
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -99,5 +101,6 @@ int main(int argc, char **argv) {
 	return 0;
 }
 
+#endif
 
 

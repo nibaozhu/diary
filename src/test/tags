@@ -24,6 +24,7 @@ SIZE_MAX	../../include/logging.h	18;"	d
 __MAX	test_pthread.c	17;"	d	file:
 __MAX	test_pthread_with_lock.c	24;"	d	file:
 __MAX	test_pthread_with_sync.c	21;"	d	file:
+__kv	test_str2kv.c	/^struct __kv {$/;"	s	file:
 __plog	../../include/logging.cc	/^int __plog(enum elevel x, const char *__file, unsigned int __line, const char *__function, const char *fmt, ...)$/;"	f
 alert	../../include/logging.h	/^	alert,			\/* action must be taken immediately *\/$/;"	e	enum:elevel
 bufsize	generate_data.c	7;"	d	file:
@@ -55,6 +56,7 @@ i_want_to_get_this_content	test_curl.c	/^int i_want_to_get_this_content(const ch
 info	../../include/logging.h	/^	info,			\/* informational *\/$/;"	e	enum:elevel
 init_stack	test_stack.c	/^int init_stack(struct stack *s) {$/;"	f
 initializing	../../include/logging.cc	/^int initializing(const char *name, const char *path, const char *mode, enum elevel stream_level, enum elevel stdout_level, time_t diff, unsigned int cache_max, unsigned long size_max)$/;"	f
+kv	test_str2kv.c	/^  char kv[10][2][1025];$/;"	m	struct:__kv	file:
 l	../../include/logging.cc	/^struct logging *l;$/;"	v	typeref:struct:logging
 length	test_MYqueue.c	/^	size_t length;$/;"	m	struct:queue	file:
 length	test_stack.c	/^	size_t length;$/;"	m	struct:stack	file:
@@ -95,9 +97,11 @@ main	test_sizeof.c	/^int main() {$/;"	f
 main	test_sqlite3.c	/^int main(int argc, char **argv)$/;"	f
 main	test_stack.c	/^int main(int argc, char **argv) {$/;"	f
 main	test_std.c	/^int main(void) {$/;"	f
+main	test_str2kv.c	/^int main(int argc, char **argv)$/;"	f
 main	test_string.cc	/^int main(void) {$/;"	f
 main	test_thread.cc	/^int main() {$/;"	f
 main	test_unorderedmap.cc	/^int main(void) {$/;"	f
+main	test_uuid.c	/^int main()$/;"	f
 main	test_vector.cc	/^int main(int argc, char **argv) {$/;"	f
 main	test_xml.c	/^int main(int argc, char **argv) {$/;"	f
 main	test_xml2.cc	/^int main(int argc, char **argv) {$/;"	f
@@ -135,6 +139,7 @@ start_routine	test_pthread.c	/^void *start_routine(void *arg) {$/;"	f
 start_routine	test_pthread_with_lock.c	/^void *start_routine(void *arg) {$/;"	f
 start_routine	test_pthread_with_sync.c	/^void *start_routine(void *arg) {$/;"	f
 stdout_level	../../include/logging.h	/^	enum elevel stdout_level;$/;"	m	struct:logging	typeref:enum:logging::elevel
+str2kv	test_str2kv.c	/^void str2kv(const char *str, struct __kv *kv)$/;"	f
 stream	../../include/logging.h	/^	FILE *stream;$/;"	m	struct:logging
 stream_level	../../include/logging.h	/^	enum elevel stream_level;$/;"	m	struct:logging	typeref:enum:logging::elevel
 sysdate	../../include/logging.cc	/^int sysdate(char *str)$/;"	f
