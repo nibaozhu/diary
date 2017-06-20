@@ -1,11 +1,30 @@
 #include "a.h"
 
 
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
 int main(int argc, char **argv) {
 
 	// NOTE: Just use 4 sub-thread.
 	a_t a = { .waiter_number = 4 };
 	int r;
+
+	pthread_mutexattr_t *mutexattr = (pthread_mutexattr_t*)malloc(sizeof(pthread_mutexattr_t));
+	if (mutexattr == NULL) {
+		return EXIT_FAILURE;
+	}
+
+	r = pthread_mutexattr_init(mutexattr);
+	if (r != 0) {
+		plog(critical, "%s(%d)\n", strerror(errno), errno);
+		return r;
+	}
+
+	r = pthread_mutex_init(&mutex, mutexattr);
+	if (r != 0) {
+		plog(critical, "%s(%d)\n", strerror(errno), errno);
+		return r;
+	}
 
 	r = initializing(argv[0], "./", "w+", debug, debug, 0, 1, 1024 * 1024);
 	if (r == -1)
@@ -84,6 +103,20 @@ int main(int argc, char **argv) {
 		plog(critical, "%s(%d)\n", strerror(errno), errno);
 		return EXIT_FAILURE;
 	}
+
+	r = pthread_mutex_destroy(&mutex);
+	if (r != 0) {
+		plog(critical, "%s(%d)\n", strerror(errno), errno);
+		return r;
+	}
+
+	r = pthread_mutexattr_destroy(mutexattr);
+	if (r != 0) {
+		plog(critical, "%s(%d)\n", strerror(errno), errno);
+		return r;
+	}
+
+	free(mutexattr);
 
 	return EXIT_SUCCESS;
 }

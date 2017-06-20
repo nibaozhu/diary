@@ -50,7 +50,7 @@ int pflush()
 	}
 
 	// The function fflush() forces a write of all user-space buffered data for the given output or update stream via the stream's
-	//        underlying write function.
+	//		underlying write function.
 	int ret = fflush(l->stream);
 	if (ret == EOF)
 	{
@@ -153,13 +153,19 @@ int pflush()
 
 int __plog(enum elevel x, const char *__file, unsigned int __line, const char *__function, const char *fmt, ...)
 {
+	int ret = pthread_mutex_lock(&mutex);
+	if (ret != 0)
+	{
+		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, strerror(errno), errno);
+		return -1;
+	}
+
 	assert(l != NULL);
 #ifdef DEBUG_LOGGING
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l = %p\n",
 			color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l);
 #endif
 
-	int ret = 0;
 	struct tm t0;
 	struct timeval t1;
 
@@ -177,7 +183,7 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 			l->t1.tm_year + 1900, l->t1.tm_mon + 1, l->t1.tm_mday, l->t1.tm_hour, l->t1.tm_min, l->t1.tm_sec, 
 			t0.tm_year + 1900, t0.tm_mon + 1, t0.tm_mday, t0.tm_hour, t0.tm_min, t0.tm_sec, 
 			diff
-	       );
+		   );
 #endif
 
 	if (t0.tm_year != l->t1.tm_year || t0.tm_mon != l->t1.tm_mon || t0.tm_mday != l->t1.tm_mday)
@@ -262,6 +268,14 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 	// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
 	//	on January 1, 1970, Coordinated Universal Time (UTC).
 	localtime_r(&t1.tv_sec, &l->t1);
+
+// int pthread_mutex_trylock(pthread_mutex_t *mutex);
+	ret = pthread_mutex_unlock(&mutex);
+	if (ret != 0)
+	{
+		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, strerror(errno), errno);
+		return -1;
+	}
 	return ret;
 }
 
@@ -362,7 +376,7 @@ int uninitialized()
 	int ret = 0;
 
 	// The function fflush() forces a write of all user-space buffered data for the given output or update stream via the stream's
-	//        underlying write function.
+	//		underlying write function.
 	ret = fflush(l->stream);
 	if (ret == EOF)
 	{
@@ -371,7 +385,7 @@ int uninitialized()
 	}
 
 	// The fclose() function will flushes the stream pointed to by fp (writing any buffered output data using fflush(3)) and closes
-	//        the underlying file descriptor.
+	//		the underlying file descriptor.
 	ret = fclose(l->stream);
 	if (ret == EOF)
 	{

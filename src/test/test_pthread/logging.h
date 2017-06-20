@@ -34,6 +34,9 @@ extern "C" {
 #include <assert.h>
 #include <stdbool.h>
 
+#include <pthread.h>
+extern pthread_mutex_t mutex;
+
 #define MODE_MAX (4)
 #define DATE_MAX (32)
 
