@@ -1,18 +1,22 @@
 
+CPPFLAGS     = -U DEBUG_LOGGING
+CFLAGS       = -O0 -g
+LDFLAGS      = -pthread
 
-CPPFLAGS		= -D DEBUG_LOGGING
-CFLAGS			= -O0 -g
-LDFLAGS			= -pthread
+AR           = ar
+RM           = rm
 
+
+all: a.out
 
 a.out: logging.o a.o reception.o waiter.o
 	$(CC) -o $@ $^ $(LDFLAGS)
-	rm -rf *.o
+	$(RM) -rf *.o
 
-.PHONY: clean
+.PHONY: all clean
 
 clean:
-	rm -rf *.o a.out
+	$(RM) -rf *.o a.out
 
 # NOTE: autogen by `gcc -MM *.c'
 a.o: a.c a.h common.h logging.h reception.h waiter.h
