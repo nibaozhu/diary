@@ -4,21 +4,31 @@
 void *reception(void *arg) {
 	plog(debug, "Entering ...\n");
 
-	// pid_t pid = getpid();
+	personal_information_t *personal_information = (personal_information_t*)arg;
+
+	pid_t pid = getpid();
+	(void)pid;
+
 	pid_t tid = syscall(SYS_gettid);
 	pthread_t thread = pthread_self();
 
-	plog(info, "[Thread 0x%lx (LWP %d)]\n", thread, tid);
+	plog(info, "[Thread 0x%lx (LWP %d)] arg: %p\n", thread, tid, personal_information);
+
+	if (personal_information != NULL) {
+		plog(notice, "department_ID: %d, employee_ID: %d\n", 
+				personal_information->department_ID,
+				personal_information->employee_ID
+			);
+	}
+
+
+	sleep(3);
 
 
 
+	plog(info, "[Thread 0x%lx (LWP %d)] arg: %p\n", thread, tid, personal_information);
 
-	sleep(10);
-
-
-
-
-	plog(info, "[Thread 0x%lx (LWP %d)]\n", thread, tid);
+	free(arg);
 
 	plog(debug, "Leaving\n");
 	return NULL;

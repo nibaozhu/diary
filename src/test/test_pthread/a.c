@@ -5,7 +5,7 @@ pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 int main(int argc, char **argv) {
 
-	// NOTE: Just use 10 sub-thread.
+	/* Just use 10 sub-thread. */
 	a_t a = { 	.staff_number = 10, 
 				.reception_number = 1,
 				.waiter_number = 3 };
@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
 		return r;
 	}
 
-	r = initializing(argv[0], "/tmp/", "w+", debug, none, 0, 0, 1024 * (1024-1));
+	r = initializing(argv[0], "/tmp/test_pthread", "w+", debug, debug, 0, 0, 1024 * (1024-1));
 	if (r == -1)
 	{
 		plog(critical, "%s(%d)\n", strerror(errno), errno);
@@ -57,8 +57,19 @@ int main(int argc, char **argv) {
 	size_t i;
 	for (i = 0; i < a.staff_number; i++) {
 
+		/* personal_information will be free at sub-thread. */
+		personal_information_t *personal_information = (personal_information_t*)malloc(sizeof(personal_information_t));
+		if (personal_information == NULL) {
+			return EXIT_FAILURE;
+		}
+
+		personal_information->employee_ID = i;
+		personal_information->department_ID = i;
+
+		arg = personal_information;
+
 		if (i <= a.reception_number) {
-			// NOTE: First waiter is `reception'.
+			/* First waiter is `reception'. */
 			start_routine = reception;
 		} else {
 			start_routine = waiter;
@@ -71,8 +82,8 @@ int main(int argc, char **argv) {
 			continue;
 		}
 
-		// NOTE: Normally main-thread stands for 1, and sub-thread starts with 2 in `gdb shell'.
-		plog(notice, "  %d Thread 0x%lx\n", 2 + i, *(pthread + i));
+		/* XXX: `arg' maybe had been freed, and we just look it. */
+		plog(notice, "create: Thread[%d]: 0x%lx, arg: %p\n", i, *(pthread + i), arg);
 	}
 
 	r = pthread_attr_destroy(attr);
@@ -93,7 +104,7 @@ int main(int argc, char **argv) {
 			continue;
 		}
 
-		plog(notice, "  %d Thread 0x%lx\n", 2 + i, *(pthread + i));
+		plog(notice, "join: Thread[%d]: 0x%lx\n", i, *(pthread + i));
 	}
 
 

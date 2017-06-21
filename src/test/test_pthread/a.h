@@ -7,17 +7,17 @@
 #include <stdlib.h>
 
 
-typedef struct a_s {
+typedef struct {
 
-	size_t staff_number; // NOTE: default 10
+	size_t staff_number; /* default 10 */
 
-	size_t cleaners_number; // NOTE: default 1
-	size_t cook_number; // NOTE: default 1
-	size_t dishwasher_number; // NOTE: default 1
-	size_t lobby_manager_number; // NOTE: default 1
-	size_t reception_number; // NOTE: default 1
-	size_t typist_number; // NOTE: default 1
-	size_t waiter_number; // NOTE: default x
+	size_t cleaners_number; /* default 1 */
+	size_t cook_number; /* default 1 */
+	size_t dishwasher_number; /* default 1 */
+	size_t lobby_manager_number; /* default 1 */
+	size_t reception_number; /* default 1 */
+	size_t typist_number; /* default 1 */
+	size_t waiter_number; /* default x */
 
 
 } a_t;

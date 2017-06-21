@@ -34,6 +34,10 @@ extern "C" {
 #include <assert.h>
 #include <stdbool.h>
 
+#define _GNU_SOURCE        /* or _BSD_SOURCE or _SVID_SOURCE */
+#include <unistd.h>
+#include <sys/syscall.h>   /* For SYS_xxx definitions */
+
 #include <pthread.h>
 extern pthread_mutex_t mutex;
 

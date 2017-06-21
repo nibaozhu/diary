@@ -200,15 +200,18 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 	char str[DATE_MAX];
 	sysdate(str);
 
+	pthread_t thread = pthread_self();
+	pid_t tid = syscall(SYS_gettid);
+
 	if (x <= l->stdout_level)
 	{
 		if (x <= warning)
 		{
-			fprintf(stdout, "%s%s %s (%s:%d:%s)%s ", color[x], str, level[x], __file, __line, __function, clear_color);
+			fprintf(stdout, "%s%s %s [0x%lx] [%d] (%s:%d:%s)%s ", color[x], str, level[x], thread, tid, __file, __line, __function, clear_color);
 		}
 		else
 		{
-			fprintf(stdout, "%s%s %s%s ", color[x], str, level[x], clear_color);
+			fprintf(stdout, "%s%s %s [0x%lx] [%d] %s ", color[x], str, level[x], thread, tid, clear_color);
 		}
 	}
 
@@ -216,11 +219,11 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 	{
 		if (x <= warning)
 		{
-			fprintf(l->stream, "%s %s (%s:%d:%s) ", str, level[x], __file, __line, __function);
+			fprintf(l->stream, "%s %s [0x%lx] [%d] (%s:%d:%s) ", str, level[x], thread, tid, __file, __line, __function);
 		}
 		else
 		{
-			fprintf(l->stream, "%s %s ", str, level[x]);
+			fprintf(l->stream, "%s %s [0x%lx] [%d] ", str, level[x], thread, tid);
 		}
 	}
 
