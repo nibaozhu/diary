@@ -24,6 +24,10 @@ void *reception(void *arg) {
 
 	sleep(3);
 
+	int i;
+	for(i = 0; i < 1024; i++)
+		plog(debug, "do something ...\n");
+
 
 
 	plog(info, "[Thread 0x%lx (LWP %d)] arg: %p\n", thread, tid, personal_information);

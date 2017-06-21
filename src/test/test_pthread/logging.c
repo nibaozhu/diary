@@ -250,28 +250,34 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 	}
 	va_end(ap);
 
-	if (l->cache_max == 0)
-	{
-		; //...
-	}
-	else if (diff < l->diff)
-	{
-		return 0; // no flush
-	}
-	else if (++l->cache < l->cache_max)
-	{
-#ifdef DEBUG_LOGGING
-		fprintf(stdout, "%s%s%s %s:%d: %s: %s, l->cache = %u, l->cache_max = %u\n",
-				color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l->cache, l->cache_max);
-#endif
-		return 0; // no flush
-	}
+	do {
+		/* error */
+		if (diff + 1 < l->diff_max)
+		{
+			break; // no flush
+		}
 
-	ret = pflush();
-	assert(ret == 0);
-	// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
-	//	on January 1, 1970, Coordinated Universal Time (UTC).
-	localtime_r(&t1.tv_sec, &l->t1);
+		if (l->cache_max == 0)
+		{
+			; // ...
+		}
+		else if (++l->cache < l->cache_max)
+		{
+#ifdef DEBUG_LOGGING
+			fprintf(stdout, "%s%s%s %s:%d: %s: %s, l->cache = %u, l->cache_max = %u\n",
+					color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "tracing", l->cache, l->cache_max);
+#endif
+			break; // no flush
+		}
+
+		ret = pflush();
+		assert(ret == 0);
+
+		// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
+		//	on January 1, 1970, Coordinated Universal Time (UTC).
+		localtime_r(&t1.tv_sec, &l->t1);
+
+	} while (0);
 
 	ret = pthread_mutex_unlock(&mutex);
 	if (ret != 0)
@@ -282,7 +288,7 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 	return ret;
 }
 
-int initializing(const char *name, const char *path, const char *mode, enum elevel stream_level, enum elevel stdout_level, time_t diff, unsigned int cache_max, unsigned long size_max)
+int initializing(const char *name, const char *path, const char *mode, enum elevel stream_level, enum elevel stdout_level, time_t diff_max, unsigned int cache_max, unsigned long size_max)
 {
 	if (l == NULL) {
 		l = (struct logging*)malloc(sizeof (struct logging));
@@ -301,7 +307,7 @@ int initializing(const char *name, const char *path, const char *mode, enum elev
 	}
 
 	l->pid = getpid();
-	l->diff = diff;
+	l->diff_max = diff_max;
 	l->cache_max = cache_max;
 	l->size_max = size_max;
 	strncpy(l->path, path, strlen(path));

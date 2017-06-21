@@ -44,6 +44,10 @@ extern pthread_mutex_t mutex;
 #define MODE_MAX (4)
 #define DATE_MAX (32)
 
+#define LOGGING_INTERVAL (0)
+#define LOGGING_CACHE (BUFSIZ)
+#define LOGGING_SIZE ((1<<20)-(1<<10))
+
 enum elevel {
 	none = -1,		/* none logging */
 
@@ -65,7 +69,7 @@ struct logging {
 	char name[NAME_MAX]; // program name
 	struct tm t0; // start time
 	struct tm t1; // the last flush stream date/time
-	time_t diff; // time interval
+	time_t diff_max; // time interval
 	pid_t pid; // program process id
 	unsigned int cache_max; // cache_max lines in memory
 	unsigned int cache; // logging has cache lines in memory
@@ -82,7 +86,7 @@ struct logging {
 };
 
 int sysdate(char *str);
-int initializing(const char *name, const char *path, const char *mode, enum elevel stream_level, enum elevel stdout_level, time_t diff, unsigned int cache_max, unsigned long size_max);
+int initializing(const char *name, const char *path, const char *mode, enum elevel stream_level, enum elevel stdout_level, time_t diff_max, unsigned int cache_max, unsigned long size_max);
 int __plog(enum elevel x, const char *__file, unsigned int __line, const char *__function, const char *__restrict fmt, ...) __attribute__ ((__format__ (__printf__, 5, 6)));
 int pflush();
 int uninitialized();

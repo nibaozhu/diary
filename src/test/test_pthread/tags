@@ -15,7 +15,10 @@ CPPFLAGS	Makefile	/^CPPFLAGS     = -U DEBUG_LOGGING$/;"	m
 CTAGS	Makefile	/^CTAGS        = ctags$/;"	m
 DATE_MAX	logging.h	45;"	d
 LDFLAGS	Makefile	/^LDFLAGS      = -pthread$/;"	m
+LOGGING_CACHE	logging.h	48;"	d
 LOGGING_H	logging.h	9;"	d
+LOGGING_INTERVAL	logging.h	47;"	d
+LOGGING_SIZE	logging.h	49;"	d
 MAKEFILE	Makefile	/^MAKEFILE     = Makefile$/;"	m
 MODE_MAX	logging.h	44;"	d
 OUTPUT_OPT	Makefile	/^OUTPUT_OPT   = -o$/;"	m
@@ -33,6 +36,7 @@ __plog	logging.c	/^int __plog(enum elevel x, const char *__file, unsigned int __
 a_t	a.h	/^} a_t;$/;"	t	typeref:struct:__anon1
 alert	logging.h	/^	alert,			\/* action must be taken immediately *\/$/;"	e	enum:elevel
 cache	logging.h	/^	unsigned int cache; \/\/ logging has cache lines in memory$/;"	m	struct:logging
+cache_max	a.h	/^	size_t cache_max;$/;"	m	struct:__anon1
 cache_max	logging.h	/^	unsigned int cache_max; \/\/ cache_max lines in memory$/;"	m	struct:logging
 cleaners_number	a.h	/^	size_t cleaners_number; \/* default 1 *\/$/;"	m	struct:__anon1
 clear_color	logging.c	/^const char *clear_color = "\\e[0m";$/;"	v
@@ -41,14 +45,14 @@ cook_number	a.h	/^	size_t cook_number; \/* default 1 *\/$/;"	m	struct:__anon1
 critical	logging.h	/^	critical,		\/* critical conditions *\/$/;"	e	enum:elevel
 debug	logging.h	/^	debug,			\/* debug-level messages *\/$/;"	e	enum:elevel
 department_ID	common.h	/^	size_t department_ID;$/;"	m	struct:__anon2
-diff	logging.h	/^	time_t diff; \/\/ time interval$/;"	m	struct:logging
+diff_max	logging.h	/^	time_t diff_max; \/\/ time interval$/;"	m	struct:logging
 dishwasher_number	a.h	/^	size_t dishwasher_number; \/* default 1 *\/$/;"	m	struct:__anon1
 elevel	logging.h	/^enum elevel {$/;"	g
 emergency	logging.h	/^	emergency,		\/* application is unusable *\/$/;"	e	enum:elevel
 employee_ID	common.h	/^	size_t employee_ID;$/;"	m	struct:__anon2
 error	logging.h	/^	error,			\/* error conditions *\/$/;"	e	enum:elevel
 info	logging.h	/^	info,			\/* informational *\/$/;"	e	enum:elevel
-initializing	logging.c	/^int initializing(const char *name, const char *path, const char *mode, enum elevel stream_level, enum elevel stdout_level, time_t diff, unsigned int cache_max, unsigned long size_max)$/;"	f
+initializing	logging.c	/^int initializing(const char *name, const char *path, const char *mode, enum elevel stream_level, enum elevel stdout_level, time_t diff_max, unsigned int cache_max, unsigned long size_max)$/;"	f
 l	logging.c	/^struct logging *l;$/;"	v	typeref:struct:logging
 level	logging.c	/^const char *level[debug + 1] = $/;"	v
 lobby_manager_number	a.h	/^	size_t lobby_manager_number; \/* default 1 *\/$/;"	m	struct:__anon1
@@ -64,10 +68,11 @@ path	logging.h	/^	char path[PATH_MAX]; \/\/ logging file's path$/;"	m	struct:log
 personal_information_t	common.h	/^} personal_information_t;$/;"	t	typeref:struct:__anon2
 pflush	logging.c	/^int pflush()$/;"	f
 pid	logging.h	/^	pid_t pid; \/\/ program process id$/;"	m	struct:logging
-plog	logging.h	90;"	d
+plog	logging.h	94;"	d
 reception	reception.c	/^void *reception(void *arg) {$/;"	f
 reception_number	a.h	/^	size_t reception_number; \/* default 1 *\/$/;"	m	struct:__anon1
 size	logging.h	/^	unsigned long size; \/\/ logging has written bytes in file$/;"	m	struct:logging
+size_max	a.h	/^	size_t size_max;$/;"	m	struct:__anon1
 size_max	logging.h	/^	unsigned long size_max; \/\/ size_max bytes in file$/;"	m	struct:logging
 staff_number	a.h	/^	size_t staff_number; \/* default 10 *\/$/;"	m	struct:__anon1
 stdout_level	logging.h	/^	enum elevel stdout_level;$/;"	m	struct:logging	typeref:enum:logging::elevel

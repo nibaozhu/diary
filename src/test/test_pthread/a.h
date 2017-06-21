@@ -19,6 +19,8 @@ typedef struct {
 	size_t typist_number; /* default 1 */
 	size_t waiter_number; /* default x */
 
+	size_t cache_max;
+	size_t size_max;
 
 } a_t;
 

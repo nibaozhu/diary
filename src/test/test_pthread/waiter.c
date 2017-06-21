@@ -23,7 +23,7 @@ void *waiter(void *arg) {
 
 
 	int i;
-	for(i = 0; i < 10; i++)
+	for(i = 0; i < 1024*1024; i++)
 		plog(debug, "do something ...\n");
 
 	sleep(4);

@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
 		return r;
 	}
 
-	r = initializing(argv[0], "/tmp/test_pthread", "w+", debug, debug, 0, 0, 1024 * (1024-1));
+	r = initializing(argv[0], "/tmp/test_pthread", "w+", debug, none, 0, 0, LOGGING_SIZE);
 	if (r == -1)
 	{
 		plog(critical, "%s(%d)\n", strerror(errno), errno);
