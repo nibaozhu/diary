@@ -5,8 +5,8 @@ pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 int main(int argc, char **argv) {
 
-	/* Just use 10 sub-thread. */
-	a_t a = { 	.staff_number = 10, 
+	/* Set sub-thread number. */
+	a_t a = { 	.staff_number = 4, 
 				.reception_number = 1,
 				.waiter_number = 3 };
 	int r;
@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
 		}
 
 		r = pthread_create(pthread + i, (const pthread_attr_t *)attr,
-  	                        start_routine, arg);
+						start_routine, arg);
 		if (r != 0) {
 			plog(error, "%s(%d)\n", strerror(errno), errno);
 			continue;
