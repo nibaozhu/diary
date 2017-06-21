@@ -211,7 +211,7 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 		}
 		else
 		{
-			fprintf(stdout, "%s%s %s [0x%lx] [%d] %s ", color[x], str, level[x], thread, tid, clear_color);
+			fprintf(stdout, "%s%s %s [0x%lx] [%d]%s ", color[x], str, level[x], thread, tid, clear_color);
 		}
 	}
 
