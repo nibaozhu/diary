@@ -43,7 +43,7 @@ void *waiter(void *arg) {
 	sleep(3);
 
 	int i;
-	for(i = 0; i < 6000000; i++)
+	for(i = 0; i < 6; i++)
 		plog(debug, "do something ...\n");
 
 	free(arg);

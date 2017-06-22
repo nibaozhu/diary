@@ -12,7 +12,7 @@ A_H	a.h	2;"	d
 CEO_number	a.h	/^	size_t CEO_number; \/* Chief Execute Officer: only one *\/$/;"	m	struct:__anon1
 CFLAGS	Makefile	/^CFLAGS       = -O0 -g$/;"	m
 COMMON_H	common.h	2;"	d
-CPPFLAGS	Makefile	/^CPPFLAGS     = -U DEBUG_LOGGING -U HH_MI_SS_XXXXXX$/;"	m
+CPPFLAGS	Makefile	/^CPPFLAGS     = # -D DEBUG_LOGGING # -D HH_MI_SS_XXXXXX$/;"	m
 CTAGS	Makefile	/^CTAGS        = ctags$/;"	m
 DATE_MAX	logging.h	44;"	d
 ID	common.h	/^	size_t ID;$/;"	m	struct:task_s
