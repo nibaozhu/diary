@@ -57,7 +57,7 @@ dishwasher_number	a.h	/^	size_t dishwasher_number; \/* default 1 *\/$/;"	m	struc
 elevel	logging.h	/^enum elevel {$/;"	g
 emergency	logging.h	/^	emergency,		\/* application is unusable *\/$/;"	e	enum:elevel
 employee_ID	common.h	/^	size_t employee_ID;$/;"	m	struct:__anon2
-entry	common.h	/^	LIST_ENTRY(task_s) entry;$/;"	m	struct:task_s
+entry	common.h	/^	SLIST_ENTRY(task_s) entry;$/;"	m	struct:task_s
 error	logging.h	/^	error,			\/* error conditions *\/$/;"	e	enum:elevel
 general_manger_number	a.h	/^	size_t general_manger_number; \/* only one *\/$/;"	m	struct:__anon1
 info	logging.h	/^	info,			\/* informational *\/$/;"	e	enum:elevel
@@ -90,8 +90,8 @@ stream_level	logging.h	/^	enum elevel stream_level;$/;"	m	struct:logging	typeref
 sysdate	logging.c	/^int sysdate(char *str)$/;"	f
 t0	logging.h	/^	struct tm t0; \/\/ start time$/;"	m	struct:logging	typeref:struct:logging::tm
 t1	logging.h	/^	struct tm t1; \/\/ the last flush stream date\/time$/;"	m	struct:logging	typeref:struct:logging::tm
-task_list	common.h	/^	LIST_HEAD(task_list_s, task_s) *task_list;$/;"	m	struct:__anon2
 task_s	common.h	/^typedef struct task_s {$/;"	s
+task_slist	common.h	/^	SLIST_HEAD(task_slist_s, task_s) *task_slist;$/;"	m	struct:__anon2
 task_t	common.h	/^} task_t;$/;"	t	typeref:struct:task_s
 typist_number	a.h	/^	size_t typist_number; \/* default 1 *\/$/;"	m	struct:__anon1
 uninitialized	logging.c	/^int uninitialized()$/;"	f

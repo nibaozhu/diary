@@ -16,7 +16,7 @@ typedef struct task_s {
 
 	char path[PATH_MAX];
 
-	LIST_ENTRY(task_s) entry;
+	SLIST_ENTRY(task_s) entry;
 } task_t;
 
 typedef struct {
@@ -27,7 +27,7 @@ typedef struct {
 	const char UUID[UUID_LEN_STR + 1]; /* Universal Unique ID */
 #endif
 
-	LIST_HEAD(task_list_s, task_s) *task_list;
+	SLIST_HEAD(task_slist_s, task_s) *task_slist;
 } personal_information_t;
 
 #define _GNU_SOURCE        /* or _BSD_SOURCE or _SVID_SOURCE */

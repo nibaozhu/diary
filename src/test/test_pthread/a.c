@@ -54,12 +54,12 @@ int main(int argc, char **argv) {
 		personal_information->employee_ID = i;
 		personal_information->department_ID = i;
 
-		personal_information->task_list = (struct task_list_s*)malloc(sizeof(struct task_list_s));
-		if(personal_information->task_list == NULL) {
+		personal_information->task_slist = (struct task_slist_s*)malloc(sizeof(struct task_slist_s));
+		if(personal_information->task_slist == NULL) {
 			return EXIT_FAILURE;
 		}
 
-		LIST_INIT(personal_information->task_list);
+		SLIST_INIT(personal_information->task_slist);
 
 		int j;
 		for (j = 0; j < 4; j++) {
@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
 #endif
 			strncpy(task->path, default_task[j][1], PATH_MAX);
 
-			LIST_INSERT_HEAD(personal_information->task_list, task, entry);
+			SLIST_INSERT_HEAD(personal_information->task_slist, task, entry);
 		}
 
 

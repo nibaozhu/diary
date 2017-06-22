@@ -22,7 +22,7 @@ void *reception(void *arg) {
 
 		size_t i = 0;
 		task_t *task;
-		LIST_FOREACH(task, personal_information->task_list, entry) {
+		SLIST_FOREACH(task, personal_information->task_slist, entry) {
 			plog(notice, "task[%d]: { UUID: '%s', ID: %d, path: '%s' }\n", 
 					i++,
 #ifdef UUID_LEN_STR
