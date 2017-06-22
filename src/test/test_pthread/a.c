@@ -1,6 +1,13 @@
 #include "a.h"
 
 
+const char default_task[4][3][PATH_MAX] = {
+{ "9c0045ae-a9b6-492b-8a26-5646fc94d57f", "/tmp/path/to/task_where", }, 
+{ "656734fc-7b91-489c-a2bf-cd2a340ba306", "/home/path/to/task_are", }, 
+{ "1ed6808a-2339-46b8-b088-55d1d620eb85", "/log/path/to/task_you", }, 
+{ "e536e579-2d83-4b5d-874d-d0b409dbdc0b", "/var/path/to/task_from", }, 
+};
+
 int main(int argc, char **argv) {
 
 	/* Set sub-thread number. */
@@ -46,6 +53,32 @@ int main(int argc, char **argv) {
 
 		personal_information->employee_ID = i;
 		personal_information->department_ID = i;
+
+		personal_information->task_list = (struct task_list_s*)malloc(sizeof(struct task_list_s));
+		if(personal_information->task_list == NULL) {
+			return EXIT_FAILURE;
+		}
+
+		LIST_INIT(personal_information->task_list);
+
+		int j;
+		for (j = 0; j < 4; j++) {
+			/* */
+			task_t *task = (task_t*)malloc(sizeof(task_t));
+			if (task == NULL) {
+				return EXIT_FAILURE;
+			}
+
+			/* Generate a task. */
+			task->ID = random();
+#ifdef UUID_LEN_STR
+			strncpy(task->UUID, default_task[j][0], UUID_LEN_STR);
+#endif
+			strncpy(task->path, default_task[j][1], PATH_MAX);
+
+			LIST_INSERT_HEAD(personal_information->task_list, task, entry);
+		}
+
 
 		arg = personal_information;
 

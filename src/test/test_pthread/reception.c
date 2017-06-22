@@ -19,6 +19,21 @@ void *reception(void *arg) {
 				personal_information->department_ID,
 				personal_information->employee_ID
 			);
+
+		size_t i = 0;
+		task_t *task;
+		LIST_FOREACH(task, personal_information->task_list, entry) {
+			plog(notice, "task[%d]: { UUID: '%s', ID: %d, path: '%s' }\n", 
+					i++,
+#ifdef UUID_LEN_STR
+					task->UUID,
+#else
+					"(Not defined)",
+#endif
+					task->ID,
+					task->path
+				);
+		}
 	}
 
 
