@@ -1,8 +1,6 @@
 #include "a.h"
 
 
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-
 int main(int argc, char **argv) {
 
 	/* Set sub-thread number. */
@@ -10,23 +8,6 @@ int main(int argc, char **argv) {
 				.reception_number = 1,
 				.waiter_number = 3 };
 	int r;
-
-	pthread_mutexattr_t *mutexattr = (pthread_mutexattr_t*)malloc(sizeof(pthread_mutexattr_t));
-	if (mutexattr == NULL) {
-		return EXIT_FAILURE;
-	}
-
-	r = pthread_mutexattr_init(mutexattr);
-	if (r != 0) {
-		plog(critical, "%s(%d)\n", strerror(errno), errno);
-		return r;
-	}
-
-	r = pthread_mutex_init(&mutex, mutexattr);
-	if (r != 0) {
-		plog(critical, "%s(%d)\n", strerror(errno), errno);
-		return r;
-	}
 
 	r = initializing(argv[0], "/tmp/test_pthread", "w+", debug, none, 0, 0, LOGGING_SIZE);
 	if (r == -1)
@@ -107,29 +88,13 @@ int main(int argc, char **argv) {
 		plog(notice, "join: Thread[%d]: 0x%lx\n", i, *(pthread + i));
 	}
 
-
-
 	free(pthread);
 
 	r = uninitialized();
 	if (r == -1) {
-		plog(critical, "%s(%d)\n", strerror(errno), errno);
+		fprintf(stderr, "%s(%d)\n", strerror(errno), errno);
 		return EXIT_FAILURE;
 	}
-
-	r = pthread_mutex_destroy(&mutex);
-	if (r != 0) {
-		plog(critical, "%s(%d)\n", strerror(errno), errno);
-		return r;
-	}
-
-	r = pthread_mutexattr_destroy(mutexattr);
-	if (r != 0) {
-		plog(critical, "%s(%d)\n", strerror(errno), errno);
-		return r;
-	}
-
-	free(mutexattr);
 
 	return EXIT_SUCCESS;
 }

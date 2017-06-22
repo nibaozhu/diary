@@ -39,7 +39,6 @@ extern "C" {
 #include <sys/syscall.h>   /* For SYS_xxx definitions */
 
 #include <pthread.h>
-extern pthread_mutex_t mutex;
 
 #define MODE_MAX (4)
 #define DATE_MAX (32)

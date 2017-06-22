@@ -2,7 +2,6 @@
 #define WAITER_H
 
 
-
 void *waiter(void *arg);
 
 

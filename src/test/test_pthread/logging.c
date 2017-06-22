@@ -35,6 +35,9 @@ const char *color[debug + 1] =
 const char *clear_color = "\e[0m";
 struct logging *l;
 
+static pthread_mutexattr_t mutexattr;
+static pthread_mutex_t mutex;
+
 int pflush()
 {
 	int ret;
@@ -322,7 +325,7 @@ int initializing(const char *name, const char *path, const char *mode, enum elev
 	// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
 	//	on January 1, 1970, Coordinated Universal Time (UTC).
 	localtime_r(&t0.tv_sec, &l->t0);
-	localtime_r(&t0.tv_sec, &l->t1);
+	memcpy(&(l->t1), &(l->t0), sizeof (struct tm));
 
 	l->number = 0;
 	if (l->stream_level == none)
@@ -364,6 +367,18 @@ int initializing(const char *name, const char *path, const char *mode, enum elev
 #ifdef DEBUG_LOGGING
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s\n", color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "passed");
 #endif
+
+	ret = pthread_mutexattr_init(&mutexattr);
+	if (ret != 0) {
+		plog(critical, "%s(%d)\n", strerror(errno), errno);
+		return -1;
+	}
+
+	ret = pthread_mutex_init(&mutex, &mutexattr);
+	if (ret != 0) {
+		plog(critical, "%s(%d)\n", strerror(errno), errno);
+		return -1;
+	}
 
 	// Print the program name, pid, release
 	plog(info, "PROGRAM: %s, PID: %u, RELEASE: %s %s\n", l->name, l->pid, __DATE__, __TIME__);
@@ -434,6 +449,19 @@ int uninitialized()
 #endif
 	free(l);
 	l = NULL;
+
+	ret = pthread_mutex_destroy(&mutex);
+	if (ret != 0) {
+		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, strerror(errno), errno);
+		return -1;
+	}
+
+	ret = pthread_mutexattr_destroy(&mutexattr);
+	if (ret != 0) {
+		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, strerror(errno), errno);
+		return -1;
+	}
+
 	return 0;
 }
 
