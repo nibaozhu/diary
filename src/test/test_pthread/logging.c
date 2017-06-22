@@ -32,11 +32,10 @@ const char *color[debug + 1] =
 	"\e[37m", // white(gray)
 };
 
-const char *clear_color = "\e[0m";
-struct logging *l;
-
-static pthread_mutexattr_t mutexattr;
-static pthread_mutex_t mutex;
+static char *clear_color = "\e[0m";
+static struct logging *l;
+static pthread_mutexattr_t __mutexattr;
+static pthread_mutex_t __mutex;
 
 int pflush()
 {
@@ -157,7 +156,7 @@ int pflush()
 
 int __plog(enum elevel x, const char *__file, unsigned int __line, const char *__function, const char *fmt, ...)
 {
-	int ret = pthread_mutex_lock(&mutex);
+	int ret = pthread_mutex_lock(&__mutex);
 	if (ret != 0)
 	{
 		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, strerror(errno), errno);
@@ -282,7 +281,7 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 
 	} while (0);
 
-	ret = pthread_mutex_unlock(&mutex);
+	ret = pthread_mutex_unlock(&__mutex);
 	if (ret != 0)
 	{
 		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, strerror(errno), errno);
@@ -368,13 +367,13 @@ int initializing(const char *name, const char *path, const char *mode, enum elev
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s\n", color[debug], level[debug], clear_color, __FILE__, __LINE__, __func__, "passed");
 #endif
 
-	ret = pthread_mutexattr_init(&mutexattr);
+	ret = pthread_mutexattr_init(&__mutexattr);
 	if (ret != 0) {
 		plog(critical, "%s(%d)\n", strerror(errno), errno);
 		return -1;
 	}
 
-	ret = pthread_mutex_init(&mutex, &mutexattr);
+	ret = pthread_mutex_init(&__mutex, &__mutexattr);
 	if (ret != 0) {
 		plog(critical, "%s(%d)\n", strerror(errno), errno);
 		return -1;
@@ -450,13 +449,13 @@ int uninitialized()
 	free(l);
 	l = NULL;
 
-	ret = pthread_mutex_destroy(&mutex);
+	ret = pthread_mutex_destroy(&__mutex);
 	if (ret != 0) {
 		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, strerror(errno), errno);
 		return -1;
 	}
 
-	ret = pthread_mutexattr_destroy(&mutexattr);
+	ret = pthread_mutexattr_destroy(&__mutexattr);
 	if (ret != 0) {
 		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", color[error], level[error], clear_color, __FILE__, __LINE__, __func__, strerror(errno), errno);
 		return -1;

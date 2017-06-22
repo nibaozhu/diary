@@ -61,8 +61,6 @@ enum elevel {
 };
 
 extern const char *level[debug + 1];
-extern const char *color[debug + 1];
-extern const char *clear_color;
 
 struct logging {
 	char name[NAME_MAX]; // program name

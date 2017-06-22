@@ -9,7 +9,7 @@ int main(int argc, char **argv) {
 				.waiter_number = 3 };
 	int r;
 
-	r = initializing(argv[0], "/tmp/test_pthread", "w+", debug, none, 0, 0, LOGGING_SIZE);
+	r = initializing(argv[0], "/tmp/test_pthread", "w+", debug, debug, 0, 0, LOGGING_SIZE);
 	if (r == -1)
 	{
 		plog(critical, "%s(%d)\n", strerror(errno), errno);
