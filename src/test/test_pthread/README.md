@@ -1,5 +1,4 @@
-########################
-Hotel Mangement System
+# Hotel Mangement System
 
 
 

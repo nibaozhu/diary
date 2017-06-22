@@ -6,31 +6,45 @@ void *waiter(void *arg) {
 
 	personal_information_t *personal_information = (personal_information_t*)arg;
 
-	pid_t pid = getpid();
-	(void)pid;
-
-	pid_t tid = syscall(SYS_gettid);
-	pthread_t thread = pthread_self();
-
-	plog(info, "[Thread 0x%lx (LWP %d)] arg: %p\n", thread, tid, personal_information);
-
 	if (personal_information != NULL) {
-		plog(notice, "department_ID: %d, employee_ID: %d\n", 
+		plog(notice, "personal_information: %p { department_ID: %d, employee_ID: %d }\n", 
+				personal_information,
 				personal_information->department_ID,
 				personal_information->employee_ID
 			);
+
+		size_t i = 0;
+		task_t *task;
+		SLIST_FOREACH(task, personal_information->task_slist, entry) {
+
+			task->ppid = getppid();
+			task->pid = getpid();
+			task->tid = syscall(SYS_gettid);
+			task->ptid = pthread_self();
+
+			plog(notice, "task[%d]: { UUID: '%s', ID: %d, path: '%s', ppid: %d, pid: %d, tid: %d, ptid: 0x%lx }\n", 
+					i++,
+#ifdef UUID_LEN_STR
+					task->UUID,
+#else
+					"(Not defined)",
+#endif
+					task->ID,
+					task->path,
+					task->ppid,
+					task->pid,
+					task->tid, 
+					task->ptid
+				);
+		}
 	}
 
 
+	sleep(3);
+
 	int i;
-	for(i = 0; i < 10; i++)
+	for(i = 0; i < 6000000; i++)
 		plog(debug, "do something ...\n");
-
-	sleep(4);
-
-
-
-	plog(info, "[Thread 0x%lx (LWP %d)] arg: %p\n", thread, tid, personal_information);
 
 	free(arg);
 

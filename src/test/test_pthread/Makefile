@@ -1,4 +1,4 @@
-CPPFLAGS     = -U DEBUG_LOGGING
+CPPFLAGS     = -U DEBUG_LOGGING -U HH_MI_SS_XXXXXX
 CFLAGS       = -O0 -g
 OUTPUT_OPT   = -o
 LDFLAGS      = -pthread

@@ -37,7 +37,47 @@ static struct logging *l;
 static pthread_mutexattr_t __mutexattr;
 static pthread_mutex_t __mutex;
 
-int pflush()
+static int __timestamp(char *str)
+{
+	// format: year-month-day hour:minute:second.microsecond
+	struct tm t0;
+	struct timeval t1;
+	size_t size = DATE_MAX;
+
+	// fill memory with a constant byte
+	memset(str, 0, size);
+
+	// gettimeofday() gives the number of seconds and microseconds since the Epoch (see time(2)).
+	gettimeofday(&t1, NULL);
+
+	// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
+	//	on January 1, 1970, Coordinated Universal Time (UTC).
+	localtime_r(&t1.tv_sec, &t0);
+
+#ifdef  __USE_BSD
+#ifdef    HH_MI_SS_XXXXXX
+	// The function snprintf() writes at most size bytes (including the trailing null byte ('\0')) to str.
+	return snprintf(str, size, "%02d:%02d:%02d.%06ld %s", 
+			t0.tm_hour, t0.tm_min, t0.tm_sec, t1.tv_usec, t0.tm_zone);
+#else
+	// The function snprintf() writes at most size bytes (including the trailing null byte ('\0')) to str.
+	return snprintf(str, size, "%04d-%02d-%02d %02d:%02d:%02d.%06ld %s", 
+			t0.tm_year + 1900, t0.tm_mon + 1, t0.tm_mday, t0.tm_hour, t0.tm_min, t0.tm_sec, t1.tv_usec, t0.tm_zone);
+#endif // HH_MI_SS_XXXXXX
+#else
+#ifdef    HH_MI_SS_XXXXXX
+	// The function snprintf() writes at most size bytes (including the trailing null byte ('\0')) to str.
+	return snprintf(str, size, "%02d:%02d:%02d.%06ld %z", 
+			t0.tm_hour, t0.tm_min, t0.tm_sec, t1.tv_usec, t0.__tm_zone);
+#else
+	// The function snprintf() writes at most size bytes (including the trailing null byte ('\0')) to str.
+	return snprintf(str, size, "%04d-%02d-%02d %02d:%02d:%02d.%06ld %z", 
+			t0.tm_year + 1900, t0.tm_mon + 1, t0.tm_mday, t0.tm_hour, t0.tm_min, t0.tm_sec, t1.tv_usec, t0.__tm_zone);
+#endif // HH_MI_SS_XXXXXX
+#endif // __USE_BSD
+}
+
+static int __flush()
 {
 	int ret;
 	assert(l != NULL);
@@ -191,7 +231,7 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 
 	if (t0.tm_year != l->t1.tm_year || t0.tm_mon != l->t1.tm_mon || t0.tm_mday != l->t1.tm_mday)
 	{
-		ret = pflush();
+		ret = __flush();
 		assert(ret == 0);
 		// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
 		//	on January 1, 1970, Coordinated Universal Time (UTC).
@@ -200,7 +240,7 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 	}
 
 	char str[DATE_MAX];
-	sysdate(str);
+	__timestamp(str);
 
 	pthread_t thread = pthread_self();
 	pid_t tid = syscall(SYS_gettid);
@@ -243,7 +283,7 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 		vfprintf(l->stream, fmt, ap);
 		if (x <= warning)
 		{
-			ret = pflush();
+			ret = __flush();
 			assert(ret == 0);
 			// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
 			//	on January 1, 1970, Coordinated Universal Time (UTC).
@@ -272,7 +312,7 @@ int __plog(enum elevel x, const char *__file, unsigned int __line, const char *_
 			break; // no flush
 		}
 
-		ret = pflush();
+		ret = __flush();
 		assert(ret == 0);
 
 		// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
@@ -462,32 +502,4 @@ int uninitialized()
 	}
 
 	return 0;
-}
-
-int sysdate(char *str)
-{
-	// format: year-month-day hour:minute:second.microsecond
-	struct tm t0;
-	struct timeval t1;
-	size_t size = DATE_MAX;
-
-	// fill memory with a constant byte
-	memset(str, 0, size);
-
-	// gettimeofday() gives the number of seconds and microseconds since the Epoch (see time(2)).
-	gettimeofday(&t1, NULL);
-
-	// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
-	//	on January 1, 1970, Coordinated Universal Time (UTC).
-	localtime_r(&t1.tv_sec, &t0);
-
-#ifdef  __USE_BSD
-	// The function snprintf() writes at most size bytes (including the trailing null byte ('\0')) to str.
-	return snprintf(str, size, "%04d-%02d-%02d %02d:%02d:%02d.%06ld %s", 
-			t0.tm_year + 1900, t0.tm_mon + 1, t0.tm_mday, t0.tm_hour, t0.tm_min, t0.tm_sec, t1.tv_usec, t0.tm_zone);
-#else
-	// The function snprintf() writes at most size bytes (including the trailing null byte ('\0')) to str.
-	return snprintf(str, size, "%04d-%02d-%02d %02d:%02d:%02d.%06ld %z", 
-			t0.tm_year + 1900, t0.tm_mon + 1, t0.tm_mday, t0.tm_hour, t0.tm_min, t0.tm_sec, t1.tv_usec, t0.__tm_zone);
-#endif
 }

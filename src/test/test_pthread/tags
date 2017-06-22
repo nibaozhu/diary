@@ -12,7 +12,7 @@ A_H	a.h	2;"	d
 CEO_number	a.h	/^	size_t CEO_number; \/* Chief Execute Officer: only one *\/$/;"	m	struct:__anon1
 CFLAGS	Makefile	/^CFLAGS       = -O0 -g$/;"	m
 COMMON_H	common.h	2;"	d
-CPPFLAGS	Makefile	/^CPPFLAGS     = -U DEBUG_LOGGING$/;"	m
+CPPFLAGS	Makefile	/^CPPFLAGS     = -U DEBUG_LOGGING -U HH_MI_SS_XXXXXX$/;"	m
 CTAGS	Makefile	/^CTAGS        = ctags$/;"	m
 DATE_MAX	logging.h	44;"	d
 ID	common.h	/^	size_t ID;$/;"	m	struct:task_s
@@ -33,11 +33,13 @@ SIZE_MAX	logging.h	18;"	d
 UUID	common.h	/^	char UUID[UUID_LEN_STR + 1]; \/* Universal Unique ID *\/$/;"	m	struct:task_s
 UUID	common.h	/^	const char UUID[UUID_LEN_STR + 1]; \/* Universal Unique ID *\/$/;"	m	struct:__anon2
 WAITER_H	waiter.h	2;"	d
-_GNU_SOURCE	common.h	33;"	d
+_GNU_SOURCE	common.h	39;"	d
 _GNU_SOURCE	logging.h	37;"	d
+__flush	logging.c	/^static int __flush()$/;"	f	file:
 __mutex	logging.c	/^static pthread_mutex_t __mutex;$/;"	v	file:
 __mutexattr	logging.c	/^static pthread_mutexattr_t __mutexattr;$/;"	v	file:
 __plog	logging.c	/^int __plog(enum elevel x, const char *__file, unsigned int __line, const char *__function, const char *fmt, ...)$/;"	f
+__timestamp	logging.c	/^static int __timestamp(char *str)$/;"	f	file:
 a_t	a.h	/^} a_t;$/;"	t	typeref:struct:__anon1
 alert	logging.h	/^	alert,			\/* action must be taken immediately *\/$/;"	e	enum:elevel
 cache	logging.h	/^	unsigned int cache; \/\/ logging has cache lines in memory$/;"	m	struct:logging
@@ -75,9 +77,11 @@ number	logging.h	/^	unsigned int number; \/\/ logging file's suffix number when 
 path	common.h	/^	char path[PATH_MAX];$/;"	m	struct:task_s
 path	logging.h	/^	char path[PATH_MAX]; \/\/ logging file's path$/;"	m	struct:logging
 personal_information_t	common.h	/^} personal_information_t;$/;"	t	typeref:struct:__anon2
-pflush	logging.c	/^int pflush()$/;"	f
+pid	common.h	/^	pid_t pid; \/* the process ID of the calling process *\/$/;"	m	struct:task_s
 pid	logging.h	/^	pid_t pid; \/\/ program process id$/;"	m	struct:logging
-plog	logging.h	91;"	d
+plog	logging.h	89;"	d
+ppid	common.h	/^	pid_t ppid; \/* the process ID of the parent of the calling process *\/$/;"	m	struct:task_s
+ptid	common.h	/^	pthread_t ptid; \/* the ID of the calling thread(This is the same value that is returned in *thread in$/;"	m	struct:task_s
 reception	reception.c	/^void *reception(void *arg) {$/;"	f
 reception_number	a.h	/^	size_t reception_number; \/* default 1 *\/$/;"	m	struct:__anon1
 size	logging.h	/^	unsigned long size; \/\/ logging has written bytes in file$/;"	m	struct:logging
@@ -87,12 +91,12 @@ staff_number	a.h	/^	size_t staff_number; \/* default 10 *\/$/;"	m	struct:__anon1
 stdout_level	logging.h	/^	enum elevel stdout_level;$/;"	m	struct:logging	typeref:enum:logging::elevel
 stream	logging.h	/^	FILE *stream;$/;"	m	struct:logging
 stream_level	logging.h	/^	enum elevel stream_level;$/;"	m	struct:logging	typeref:enum:logging::elevel
-sysdate	logging.c	/^int sysdate(char *str)$/;"	f
 t0	logging.h	/^	struct tm t0; \/\/ start time$/;"	m	struct:logging	typeref:struct:logging::tm
 t1	logging.h	/^	struct tm t1; \/\/ the last flush stream date\/time$/;"	m	struct:logging	typeref:struct:logging::tm
 task_s	common.h	/^typedef struct task_s {$/;"	s
 task_slist	common.h	/^	SLIST_HEAD(task_slist_s, task_s) *task_slist;$/;"	m	struct:__anon2
 task_t	common.h	/^} task_t;$/;"	t	typeref:struct:task_s
+tid	common.h	/^	pid_t tid; \/* the  caller’s thread ID (TID) *\/$/;"	m	struct:task_s
 typist_number	a.h	/^	size_t typist_number; \/* default 1 *\/$/;"	m	struct:__anon1
 uninitialized	logging.c	/^int uninitialized()$/;"	f
 waiter	waiter.c	/^void *waiter(void *arg) {$/;"	f
