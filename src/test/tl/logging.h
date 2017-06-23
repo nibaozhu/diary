@@ -10,35 +10,29 @@
 
 #ifdef __cplusplus
 extern "C" {
-
 /* Limit of `size_t' type.  */
 # if __WORDSIZE == 64
 #  define SIZE_MAX      (18446744073709551615UL)
 # else
 #  define SIZE_MAX      (4294967295U)
 # endif
-
 #endif
 
+#include <assert.h>
+#include <errno.h>
 #include <linux/limits.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <time.h>
+#include <pthread.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <stdarg.h>
-#include <stdint.h>
-#include <assert.h>
-#include <stdbool.h>
-
-#define _GNU_SOURCE        /* or _BSD_SOURCE or _SVID_SOURCE */
-#include <unistd.h>
 #include <sys/syscall.h>   /* For SYS_xxx definitions */
-
-#include <pthread.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <time.h>
+#include <unistd.h>
 
 #define MODE_MAX (4)
 #define DATE_MAX (32)
@@ -48,7 +42,7 @@ extern "C" {
 #define LOGGING_CACHE (BUFSIZ)
 #define LOGGING_SIZE ((1<<20)-(1<<10))
 
-enum elevel {
+enum level {
 	none = -1,		/* none logging */
 
 	emergency,		/* application is unusable */
@@ -61,12 +55,10 @@ enum elevel {
 	debug,			/* debug-level messages */
 };
 
-extern const char *level[debug + 1];
-
-struct logging {
+typedef struct {
 	char name[NAME_MAX]; // program name
-	struct tm t0; // start time
-	struct tm t1; // the last flush stream date/time
+	struct tm stime; // start time
+	struct tm ltime; // the last flush stream time
 	time_t diff_max; // time interval
 	pid_t pid; // program process id
 	unsigned int cache_max; // cache_max lines in memory
@@ -79,15 +71,16 @@ struct logging {
 	char mode[MODE_MAX]; // logging file's mode
 	FILE *stream;
 
-	enum elevel stdout_level;
-	enum elevel stream_level;
-};
+	enum level stdout_level;
+	enum level stream_level;
+} logging;
 
-int initializing(const char *name, const char *path, const char *mode, enum elevel stream_level, enum elevel stdout_level, time_t diff_max, unsigned int cache_max, unsigned long size_max);
-int __plog(enum elevel x, const char *__file, unsigned int __line, const char *__function, const char *__restrict fmt, ...) __attribute__ ((__format__ (__printf__, 5, 6)));
+/* do not use */
+int __logging(enum level x, const char *__file, unsigned int __line, const char *__func, const char *__restrict fmt, ...) __attribute__ ((__format__ (__printf__, 5, 6)));
+
+int initializing(const char *name, const char *path, const char *mode, enum level stream_level, enum level stdout_level, time_t diff_max, unsigned int cache_max, unsigned long size_max);
+#define LOGGING(x, fmt, ...) (__logging(x, __FILE__, __LINE__, __func__, fmt, ## __VA_ARGS__))
 int uninitialized();
-
-#define plog(x, fmt, ...) (__plog(x, __FILE__, __LINE__, __func__, fmt, ## __VA_ARGS__))
 
 #ifdef __cplusplus
 }
