@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
 	r = initializing(argv[0], "/tmp/test_pthread", "w+", debug, debug, 0, 0, LOGGING_SIZE);
 	if (r == -1)
 	{
-		plog(critical, "%s(%d)\n", strerror(errno), errno);
+		LOGGING(critical, "%s(%d)\n", strerror(errno), errno);
 		return EXIT_FAILURE;
 	}
 
@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
 
 	r = pthread_attr_init(attr);
 	if (r != 0) {
-		plog(critical, "%s(%d)\n", strerror(errno), errno);
+		LOGGING(critical, "%s(%d)\n", strerror(errno), errno);
 		return r;
 	}
 
@@ -97,17 +97,17 @@ int main(int argc, char **argv) {
 		r = pthread_create(pthread + i, (const pthread_attr_t *)attr,
 						start_routine, arg);
 		if (r != 0) {
-			plog(error, "%s(%d)\n", strerror(errno), errno);
+			LOGGING(error, "%s(%d)\n", strerror(errno), errno);
 			continue;
 		}
 
 		/* XXX: `arg' maybe had been freed, and we just look it. */
-		plog(notice, "create: Thread[%d]: 0x%lx, arg: %p\n", i, *(pthread + i), arg);
+		LOGGING(notice, "create: Thread[%d]: 0x%lx, arg: %p\n", i, *(pthread + i), arg);
 	}
 
 	r = pthread_attr_destroy(attr);
 	if (r != 0) {
-		plog(critical, "%s(%d)\n", strerror(errno), errno);
+		LOGGING(critical, "%s(%d)\n", strerror(errno), errno);
 		return r;
 	}
 
@@ -119,11 +119,11 @@ int main(int argc, char **argv) {
 
 		r = pthread_join(*(pthread + i), &retval);
 		if (r != 0) {
-			plog(error, "%s(%d)\n", strerror(errno), errno);
+			LOGGING(error, "%s(%d)\n", strerror(errno), errno);
 			continue;
 		}
 
-		plog(notice, "join: Thread[%d]: 0x%lx\n", i, *(pthread + i));
+		LOGGING(notice, "join: Thread[%d]: 0x%lx\n", i, *(pthread + i));
 	}
 
 	free(pthread);
