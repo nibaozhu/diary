@@ -10,6 +10,7 @@ CFLAGS	GNUmakefile	/^CFLAGS=-g -O0$/;"	m
 CPPFLAGS	GNUmakefile	/^CPPFLAGS=-I ..\/..\/include\/$/;"	m
 CXXFLAGS	GNUmakefile	/^CXXFLAGS=-g -O0 -Wall -Wextra -std=c++0x$/;"	m
 DATE_MAX	../../include/logging.h	37;"	d
+DEQUE_MAIN	test_deque.c	2;"	d	file:
 IP_LENGTH	test_client.c	18;"	d	file:
 LOGGING_H	../../include/logging.h	9;"	d
 MAX_EVENTS	test_client.c	17;"	d	file:
@@ -18,12 +19,15 @@ MODE_MAX	../../include/logging.h	36;"	d
 NMEMB_MAX	middle_number.c	7;"	d	file:
 People	test_class.cc	/^	People() {}$/;"	f	class:People
 People	test_class.cc	/^class People {$/;"	c	file:
+S	test_logo.c	3;"	d	file:
 SIZE_500MB	find_not_include_number.c	6;"	d	file:
 SIZE_MAX	../../include/logging.h	16;"	d
 SIZE_MAX	../../include/logging.h	18;"	d
 __MAX	test_pthread.c	17;"	d	file:
 __MAX	test_pthread_with_lock.c	24;"	d	file:
 __MAX	test_pthread_with_sync.c	21;"	d	file:
+__deque	test_deque.c	/^typedef struct __deque {$/;"	s	file:
+__entry	test_deque.c	/^typedef struct __entry {$/;"	s	file:
 __kv	test_str2kv.c	/^struct __kv {$/;"	s	file:
 __plog	../../include/logging.cc	/^int __plog(enum elevel x, const char *__file, unsigned int __line, const char *__function, const char *fmt, ...)$/;"	f
 alert	../../include/logging.h	/^	alert,			\/* action must be taken immediately *\/$/;"	e	enum:elevel
@@ -37,20 +41,22 @@ color	../../include/logging.cc	/^const char *color[debug + 1] = $/;"	v
 count	test_client.c	/^int count = 0;$/;"	v
 count	test_pthread_with_sync.c	/^int count = 0;$/;"	v
 critical	../../include/logging.h	/^	critical,		\/* critical conditions *\/$/;"	e	enum:elevel
-data	test_MYqueue.c	/^	int data;$/;"	m	struct:entry	file:
+data	test_deque.c	/^  void *data;$/;"	m	struct:__entry	file:
 data	test_stack.c	/^	int data;$/;"	m	struct:entry	file:
 debug	../../include/logging.h	/^	debug,			\/* debug-level messages *\/$/;"	e	enum:elevel
+deque	test_deque.c	/^} deque;$/;"	t	typeref:struct:__deque	file:
 diff	../../include/logging.h	/^	time_t diff; \/\/ time interval$/;"	m	struct:logging
 do_something	test_logging.cc	/^int do_something(enum elevel x, int timeout)$/;"	f
 do_use_fd	test_client.c	/^int do_use_fd()$/;"	f
 elevel	../../include/logging.h	/^enum elevel {$/;"	g
 emergency	../../include/logging.h	/^	emergency,		\/* application is unusable *\/$/;"	e	enum:elevel
-entry	test_MYqueue.c	/^struct entry {$/;"	s	file:
+entry	test_deque.c	/^} entry;$/;"	t	typeref:struct:__entry	file:
 entry	test_stack.c	/^struct entry {$/;"	s	file:
 error	../../include/logging.h	/^	error,			\/* error conditions *\/$/;"	e	enum:elevel
 fds	test_client.c	/^int fds[MAX_EVENTS] = {0};$/;"	v
+free_s	test_deque.c	17;"	d	file:
 handler	test_logging.cc	/^void handler(int signum)$/;"	f
-head	test_MYqueue.c	/^	struct entry *head;$/;"	m	struct:queue	typeref:struct:queue::entry	file:
+head	test_deque.c	/^  entry *head;$/;"	m	struct:__deque	file:
 host	test_client.c	/^char host[1024];$/;"	v
 i_want_to_get_this_content	test_curl.c	/^int i_want_to_get_this_content(const char *url) {$/;"	f
 info	../../include/logging.h	/^	info,			\/* informational *\/$/;"	e	enum:elevel
@@ -58,23 +64,24 @@ init_stack	test_stack.c	/^int init_stack(struct stack *s) {$/;"	f
 initializing	../../include/logging.cc	/^int initializing(const char *name, const char *path, const char *mode, enum elevel stream_level, enum elevel stdout_level, time_t diff, unsigned int cache_max, unsigned long size_max)$/;"	f
 kv	test_str2kv.c	/^  char kv[10][2][1025];$/;"	m	struct:__kv	file:
 l	../../include/logging.cc	/^struct logging *l;$/;"	v	typeref:struct:logging
-length	test_MYqueue.c	/^	size_t length;$/;"	m	struct:queue	file:
+length	test_deque.c	/^  size_t length;$/;"	m	struct:__deque	file:
 length	test_stack.c	/^	size_t length;$/;"	m	struct:stack	file:
 level	../../include/logging.cc	/^const char *level[debug + 1] = $/;"	v
 logging	../../include/logging.h	/^struct logging {$/;"	s
 main	bignumber_multiplication.c	/^int main() {$/;"	f
+main	domain_name_to_ip.c	/^int main(int argc, char **argv)  $/;"	f
 main	file.c	/^int main(int argc, char **argv)$/;"	f
 main	find_not_include_number.c	/^int main() {$/;"	f
 main	flock_test.c	/^int main()$/;"	f
 main	generate_data.c	/^int main()$/;"	f
 main	middle_number.c	/^int main() {$/;"	f
 main	test_FILE.c	/^int main(int argc, char **argv)$/;"	f
-main	test_MYqueue.c	/^int main() {$/;"	f
 main	test_base64.c	/^int main(int argc, char **argv) {$/;"	f
 main	test_class.cc	/^int main(int argc, char **argv) {$/;"	f
 main	test_client.c	/^int main(int argc, char **argv)$/;"	f
 main	test_const.cc	/^int main()$/;"	f
 main	test_curl.c	/^int main(int ac, char **av) {$/;"	f
+main	test_deque.c	/^int main() {$/;"	f
 main	test_digit.c	/^int main(void)$/;"	f
 main	test_exit.c	/^int main() {$/;"	f
 main	test_file.c	/^int main(int argc, char **argv) {$/;"	f
@@ -83,6 +90,7 @@ main	test_gethostbyaddr.c	/^int main(int argc, char **argv) {$/;"	f
 main	test_gnu.c	/^int main(void) {$/;"	f
 main	test_list.cc	/^int main(void) {$/;"	f
 main	test_logging.cc	/^int main(int argc, char **argv)$/;"	f
+main	test_logo.c	/^int main(int argc, char** argv) {$/;"	f
 main	test_map.cc	/^int main(void) {$/;"	f
 main	test_multimap.cc	/^int main(void) {$/;"	f
 main	test_or.c	/^int main(int ac, char **argv) {$/;"	f
@@ -99,19 +107,22 @@ main	test_stack.c	/^int main(int argc, char **argv) {$/;"	f
 main	test_std.c	/^int main(void) {$/;"	f
 main	test_str2kv.c	/^int main(int argc, char **argv)$/;"	f
 main	test_string.cc	/^int main(void) {$/;"	f
+main	test_syslog.c	/^int main(int argc, char **argv) {$/;"	f
 main	test_thread.cc	/^int main() {$/;"	f
 main	test_unorderedmap.cc	/^int main(void) {$/;"	f
 main	test_uuid.c	/^int main()$/;"	f
 main	test_vector.cc	/^int main(int argc, char **argv) {$/;"	f
 main	test_xml.c	/^int main(int argc, char **argv) {$/;"	f
 main	test_xml2.cc	/^int main(int argc, char **argv) {$/;"	f
+malloc_s	test_deque.c	10;"	d	file:
 mode	../../include/logging.h	/^	char mode[MODE_MAX]; \/\/ logging file's mode$/;"	m	struct:logging
 mutex	test_pthread_with_lock.c	/^pthread_mutex_t mutex; \/\/ = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 mutex	test_pthread_with_sync.c	/^pthread_mutex_t mutex; \/\/ = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 my_write	test_curl.c	/^size_t my_write( void *ptr, size_t size, size_t nmemb, void *stream) {$/;"	f
 name	../../include/logging.h	/^	char name[NAME_MAX]; \/\/ program name$/;"	m	struct:logging
 nconnect	test_client.c	/^int nconnect = 0;$/;"	v
-next	test_MYqueue.c	/^	struct entry *next;$/;"	m	struct:entry	typeref:struct:entry::entry	file:
+netframe	test_logo.c	4;"	d	file:
+next	test_deque.c	/^  struct __entry *next;$/;"	m	struct:__entry	typeref:struct:__entry::__entry	file:
 next	test_stack.c	/^	struct entry *next;$/;"	m	struct:entry	typeref:struct:entry::entry	file:
 none	../../include/logging.h	/^	none = -1,		\/* none logging *\/$/;"	e	enum:elevel
 notice	../../include/logging.h	/^	notice,			\/* normal but significant condition *\/$/;"	e	enum:elevel
@@ -121,11 +132,10 @@ pflush	../../include/logging.cc	/^int pflush()$/;"	f
 pid	../../include/logging.h	/^	pid_t pid; \/\/ program process id$/;"	m	struct:logging
 plog	../../include/logging.h	82;"	d
 pop_back	test_stack.c	/^int pop_back(struct stack *s, int *data) {$/;"	f
-pop_front	test_MYqueue.c	/^int pop_front(struct queue *q) {$/;"	f
-previous	test_MYqueue.c	/^	struct entry *previous;$/;"	m	struct:entry	typeref:struct:entry::entry	file:
-push_back	test_MYqueue.c	/^int push_back(struct queue *q, int data) {$/;"	f
+pop_front	test_deque.c	/^int pop_front(deque *q, void **data) {$/;"	f
+prev	test_deque.c	/^  struct __entry *prev;$/;"	m	struct:__entry	typeref:struct:__entry::__entry	file:
+push_back	test_deque.c	/^int push_back(deque *q, void *data) {$/;"	f
 push_back	test_stack.c	/^int push_back(struct stack *s, int data) {$/;"	f
-queue	test_MYqueue.c	/^struct queue {$/;"	s	file:
 quit	test_client.c	/^int quit = 0;$/;"	v
 quit	test_logging.cc	/^unsigned int quit = 0;$/;"	v
 reads	test_client.c	/^int reads(int fd)$/;"	f
@@ -145,7 +155,7 @@ stream_level	../../include/logging.h	/^	enum elevel stream_level;$/;"	m	struct:l
 sysdate	../../include/logging.cc	/^int sysdate(char *str)$/;"	f
 t0	../../include/logging.h	/^	struct tm t0; \/\/ start time$/;"	m	struct:logging	typeref:struct:logging::tm
 t1	../../include/logging.h	/^	struct tm t1; \/\/ the last flush stream date\/time$/;"	m	struct:logging	typeref:struct:logging::tm
-tail	test_MYqueue.c	/^	struct entry *tail;$/;"	m	struct:queue	typeref:struct:queue::entry	file:
+tail	test_deque.c	/^  entry *tail;$/;"	m	struct:__deque	file:
 top	test_stack.c	/^	struct entry *top;$/;"	m	struct:stack	typeref:struct:stack::entry	file:
 uninitialized	../../include/logging.cc	/^int uninitialized()$/;"	f
 usage	test_client.c	/^int usage(const char *argv0)$/;"	f

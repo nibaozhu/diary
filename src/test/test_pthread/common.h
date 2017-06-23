@@ -3,8 +3,63 @@
 
 #include "logging.h"
 
-#include <sys/queue.h>
+#include <errno.h>
+#include <linux/limits.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <uuid.h>
+
+#define _GNU_SOURCE        /* or _BSD_SOURCE or _SVID_SOURCE */
+#include <sys/queue.h>
+#include <sys/syscall.h>   /* For SYS_xxx definitions */
+#include <unistd.h>
+
+
+enum HOTEL_STAFF
+{
+	CHAIRMAN,
+	GENERAL_MANAGER,
+	CEO,
+	CLEANERS,
+	COOK,
+	DISHWASHER,
+	LOBBY_MANAGER,
+	RECEPTION,
+	TYPIST,
+	WAITER,
+	// ...
+};
+
+typedef struct hotel_s {
+
+	char hotel_name[NAME_MAX];
+
+	/* Human Resources */
+	size_t staff_number; /* default 10 */
+
+	/* Mangement */
+	size_t chairman_number; /* only one */
+	size_t general_manager_number; /* only one */
+	size_t CEO_number; /* Chief Execute Officer: only one */
+
+	/* Junior */
+	size_t cleaners_number; /* only one */
+	size_t cook_number; /* only one */
+	size_t dishwasher_number; /* only one */
+	size_t lobby_manager_number; /* only one */
+	size_t reception_number; /* only one */
+	size_t typist_number; /* only one */
+	size_t waiter_number; /* default x */
+
+
+	/* Logging */
+	size_t diff_max; /* time interval */
+	size_t cache_max; /* line cache */
+	size_t size_max; /* file size */
+
+
+} hotel_t;
 
 typedef struct task_s {
 
@@ -35,11 +90,6 @@ typedef struct {
 
 	SLIST_HEAD(task_slist_s, task_s) *task_slist;
 } personal_information_t;
-
-#define _GNU_SOURCE        /* or _BSD_SOURCE or _SVID_SOURCE */
-#include <unistd.h>
-#include <sys/syscall.h>   /* For SYS_xxx definitions */
-
 
 
 #endif // COMMON_H

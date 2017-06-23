@@ -1,6 +1,8 @@
 #include "a.h"
 
 
+#define HOTEL_NAME ("7daysinn")
+
 const char default_task[4][3][PATH_MAX] = {
 { "9c0045ae-a9b6-492b-8a26-5646fc94d57f", "/tmp/path/to/task_where", }, 
 { "656734fc-7b91-489c-a2bf-cd2a340ba306", "/home/path/to/task_are", }, 
@@ -11,19 +13,22 @@ const char default_task[4][3][PATH_MAX] = {
 int main(int argc, char **argv) {
 
 	/* Set sub-thread number. */
-	a_t a = { 	.staff_number = 4, 
-				.reception_number = 1,
-				.waiter_number = 3 };
+	hotel_t hotel = { 
+			.hotel_name = HOTEL_NAME,
+			.staff_number = 4, 
+			.reception_number = 1,
+			.waiter_number = 3,
+	};
 	int r;
 
-	r = initializing(argv[0], "/tmp/test_pthread", "w+", debug, none, 0, 0, LOGGING_SIZE);
+	r = initializing(argv[0], "/tmp/test_pthread", "w+", debug, debug, 0, 0, LOGGING_SIZE);
 	if (r == -1)
 	{
 		plog(critical, "%s(%d)\n", strerror(errno), errno);
 		return EXIT_FAILURE;
 	}
 
-	pthread_t *pthread = (pthread_t *)malloc(a.staff_number * sizeof(pthread_t));
+	pthread_t *pthread = (pthread_t *)malloc(hotel.staff_number * sizeof(pthread_t));
 	if (pthread == NULL) {
 		return EXIT_FAILURE;
 	}
@@ -43,9 +48,9 @@ int main(int argc, char **argv) {
 	void *arg = NULL;
 
 	size_t i;
-	for (i = 0; i < a.staff_number; i++) {
+	for (i = 0; i < hotel.staff_number; i++) {
 
-		/* personal_information will be free at sub-thread. */
+		/* personal_information will be freed at sub-thread. */
 		personal_information_t *personal_information = (personal_information_t*)malloc(sizeof(personal_information_t));
 		if (personal_information == NULL) {
 			return EXIT_FAILURE;
@@ -82,7 +87,7 @@ int main(int argc, char **argv) {
 
 		arg = personal_information;
 
-		if (i <= a.reception_number) {
+		if (i <= hotel.reception_number) {
 			/* First waiter is `reception'. */
 			start_routine = reception;
 		} else {
@@ -110,7 +115,7 @@ int main(int argc, char **argv) {
 
 	void *retval;
 
-	for (i = 0; i < a.staff_number; i++) {
+	for (i = 0; i < hotel.staff_number; i++) {
 
 		r = pthread_join(*(pthread + i), &retval);
 		if (r != 0) {
@@ -131,3 +136,4 @@ int main(int argc, char **argv) {
 
 	return EXIT_SUCCESS;
 }
+
