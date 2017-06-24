@@ -22,20 +22,13 @@ int main(int argc, char **argv) {
 	int r;
 
 	r = initializing(argv[0], "/tmp/test_pthread", "w+", debug, debug, 0, 0, LOGGING_SIZE);
-	if (r == -1)
-	{
-		return EXIT_FAILURE;
-	}
+	if (r == -1) return EXIT_FAILURE;
 
 	pthread_t *pthread = (pthread_t *)malloc(hotel.staff_number * sizeof(pthread_t));
-	if (pthread == NULL) {
-		return EXIT_FAILURE;
-	}
+	if (pthread == NULL) return EXIT_FAILURE;
 
 	pthread_attr_t *attr = (pthread_attr_t *)malloc(sizeof(pthread_attr_t));
-	if (attr == NULL) {
-		return EXIT_FAILURE;
-	}
+	if (attr == NULL) return EXIT_FAILURE;
 
 	r = pthread_attr_init(attr);
 	if (r != 0) {
@@ -113,7 +106,6 @@ int main(int argc, char **argv) {
 	free(attr);
 
 	void *retval;
-
 	for (i = 0; i < hotel.staff_number; i++) {
 
 		r = pthread_join(*(pthread + i), &retval);
@@ -128,10 +120,6 @@ int main(int argc, char **argv) {
 	free(pthread);
 
 	r = uninitialized();
-	if (r == -1) {
-		return EXIT_FAILURE;
-	}
-
+	if (r == -1) return EXIT_FAILURE;
 	return EXIT_SUCCESS;
 }
-
