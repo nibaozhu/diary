@@ -19,9 +19,17 @@ int main(int argc, char **argv) {
 			.reception_number = 1,
 			.waiter_number = 3,
 	};
-	int r;
 
-	r = initializing(argv[0], "/tmp/test_pthread", "w+", debug, debug, 0, 0, LOGGING_SIZE);
+	/* logging initializing... */
+	const char *name = argv[0], *path = "/tmp/test_pthread", *mode = "w+";
+	enum level stream_level = debug, stdout_level = debug;
+	time_t diff_max = LOGGING_INTERVAL;
+	unsigned int cache_max = LOGGING_CACHE;
+	unsigned long size_max = LOGGING_SIZE;
+
+	int r = initializing(name, path, mode, 
+		stream_level, stdout_level, 
+		diff_max, cache_max, size_max);
 	if (r == -1) return EXIT_FAILURE;
 
 	pthread_t *pthread = (pthread_t *)malloc(hotel.staff_number * sizeof(pthread_t));

@@ -341,7 +341,7 @@ int initializing(const char *name, const char *path, const char *mode,
 	return 0;
 }
 
-int uninitialized() {
+int uninitialized(void) {
 #ifdef LOGGING_DEBUG
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l = %p\n",
 			level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "tracing", l);
