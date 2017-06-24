@@ -24,7 +24,6 @@ int main(int argc, char **argv) {
 	r = initializing(argv[0], "/tmp/test_pthread", "w+", debug, debug, 0, 0, LOGGING_SIZE);
 	if (r == -1)
 	{
-		LOGGING(critical, "%s(%d)\n", strerror(errno), errno);
 		return EXIT_FAILURE;
 	}
 
@@ -130,7 +129,6 @@ int main(int argc, char **argv) {
 
 	r = uninitialized();
 	if (r == -1) {
-		fprintf(stderr, "%s(%d)\n", strerror(errno), errno);
 		return EXIT_FAILURE;
 	}
 

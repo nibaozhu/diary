@@ -26,11 +26,12 @@ HOTEL_STAFF	common.h	/^enum HOTEL_STAFF$/;"	g
 ID	common.h	/^	size_t ID;$/;"	m	struct:task_s
 LDFLAGS	Makefile	/^LDFLAGS      = -pthread$/;"	m
 LOBBY_MANAGER	common.h	/^	LOBBY_MANAGER,$/;"	e	enum:HOTEL_STAFF
-LOGGING	logging.h	82;"	d
+LOGGING	logging.h	102;"	d
 LOGGING_CACHE	logging.h	42;"	d
 LOGGING_H	logging.h	9;"	d
 LOGGING_INTERVAL	logging.h	41;"	d
 LOGGING_SIZE	logging.h	43;"	d
+LOGGING_TRACING	logging.h	78;"	d
 MAKEFILE	Makefile	/^MAKEFILE     = Makefile$/;"	m
 MODE_MAX	logging.h	37;"	d
 OUTPUT_OPT	Makefile	/^OUTPUT_OPT   = -o$/;"	m
@@ -76,7 +77,7 @@ hotel_name	common.h	/^	char hotel_name[NAME_MAX];$/;"	m	struct:hotel_s
 hotel_s	common.h	/^typedef struct hotel_s {$/;"	s
 hotel_t	common.h	/^} hotel_t;$/;"	t	typeref:struct:hotel_s
 info	logging.h	/^	info,			\/* informational *\/$/;"	e	enum:level
-initializing	logging.c	/^int initializing(const char *name, const char *path, const char *mode, enum level stream_level, enum level stdout_level, time_t diff_max, unsigned int cache_max, unsigned long size_max) {$/;"	f
+initializing	logging.c	/^int initializing(const char *name, const char *path, const char *mode, $/;"	f
 l	logging.c	/^static logging *l;$/;"	v	file:
 level	logging.c	/^const char *level[debug + 1][2] = {$/;"	v
 level	logging.h	/^enum level {$/;"	g
