@@ -75,14 +75,13 @@ static int __flush() {
 	//		underlying write function.
 	ret = fflush(l->stream);
 	if (ret == EOF) {
-		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", level[error][1], level[error][0], stop, __FILE__, __LINE__, __func__, strerror(errno), errno);
 		/* No space left on device */
 		if (errno == ENOSPC) {
 			fprintf(stderr, "Waiting %d seconds...\n", WAITING_SPACE);
 			sleep(WAITING_SPACE);
 			return 0;
 		}
-		return -1;
+		LOGGING_TRACING;
 	}
 
 	// Clean cache when fflush is success.
@@ -91,10 +90,7 @@ static int __flush() {
 	long size = 0;
 	// The ftell() function obtains the current value of the file position indicator for the stream pointed to by stream.
 	size = ftell(l->stream);
-	if (size == -1) {
-		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", level[error][1], level[error][0], stop, __FILE__, __LINE__, __func__, strerror(errno), errno);
-		return -1;
-	}
+	if (size == -1) LOGGING_TRACING;
 
 	l->size = size;
 #ifdef LOGGING_DEBUG
@@ -113,19 +109,21 @@ static int __flush() {
 	localtime_r(&t1.tv_sec, &t0);
 
 	bool reset_number = false;
-	if (t0.tm_year != l->ltime.tm_year || t0.tm_mon != l->ltime.tm_mon || t0.tm_mday != l->ltime.tm_mday)
+	if (t0.tm_year != l->ltime.tm_year || 
+		t0.tm_mon != l->ltime.tm_mon || 
+		t0.tm_mday != l->ltime.tm_mday)
 		reset_number = true;
 	else if (l->size < l->size_max)
 		return 0;
 
 	ret = fclose(l->stream);
-	if (ret == EOF) {
-		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", level[error][1], level[error][0], stop, __FILE__, __LINE__, __func__, strerror(errno), errno);
-		return -1;
-	}
+	if (ret == EOF) LOGGING_TRACING;
 
 	char newpath[PATH_MAX] = { 0 }, oldpath[PATH_MAX] = { 0 };
-	snprintf(newpath, PATH_MAX, "%s/%s_%04d-%02d-%02d_%u.%u.log", l->path, l->name, l->ltime.tm_year + 1900, l->ltime.tm_mon + 1, l->ltime.tm_mday, l->pid, l->number);
+	snprintf(newpath, PATH_MAX, "%s/%s_%04d-%02d-%02d_%u.%u.log", 
+		l->path, l->name, 
+		l->ltime.tm_year + 1900, l->ltime.tm_mon + 1, l->ltime.tm_mday, 
+		l->pid, l->number);
 	snprintf(oldpath, PATH_MAX, "%s.tmp", newpath);
 
 	if (reset_number)
@@ -133,39 +131,28 @@ static int __flush() {
 
 	/* F_OK tests for the existence of the file. */
 	ret = access(newpath, F_OK);
-	if (ret == -1 && errno != ENOENT) {
-		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", level[error][1], level[error][0], stop, __FILE__, __LINE__, __func__, strerror(errno), errno);
-		return -1;
-	} else if (ret == 0) {
-		fprintf(stderr, "%s%s%s %s:%d: %s: newpath = '%s' already exists!\n", level[error][1], level[error][0], stop, __FILE__, __LINE__, __func__, newpath);
-		return -1;
-	}
+	if (ret == -1 && errno != ENOENT) LOGGING_TRACING;
+	else if (ret == 0) LOGGING_TRACING;
 
 	ret = rename(oldpath, newpath);
-	if (ret == -1) {
-		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", level[error][1], level[error][0], stop, __FILE__, __LINE__, __func__, strerror(errno), errno);
-		return -1;
-	}
+	if (ret == -1) LOGGING_TRACING;
 
 	localtime_r(&t1.tv_sec, &(l->ltime));
 	char path[PATH_MAX] = { 0 }; // logging file's path
-	snprintf(path, sizeof path, "%s/%s_%04d-%02d-%02d_%u.%u.log.tmp", l->path, l->name, l->ltime.tm_year + 1900, l->ltime.tm_mon + 1, l->ltime.tm_mday, l->pid, ++l->number);
+	snprintf(path, sizeof path, "%s/%s_%04d-%02d-%02d_%u.%u.log.tmp", 
+		l->path, l->name, 
+		l->ltime.tm_year + 1900, l->ltime.tm_mon + 1, l->ltime.tm_mday, 
+		l->pid, ++l->number);
 
 	FILE *fp = fopen(path, l->mode);
-	if (fp == NULL) {
-		fprintf(stderr, "%s%s%s %s:%d: %s: path = \"%s\", %s(%u)\n", level[error][1], level[error][0], stop, __FILE__, __LINE__, __func__, path, strerror(errno), errno);
-		return -1;
-	}
+	if (fp == NULL) LOGGING_TRACING;
 	l->stream = fp;
 	return 0;
 }
 
 int __logging(enum level x, const char *__file, unsigned int __line, const char *__func, const char *fmt, ...) {
 	int ret = pthread_mutex_lock(&__mutex);
-	if (ret != 0) {
-		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", level[error][1], level[error][0], stop, __FILE__, __LINE__, __func__, strerror(errno), errno);
-		return -1;
-	}
+	if (ret != 0) LOGGING_TRACING;
 
 	assert(l != NULL);
 #ifdef LOGGING_DEBUG
@@ -264,14 +251,15 @@ int __logging(enum level x, const char *__file, unsigned int __line, const char 
 	} while (0);
 
 	ret = pthread_mutex_unlock(&__mutex);
-	if (ret != 0) {
-		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", level[error][1], level[error][0], stop, __FILE__, __LINE__, __func__, strerror(errno), errno);
-		return -1;
-	}
+	if (ret != 0) LOGGING_TRACING;
 	return ret;
 }
 
-int initializing(const char *name, const char *path, const char *mode, enum level stream_level, enum level stdout_level, time_t diff_max, unsigned int cache_max, unsigned long size_max) {
+int initializing(const char *name, const char *path, const char *mode, 
+		enum level stream_level, enum level stdout_level, 
+		time_t diff_max, 
+		unsigned int cache_max, 
+		unsigned long size_max) {
 	if (l == NULL) {
 		l = (logging *)malloc(sizeof(logging));
 		memset(l, 0, sizeof *l);
@@ -282,9 +270,8 @@ int initializing(const char *name, const char *path, const char *mode, enum leve
 #endif
 
 	const char *ptr = rindex(name, '/');
-	if (ptr == NULL)
-		strncpy(l->name, name, strlen(name));
-	else
+	ptr == NULL ? 
+		strncpy(l->name, name, strlen(name)) : 
 		strncpy(l->name, ptr + 1, strlen(ptr));
 
 	l->pid = getpid();
@@ -319,22 +306,17 @@ int initializing(const char *name, const char *path, const char *mode, enum leve
 	// F_OK, R_OK, W_OK, X_OK test whether the file exists and grants read, write, and execute permissions.
 	// Warning: R_OK maybe not needed.
 	ret = access(l->path, F_OK | W_OK | X_OK);
-	if (ret == -1) {
-		fprintf(stderr, "%s%s%s %s:%d: %s: path = \"%s\", %s(%u)\n",
-				level[error][1], level[error][0], stop, __FILE__, __LINE__, __func__, l->path, strerror(errno), errno);
-		return -1;
-	}
+	if (ret == -1) LOGGING_TRACING;
 
 	char __path[PATH_MAX];
 	memset(__path, 0, sizeof __path);
-	snprintf(__path, sizeof __path, "%s/%s_%04d-%02d-%02d_%u.%u.log.tmp", l->path, l->name, l->stime.tm_year + 1900, l->stime.tm_mon + 1, l->stime.tm_mday, l->pid, ++l->number);
+	snprintf(__path, sizeof __path, "%s/%s_%04d-%02d-%02d_%u.%u.log.tmp", 
+		l->path, l->name, 
+		l->stime.tm_year + 1900, l->stime.tm_mon + 1, l->stime.tm_mday, 
+		l->pid, ++l->number);
 
 	FILE *fp = fopen(__path, l->mode);
-	if (fp == NULL) {
-		fprintf(stderr, "%s%s%s %s:%d: %s: path = \"%s\", %s(%u)\n",
-				level[error][1], level[error][0], stop, __FILE__, __LINE__, __func__, __path, strerror(errno), errno);
-		return -1;
-	}
+	if (fp == NULL) LOGGING_TRACING;
 	l->stream = fp;
 
 #ifdef LOGGING_DEBUG
@@ -354,7 +336,8 @@ int initializing(const char *name, const char *path, const char *mode, enum leve
 	}
 
 	// Print the program name, pid, release
-	LOGGING(info, "PROGRAM: %s, PID: %u, RELEASE: %s %s\n", l->name, l->pid, __DATE__, __TIME__);
+	LOGGING(info, "PROGRAM: %s, PID: %u, RELEASE: %s %s\n", 
+		l->name, l->pid, __DATE__, __TIME__);
 	return 0;
 }
 
@@ -371,39 +354,30 @@ int uninitialized() {
 	// The function fflush() forces a write of all user-space buffered data for the given output or update stream via the stream's
 	//		underlying write function.
 	int ret = fflush(l->stream);
-	if (ret == EOF) {
-		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", level[error][1], level[error][0], stop, __FILE__, __LINE__, __func__, strerror(errno), errno);
-		return -1;
-	}
+	if (ret == EOF) LOGGING_TRACING;
 
 	// The fclose() function will flushes the stream pointed to by fp (writing any buffered output data using fflush(3)) and closes
 	//		the underlying file descriptor.
 	ret = fclose(l->stream);
-	if (ret == EOF) {
-		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", level[error][1], level[error][0], stop, __FILE__, __LINE__, __func__, strerror(errno), errno);
-		return -1;
-	}
+	if (ret == EOF) LOGGING_TRACING;
 
 	char newpath[PATH_MAX] = { 0 }, oldpath[PATH_MAX] = { 0 };
-	snprintf(newpath, PATH_MAX, "%s/%s_%04d-%02d-%02d_%u.%u.log", l->path, l->name, l->ltime.tm_year + 1900, l->ltime.tm_mon + 1, l->ltime.tm_mday, l->pid, l->number);
+	snprintf(newpath, PATH_MAX, "%s/%s_%04d-%02d-%02d_%u.%u.log", 
+		l->path, l->name, 
+		l->ltime.tm_year + 1900, l->ltime.tm_mon + 1, l->ltime.tm_mday, 
+		l->pid, l->number);
 	snprintf(oldpath, PATH_MAX, "%s.tmp", newpath);
 
 	/* F_OK tests for the existence of the file. */
 	ret = access(newpath, F_OK);
-	if (ret == -1 && errno != ENOENT) {
-		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", level[error][1], level[error][0], stop, __FILE__, __LINE__, __func__, strerror(errno), errno);
-		return -1;
-	}
+	if (ret == -1 && errno != ENOENT) LOGGING_TRACING;
 	else if (ret == 0) {
 		fprintf(stderr, "%s%s%s %s:%d: %s: newpath = '%s' already exists!\n", level[error][1], level[error][0], stop, __FILE__, __LINE__, __func__, newpath);
 		return -1;
 	}
 
 	ret = rename(oldpath, newpath);
-	if (ret == -1) {
-		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", level[error][1], level[error][0], stop, __FILE__, __LINE__, __func__, strerror(errno), errno);
-		return -1;
-	}
+	if (ret == -1) LOGGING_TRACING;
 
 #ifdef LOGGING_DEBUG
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s\n", level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "passed");
@@ -412,15 +386,8 @@ int uninitialized() {
 	l = NULL;
 
 	ret = pthread_mutex_destroy(&__mutex);
-	if (ret != 0) {
-		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", level[error][1], level[error][0], stop, __FILE__, __LINE__, __func__, strerror(errno), errno);
-		return -1;
-	}
-
+	if (ret != 0) LOGGING_TRACING;
 	ret = pthread_mutexattr_destroy(&__mutexattr);
-	if (ret != 0) {
-		fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", level[error][1], level[error][0], stop, __FILE__, __LINE__, __func__, strerror(errno), errno);
-		return -1;
-	}
+	if (ret != 0) LOGGING_TRACING;
 	return 0;
 }
