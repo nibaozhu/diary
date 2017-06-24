@@ -85,20 +85,12 @@ typedef struct {
 
 /* do not directly use */
 int __logging(enum level x, 
-		const char *__file, 
-		unsigned int __line, 
-		const char *__func, 
-		const char *__restrict fmt, ...) __attribute__ ((__format__ (__printf__, 5, 6)));
+	const char *__file, unsigned int __line, const char *__func, 
+	const char *__restrict fmt, ...) __attribute__ ((__format__ (__printf__, 5, 6)));
 
-int initializing(const char *name, 
-		const char *path, 
-		const char *mode, 
-		enum level stream_level, 
-		enum level stdout_level, 
-		time_t diff_max, 
-		unsigned int cache_max, 
-		unsigned long size_max);
-
+int initializing(const char *name, const char *path, const char *mode, 
+	enum level stream_level, enum level stdout_level, 
+	time_t diff_max, unsigned int cache_max, unsigned long size_max); 
 #define LOGGING(x, fmt, ...) (__logging(x, __FILE__, __LINE__, __func__, fmt, ## __VA_ARGS__))
 
 int uninitialized();

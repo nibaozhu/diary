@@ -150,7 +150,9 @@ static int __flush() {
 	return 0;
 }
 
-int __logging(enum level x, const char *__file, unsigned int __line, const char *__func, const char *fmt, ...) {
+int __logging(enum level x, 
+	const char *__file, unsigned int __line, const char *__func, 
+	const char *fmt, ...) {
 	int ret = pthread_mutex_lock(&__mutex);
 	if (ret != 0) LOGGING_TRACING;
 
@@ -257,9 +259,7 @@ int __logging(enum level x, const char *__file, unsigned int __line, const char 
 
 int initializing(const char *name, const char *path, const char *mode, 
 		enum level stream_level, enum level stdout_level, 
-		time_t diff_max, 
-		unsigned int cache_max, 
-		unsigned long size_max) {
+		time_t diff_max, unsigned int cache_max, unsigned long size_max) {
 	if (l == NULL) {
 		l = (logging *)malloc(sizeof(logging));
 		memset(l, 0, sizeof *l);
