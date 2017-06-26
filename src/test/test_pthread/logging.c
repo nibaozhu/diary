@@ -139,7 +139,7 @@ static int __flush() {
 
 	localtime_r(&t1.tv_sec, &(l->ltime));
 	char path[PATH_MAX] = { 0 }; // logging file's path
-	snprintf(path, sizeof path, "%s/%s_%04d-%02d-%02d_%u.%u.log.tmp", 
+	snprintf(path, PATH_MAX, "%s/%s_%04d-%02d-%02d_%u.%u.log.tmp", 
 		l->path, l->name, 
 		l->ltime.tm_year + 1900, l->ltime.tm_mon + 1, l->ltime.tm_mday, 
 		l->pid, ++l->number);
@@ -262,7 +262,7 @@ int initializing(const char *name, const char *path, const char *mode,
 		unsigned long size_max) {
 	if (l == NULL) {
 		l = (logging *)malloc(sizeof(logging));
-		memset(l, 0, sizeof *l);
+		memset(l, 0, sizeof (logging));
 	}
 #ifdef LOGGING_DEBUG
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l = %p\n",
@@ -309,8 +309,8 @@ int initializing(const char *name, const char *path, const char *mode,
 	if (ret == -1) LOGGING_TRACING;
 
 	char __path[PATH_MAX];
-	memset(__path, 0, sizeof __path);
-	snprintf(__path, sizeof __path, "%s/%s_%04d-%02d-%02d_%u.%u.log.tmp", 
+	memset(__path, 0, PATH_MAX);
+	snprintf(__path, PATH_MAX, "%s/%s_%04d-%02d-%02d_%u.%u.log.tmp", 
 		l->path, l->name, 
 		l->stime.tm_year + 1900, l->stime.tm_mon + 1, l->stime.tm_mday, 
 		l->pid, ++l->number);
@@ -372,7 +372,7 @@ int uninitialized() {
 	ret = access(newpath, F_OK);
 	if (ret == -1 && errno != ENOENT) LOGGING_TRACING;
 	else if (ret == 0) {
-		fprintf(stderr, "%s%s%s %s:%d: %s: newpath = '%s' already exists!\n", level[error][1], level[error][0], stop, __FILE__, __LINE__, __func__, newpath);
+		fprintf(stderr, "%s%s%s %s:%d: %s: newpath = '%s' already exists!\n", level[error][0], level[error][1], stop, __FILE__, __LINE__, __func__, newpath);
 		return -1;
 	}
 

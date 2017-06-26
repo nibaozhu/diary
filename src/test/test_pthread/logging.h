@@ -77,7 +77,7 @@ typedef struct {
 
 #define LOGGING_TRACING do { \
 	fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", \
-		level[error][1], level[error][0], stop, \
+		level[error][0], level[error][1], stop, \
 		__FILE__, __LINE__, __func__, strerror(errno), errno); \
     if (errno == ENOSPC) { ; } \
 	else { exit(errno); } \
