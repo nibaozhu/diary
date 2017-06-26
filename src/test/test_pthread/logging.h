@@ -38,7 +38,7 @@ extern "C" {
 #define DATE_MAX (32)
 #define WAITING_SPACE (1) /* seconds */
 
-#define LOGGING_INTERVAL (0)
+#define LOGGING_INTERVAL (4)
 #define LOGGING_CACHE (BUFSIZ)
 #define LOGGING_SIZE ((1<<20)-(1<<10))
 
@@ -79,29 +79,21 @@ typedef struct {
 	fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", \
 		level[error][0], level[error][1], stop, \
 		__FILE__, __LINE__, __func__, strerror(errno), errno); \
-    if (errno == ENOSPC) { ; } \
+	if (errno == ENOSPC) { ; } \
 	else { exit(errno); } \
 } while (0)
 
 /* do not directly use */
 int __logging(enum level x, 
-		const char *__file, 
-		unsigned int __line, 
-		const char *__func, 
-		const char *__restrict fmt, ...) __attribute__ ((__format__ (__printf__, 5, 6)));
+	const char *__file, unsigned int __line, const char *__func, 
+	const char *__restrict fmt, ...) __attribute__ ((__format__ (__printf__, 5, 6)));
 
-int initializing(const char *name, 
-		const char *path, 
-		const char *mode, 
-		enum level stream_level, 
-		enum level stdout_level, 
-		time_t diff_max, 
-		unsigned int cache_max, 
-		unsigned long size_max);
-
+int initializing(const char *name, const char *path, const char *mode, 
+	enum level stream_level, enum level stdout_level, 
+	time_t diff_max, unsigned int cache_max, unsigned long size_max); 
 #define LOGGING(x, fmt, ...) (__logging(x, __FILE__, __LINE__, __func__, fmt, ## __VA_ARGS__))
 
-int uninitialized();
+int uninitialized(void);
 
 #ifdef __cplusplus
 }

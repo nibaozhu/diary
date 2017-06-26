@@ -62,7 +62,6 @@ static int __timestamp(char *str) {
 }
 
 static int __flush() {
-	int ret;
 	assert(l != NULL);
 #ifdef LOGGING_DEBUG
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, fflush, l->stream = %p, l->cache= %u, l->cache_max = %u\n",
@@ -73,11 +72,11 @@ static int __flush() {
 
 	// The function fflush() forces a write of all user-space buffered data for the given output or update stream via the stream's
 	//		underlying write function.
-	ret = fflush(l->stream);
+	int ret = fflush(l->stream);
 	if (ret == EOF) {
 		/* No space left on device */
 		if (errno == ENOSPC) {
-			fprintf(stderr, "Waiting %d seconds...\n", WAITING_SPACE);
+			fprintf(stderr, "Waiting %d seconds ...\n", WAITING_SPACE);
 			sleep(WAITING_SPACE);
 			return 0;
 		}
@@ -87,9 +86,8 @@ static int __flush() {
 	// Clean cache when fflush is success.
 	l->cache = 0;
 
-	long size = 0;
 	// The ftell() function obtains the current value of the file position indicator for the stream pointed to by stream.
-	size = ftell(l->stream);
+	long size = ftell(l->stream);
 	if (size == -1) LOGGING_TRACING;
 
 	l->size = size;
@@ -150,7 +148,9 @@ static int __flush() {
 	return 0;
 }
 
-int __logging(enum level x, const char *__file, unsigned int __line, const char *__func, const char *fmt, ...) {
+int __logging(enum level x, 
+	const char *__file, unsigned int __line, const char *__func, 
+	const char *fmt, ...) {
 	int ret = pthread_mutex_lock(&__mutex);
 	if (ret != 0) LOGGING_TRACING;
 
@@ -257,9 +257,7 @@ int __logging(enum level x, const char *__file, unsigned int __line, const char 
 
 int initializing(const char *name, const char *path, const char *mode, 
 		enum level stream_level, enum level stdout_level, 
-		time_t diff_max, 
-		unsigned int cache_max, 
-		unsigned long size_max) {
+		time_t diff_max, unsigned int cache_max, unsigned long size_max) {
 	if (l == NULL) {
 		l = (logging *)malloc(sizeof(logging));
 		memset(l, 0, sizeof (logging));
@@ -302,10 +300,9 @@ int initializing(const char *name, const char *path, const char *mode,
 	if (l->size_max == 0)
 		l->size_max = SIZE_MAX;
 
-	int ret = 0;
 	// F_OK, R_OK, W_OK, X_OK test whether the file exists and grants read, write, and execute permissions.
 	// Warning: R_OK maybe not needed.
-	ret = access(l->path, F_OK | W_OK | X_OK);
+	int ret = access(l->path, F_OK | W_OK | X_OK);
 	if (ret == -1) LOGGING_TRACING;
 
 	char __path[PATH_MAX];
@@ -341,7 +338,7 @@ int initializing(const char *name, const char *path, const char *mode,
 	return 0;
 }
 
-int uninitialized() {
+int uninitialized(void) {
 #ifdef LOGGING_DEBUG
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l = %p\n",
 			level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "tracing", l);

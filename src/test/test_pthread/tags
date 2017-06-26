@@ -26,7 +26,7 @@ HOTEL_STAFF	common.h	/^enum HOTEL_STAFF$/;"	g
 ID	common.h	/^	size_t ID;$/;"	m	struct:task_s
 LDFLAGS	Makefile	/^LDFLAGS      = -pthread$/;"	m
 LOBBY_MANAGER	common.h	/^	LOBBY_MANAGER,$/;"	e	enum:HOTEL_STAFF
-LOGGING	logging.h	102;"	d
+LOGGING	logging.h	94;"	d
 LOGGING_CACHE	logging.h	42;"	d
 LOGGING_H	logging.h	9;"	d
 LOGGING_INTERVAL	logging.h	41;"	d
@@ -50,7 +50,7 @@ WAITER_H	waiter.h	2;"	d
 WAITING_SPACE	logging.h	39;"	d
 _GNU_SOURCE	common.h	13;"	d
 __flush	logging.c	/^static int __flush() {$/;"	f	file:
-__logging	logging.c	/^int __logging(enum level x, const char *__file, unsigned int __line, const char *__func, const char *fmt, ...) {$/;"	f
+__logging	logging.c	/^int __logging(enum level x, $/;"	f
 __mutex	logging.c	/^static pthread_mutex_t __mutex;$/;"	v	file:
 __mutexattr	logging.c	/^static pthread_mutexattr_t __mutexattr;$/;"	v	file:
 __timestamp	logging.c	/^static int __timestamp(char *str) {$/;"	f	file:
@@ -113,7 +113,7 @@ task_slist	common.h	/^	SLIST_HEAD(task_slist_s, task_s) *task_slist;$/;"	m	struc
 task_t	common.h	/^} task_t;$/;"	t	typeref:struct:task_s
 tid	common.h	/^	pid_t tid; \/* the  caller’s thread ID (TID) *\/$/;"	m	struct:task_s
 typist_number	common.h	/^	size_t typist_number; \/* only one *\/$/;"	m	struct:hotel_s
-uninitialized	logging.c	/^int uninitialized() {$/;"	f
+uninitialized	logging.c	/^int uninitialized(void) {$/;"	f
 waiter	waiter.c	/^void *waiter(void *arg) {$/;"	f
 waiter_number	common.h	/^	size_t waiter_number; \/* default x *\/$/;"	m	struct:hotel_s
 warning	logging.h	/^	warning,		\/* warning conditions *\/$/;"	e	enum:level
