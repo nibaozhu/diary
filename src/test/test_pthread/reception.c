@@ -40,10 +40,13 @@ void *reception(void *arg) {
 	}
 
 	/* begin: do ... */
-	sleep(2);
 
 	int i;
-	for(i = 0; i < INT32_MAX; i++) {
+	unsigned int un = UINT32_MAX;
+	sleep(un);
+
+	int n = INT32_MAX;
+	for(i = 0; i < n; i++) {
 		LOGGING(debug, "do something ...\n");
 	}
 	/* end: do ... */
