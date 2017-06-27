@@ -68,6 +68,8 @@ typedef struct {
 	unsigned int number; // logging file's suffix number when splits file
 
 	char path[PATH_MAX]; // logging file's path
+	char final_file[NAME_MAX]; // logging file's final name
+	char file_subfix[NAME_MAX]; // logging file's temp subfix
 	char mode[MODE_MAX]; // logging file's mode
 	FILE *stream;
 

@@ -62,7 +62,6 @@ static int __timestamp(char *str) {
 }
 
 static int __flush() {
-	int ret;
 	assert(l != NULL);
 #ifdef LOGGING_DEBUG
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, fflush, l->stream = %p, l->cache= %u, l->cache_max = %u\n",
@@ -73,11 +72,11 @@ static int __flush() {
 
 	// The function fflush() forces a write of all user-space buffered data for the given output or update stream via the stream's
 	//		underlying write function.
-	ret = fflush(l->stream);
+	int ret = fflush(l->stream);
 	if (ret == EOF) {
 		/* No space left on device */
 		if (errno == ENOSPC) {
-			fprintf(stderr, "Waiting %d seconds...\n", WAITING_SPACE);
+			fprintf(stderr, "Waiting %d seconds ...\n", WAITING_SPACE);
 			sleep(WAITING_SPACE);
 			return 0;
 		}
@@ -87,9 +86,8 @@ static int __flush() {
 	// Clean cache when fflush is success.
 	l->cache = 0;
 
-	long size = 0;
 	// The ftell() function obtains the current value of the file position indicator for the stream pointed to by stream.
-	size = ftell(l->stream);
+	long size = ftell(l->stream);
 	if (size == -1) LOGGING_TRACING;
 
 	l->size = size;
@@ -120,11 +118,8 @@ static int __flush() {
 	if (ret == EOF) LOGGING_TRACING;
 
 	char newpath[PATH_MAX] = { 0 }, oldpath[PATH_MAX] = { 0 };
-	snprintf(newpath, PATH_MAX, "%s/%s_%04d-%02d-%02d_%u.%u.log", 
-		l->path, l->name, 
-		l->ltime.tm_year + 1900, l->ltime.tm_mon + 1, l->ltime.tm_mday, 
-		l->pid, l->number);
-	snprintf(oldpath, PATH_MAX, "%s.tmp", newpath);
+	snprintf(newpath, PATH_MAX, "%s/%s", l->path, l->final_file);
+	snprintf(oldpath, PATH_MAX, "%s.%s", newpath, l->file_subfix);
 
 	if (reset_number)
 		l->number = 0;
@@ -138,11 +133,13 @@ static int __flush() {
 	if (ret == -1) LOGGING_TRACING;
 
 	localtime_r(&t1.tv_sec, &(l->ltime));
-	char path[PATH_MAX] = { 0 }; // logging file's path
-	snprintf(path, sizeof path, "%s/%s_%04d-%02d-%02d_%u.%u.log.tmp", 
-		l->path, l->name, 
+	snprintf(l->final_file, NAME_MAX, "%s_%04d-%02d-%02d_%u.%u.log", 
+		l->name, 
 		l->ltime.tm_year + 1900, l->ltime.tm_mon + 1, l->ltime.tm_mday, 
 		l->pid, ++l->number);
+
+	char path[PATH_MAX] = { 0 }; // logging file's path
+	snprintf(path, PATH_MAX, "%s/%s.%s", l->path, l->final_file, l->file_subfix);
 
 	FILE *fp = fopen(path, l->mode);
 	if (fp == NULL) LOGGING_TRACING;
@@ -262,7 +259,7 @@ int initializing(const char *name, const char *path, const char *mode,
 		time_t diff_max, unsigned int cache_max, unsigned long size_max) {
 	if (l == NULL) {
 		l = (logging *)malloc(sizeof(logging));
-		memset(l, 0, sizeof *l);
+		memset(l, 0, sizeof (logging));
 	}
 #ifdef LOGGING_DEBUG
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l = %p\n",
@@ -282,6 +279,7 @@ int initializing(const char *name, const char *path, const char *mode,
 	strncpy(l->mode, mode, MODE_MAX);
 	l->stream_level = stream_level;
 	l->stdout_level = stdout_level;
+	strncpy(l->file_subfix, "tmp", NAME_MAX);
 
 	struct timeval t0;
 	// gettimeofday() gives the number of seconds and microseconds since the Epoch (see time(2)).
@@ -302,18 +300,18 @@ int initializing(const char *name, const char *path, const char *mode,
 	if (l->size_max == 0)
 		l->size_max = SIZE_MAX;
 
-	int ret = 0;
 	// F_OK, R_OK, W_OK, X_OK test whether the file exists and grants read, write, and execute permissions.
 	// Warning: R_OK maybe not needed.
-	ret = access(l->path, F_OK | W_OK | X_OK);
+	int ret = access(l->path, F_OK | W_OK | X_OK);
 	if (ret == -1) LOGGING_TRACING;
 
-	char __path[PATH_MAX];
-	memset(__path, 0, sizeof __path);
-	snprintf(__path, sizeof __path, "%s/%s_%04d-%02d-%02d_%u.%u.log.tmp", 
-		l->path, l->name, 
+	snprintf(l->final_file, NAME_MAX, "%s_%04d-%02d-%02d_%u.%u.log", 
+		l->name, 
 		l->stime.tm_year + 1900, l->stime.tm_mon + 1, l->stime.tm_mday, 
 		l->pid, ++l->number);
+
+	char __path[PATH_MAX] = { 0 };
+	snprintf(__path, PATH_MAX, "%s/%s.%s", l->path, l->final_file, l->file_subfix);
 
 	FILE *fp = fopen(__path, l->mode);
 	if (fp == NULL) LOGGING_TRACING;
@@ -362,17 +360,14 @@ int uninitialized(void) {
 	if (ret == EOF) LOGGING_TRACING;
 
 	char newpath[PATH_MAX] = { 0 }, oldpath[PATH_MAX] = { 0 };
-	snprintf(newpath, PATH_MAX, "%s/%s_%04d-%02d-%02d_%u.%u.log", 
-		l->path, l->name, 
-		l->ltime.tm_year + 1900, l->ltime.tm_mon + 1, l->ltime.tm_mday, 
-		l->pid, l->number);
-	snprintf(oldpath, PATH_MAX, "%s.tmp", newpath);
+	snprintf(newpath, PATH_MAX, "%s/%s", l->path, l->final_file);
+	snprintf(oldpath, PATH_MAX, "%s.%s", newpath, l->file_subfix);
 
 	/* F_OK tests for the existence of the file. */
 	ret = access(newpath, F_OK);
 	if (ret == -1 && errno != ENOENT) LOGGING_TRACING;
 	else if (ret == 0) {
-		fprintf(stderr, "%s%s%s %s:%d: %s: newpath = '%s' already exists!\n", level[error][1], level[error][0], stop, __FILE__, __LINE__, __func__, newpath);
+		fprintf(stderr, "%s%s%s %s:%d: %s: newpath = '%s' already exists!\n", level[error][0], level[error][1], stop, __FILE__, __LINE__, __func__, newpath);
 		return -1;
 	}
 

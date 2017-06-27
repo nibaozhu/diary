@@ -26,12 +26,12 @@ HOTEL_STAFF	common.h	/^enum HOTEL_STAFF$/;"	g
 ID	common.h	/^	size_t ID;$/;"	m	struct:task_s
 LDFLAGS	Makefile	/^LDFLAGS      = -pthread$/;"	m
 LOBBY_MANAGER	common.h	/^	LOBBY_MANAGER,$/;"	e	enum:HOTEL_STAFF
-LOGGING	logging.h	94;"	d
+LOGGING	logging.h	96;"	d
 LOGGING_CACHE	logging.h	42;"	d
 LOGGING_H	logging.h	9;"	d
 LOGGING_INTERVAL	logging.h	41;"	d
 LOGGING_SIZE	logging.h	43;"	d
-LOGGING_TRACING	logging.h	78;"	d
+LOGGING_TRACING	logging.h	80;"	d
 MAKEFILE	Makefile	/^MAKEFILE     = Makefile$/;"	m
 MODE_MAX	logging.h	37;"	d
 OUTPUT_OPT	Makefile	/^OUTPUT_OPT   = -o$/;"	m
@@ -72,7 +72,11 @@ emergency	logging.h	/^	emergency,		\/* application is unusable *\/$/;"	e	enum:le
 employee_ID	common.h	/^	size_t employee_ID;$/;"	m	struct:__anon1
 entry	common.h	/^	SLIST_ENTRY(task_s) entry;$/;"	m	struct:task_s
 error	logging.h	/^	error,			\/* error conditions *\/$/;"	e	enum:level
+file_subfix	logging.h	/^	char file_subfix[NAME_MAX]; \/\/ logging file's temp subfix$/;"	m	struct:__anon2
+final_file	logging.h	/^	char final_file[NAME_MAX]; \/\/ logging file's final name$/;"	m	struct:__anon2
 general_manager_number	common.h	/^	size_t general_manager_number; \/* only one *\/$/;"	m	struct:hotel_s
+handler	a.c	/^void handler(int signum) {$/;"	f
+hotel	a.c	/^static hotel_t hotel = { $/;"	v	file:
 hotel_name	common.h	/^	char hotel_name[NAME_MAX];$/;"	m	struct:hotel_s
 hotel_s	common.h	/^typedef struct hotel_s {$/;"	s
 hotel_t	common.h	/^} hotel_t;$/;"	t	typeref:struct:hotel_s
@@ -96,9 +100,11 @@ personal_information_t	common.h	/^} personal_information_t;$/;"	t	typeref:struct
 pid	common.h	/^	pid_t pid; \/* the process ID of the calling process *\/$/;"	m	struct:task_s
 pid	logging.h	/^	pid_t pid; \/\/ program process id$/;"	m	struct:__anon2
 ppid	common.h	/^	pid_t ppid; \/* the process ID of the parent of the calling process *\/$/;"	m	struct:task_s
+pthread	common.h	/^	pthread_t *pthread;$/;"	m	struct:hotel_s
 ptid	common.h	/^	pthread_t ptid; \/* the ID of the calling thread(This is the same value that is returned in *thread in$/;"	m	struct:task_s
 reception	reception.c	/^void *reception(void *arg) {$/;"	f
 reception_number	common.h	/^	size_t reception_number; \/* only one *\/$/;"	m	struct:hotel_s
+set_disposition	a.c	/^void set_disposition(void) {$/;"	f
 size	logging.h	/^	unsigned long size; \/\/ logging has written bytes in file$/;"	m	struct:__anon2
 size_max	common.h	/^	size_t size_max; \/* file size *\/$/;"	m	struct:hotel_s
 size_max	logging.h	/^	unsigned long size_max; \/\/ size_max bytes in file$/;"	m	struct:__anon2

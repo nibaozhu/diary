@@ -39,12 +39,14 @@ void *reception(void *arg) {
 		}
 	}
 
-
-	sleep(3);
+	/* begin: do ... */
+	sleep(2);
 
 	int i;
-	for(i = 0; i < 2000000; i++)
+	for(i = 0; i < INT32_MAX; i++) {
 		LOGGING(debug, "do something ...\n");
+	}
+	/* end: do ... */
 
 	free(arg);
 

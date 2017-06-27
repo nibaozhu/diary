@@ -15,6 +15,8 @@
 #include <sys/syscall.h>   /* For SYS_xxx definitions */
 #include <unistd.h>
 
+#include <signal.h>
+
 
 enum HOTEL_STAFF
 {
@@ -38,7 +40,7 @@ typedef struct hotel_s {
 	/* Human Resources */
 	size_t staff_number; /* default 10 */
 
-	/* Mangement */
+	/* Management */
 	size_t chairman_number; /* only one */
 	size_t general_manager_number; /* only one */
 	size_t CEO_number; /* Chief Execute Officer: only one */
@@ -58,6 +60,8 @@ typedef struct hotel_s {
 	size_t cache_max; /* line cache */
 	size_t size_max; /* file size */
 
+	/* */
+	pthread_t *pthread;
 
 } hotel_t;
 
