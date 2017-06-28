@@ -81,8 +81,8 @@ typedef struct {
 	fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", \
 		level[error][0], level[error][1], stop, \
 		__FILE__, __LINE__, __func__, strerror(errno), errno); \
-	if (errno == ENOSPC) { ; } \
-	else { exit(errno); } \
+	if (errno == ENOSPC) sleep(UINT32_MAX); \
+	else exit(errno); \
 } while (0)
 
 /* do not directly use */

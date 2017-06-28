@@ -73,16 +73,7 @@ static int __flush() {
 	// The function fflush() forces a write of all user-space buffered data for the given output or update stream via the stream's
 	//		underlying write function.
 	int ret = fflush(l->stream);
-	if (ret == EOF) {
-		/* No space left on device */
-		if (errno == ENOSPC) {
-			/* TODO: Maybe We should logger to all terminal */
-			fprintf(stderr, "%s(%d), Waiting %d seconds ...\n", strerror(errno), errno, WAITING_SPACE);
-			sleep(WAITING_SPACE);
-			return 0;
-		}
-		LOGGING_TRACING;
-	}
+	if (ret == EOF) LOGGING_TRACING;
 
 	// Clean cache when fflush is success.
 	l->cache = 0;

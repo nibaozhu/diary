@@ -34,31 +34,35 @@ void handler(int signum) {
 			ptid = pthread_self()
 	);
 
-	/* main-thread: continue */
-	if (pid == tid) {
-		exit(1);
-	} else {
-		/* sub-thread: XXX: avoid infinite recursion */
-		return ;
-	}
-
 	int i;
 	void *retval = NULL;
 	switch (signum) {
 		case SIGHUP:
+			break;
 		case SIGINT:
 		case SIGQUIT:
 		case SIGTERM:
+			/* main-thread: */
+			if (pid == tid) exit(1);
+			break;
+		case SIGUSR1:
+			/* sub-thread: XXX: avoid infinite recursion */
+			if (pid != tid) break;
+			for(i = 0; i < hotel.staff_number; i++) {
+				int r = pthread_kill( *(hotel.pthread + i), signum);
+				if (r != 0)
+					LOGGING(error, "%s(%d)\n", strerror(r), r);
+			}
 			break;
 		default:
-			;;;/* do nothing */
+			; /* do nothing */
 	}
 }
 
 void set_disposition(void) {
 	int i;
 					/* 1) 2) 3) 15)  */
-	int signum[] = { SIGHUP, SIGINT, SIGQUIT, SIGTERM, };
+	int signum[] = { SIGHUP, SIGINT, SIGQUIT, SIGTERM, SIGUSR1};
 	for (i = 0; i < sizeof (signum) / sizeof (int); i++) {
     	if (SIG_ERR == signal(signum[i], handler)) {
     		fprintf(stderr, "%s:%d: %s: signum = %d\n", __FILE__, __LINE__, __func__, signum);

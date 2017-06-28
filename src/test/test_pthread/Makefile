@@ -26,7 +26,7 @@ tags: $(MAKEFILE) $(ALL_HEADERS) $(ALL_SOURCES)
 .PHONY: all clean
 
 clean:
-	$(RM) $(RM_OPT) $(ALL_OBJECTS) $(PROGRAM)
+	$(RM) $(RM_OPT) $(ALL_OBJECTS) $(PROGRAM) core.*
 
 ###########################################################
 # NOTE: DO NOT EDIT, autogen by `gcc -MM *.c'
