@@ -73,7 +73,7 @@ void set_disposition(void) {
 
 int main(int argc, char **argv) {
 
-	/* logging initializing... */
+	/* logging ... */
 	const char *name = argv[0], *path = "/tmp/test_pthread", *mode = "w+";
 	enum level stream_level = debug, stdout_level = debug;
 	time_t diff_max = LOGGING_INTERVAL;
