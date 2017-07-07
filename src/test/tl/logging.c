@@ -7,16 +7,14 @@
 
 #include "logging.h"
 
-const char *level[debug + 1][2] = {
-	{ /* red         */ "\e[31m", "emergency[0]" },
-	{ /* purple      */ "\e[35m", "....alert[1]" },
-	{ /* yellow      */ "\e[33m", ".critical[2]" },
-	{ /* blue        */ "\e[34m", "....error[3]" },
-	{ /* cyan        */ "\e[36m", "..warning[4]" },
-	{ /* green       */ "\e[32m", "...notice[5]" },
-	{ /* white(gray) */ "\e[37m", ".....info[6]" },
-	{ /* white(gray) */ "\e[37m", "....debug[7]" },
-}; /* Number stands for level. */
+const char *level[debug + 1][2] = { { /* red         */ "\e[31m", "emergency[0]" },
+									{ /* purple      */ "\e[35m", "....alert[1]" },
+									{ /* yellow      */ "\e[33m", ".critical[2]" },
+									{ /* blue        */ "\e[34m", "....error[3]" },
+									{ /* cyan        */ "\e[36m", "..warning[4]" },
+									{ /* green       */ "\e[32m", "...notice[5]" },
+									{ /* white(gray) */ "\e[37m", ".....info[6]" },
+									{ /* white(gray) */ "\e[37m", "....debug[7]" } }; /* Number stands for level. */
 static char *stop = "\e[0m";
 static logging *l;
 static pthread_mutexattr_t __mutexattr;
@@ -27,9 +25,6 @@ static int __timestamp(char *str) {
 	struct tm t0;
 	struct timeval t1;
 	size_t size = DATE_MAX;
-
-	// fill memory with a constant byte
-	memset(str, 0, size);
 
 	// gettimeofday() gives the number of seconds and microseconds since the Epoch (see time(2)).
 	gettimeofday(&t1, NULL);
@@ -61,27 +56,18 @@ static int __timestamp(char *str) {
 #endif // __USE_BSD
 }
 
-static int __flush() {
+static int __flush(void) {
 	assert(l != NULL);
 #ifdef LOGGING_DEBUG
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, fflush, l->stream = %p, l->cache= %u, l->cache_max = %u\n",
 			level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "tracing", l->stream, l->cache, l->cache_max);
 #endif
-	if (l->stream_level == none)
-		return 0;
+	if (l->stream_level == none) return 0;
 
 	// The function fflush() forces a write of all user-space buffered data for the given output or update stream via the stream's
 	//		underlying write function.
 	int ret = fflush(l->stream);
-	if (ret == EOF) {
-		/* No space left on device */
-		if (errno == ENOSPC) {
-			fprintf(stderr, "Waiting %d seconds ...\n", WAITING_SPACE);
-			sleep(WAITING_SPACE);
-			return 0;
-		}
-		LOGGING_TRACING;
-	}
+	if (ret == EOF) LOGGING_TRACING;
 
 	// Clean cache when fflush is success.
 	l->cache = 0;
@@ -108,11 +94,10 @@ static int __flush() {
 
 	bool reset_number = false;
 	if (t0.tm_year != l->ltime.tm_year || 
-		t0.tm_mon != l->ltime.tm_mon || 
+		t0.tm_mon  != l->ltime.tm_mon  || 
 		t0.tm_mday != l->ltime.tm_mday)
 		reset_number = true;
-	else if (l->size < l->size_max)
-		return 0;
+	else if (l->size < l->size_max) return 0;
 
 	ret = fclose(l->stream);
 	if (ret == EOF) LOGGING_TRACING;
@@ -121,8 +106,7 @@ static int __flush() {
 	snprintf(newpath, PATH_MAX, "%s/%s", l->path, l->final_file);
 	snprintf(oldpath, PATH_MAX, "%s.%s", newpath, l->file_subfix);
 
-	if (reset_number)
-		l->number = 0;
+	if (reset_number) l->number = 0;
 
 	/* F_OK tests for the existence of the file. */
 	ret = access(newpath, F_OK);
@@ -187,38 +171,33 @@ int __logging(enum level x,
 		localtime_r(&t1.tv_sec, &l->ltime);
 	}
 
-	char str[DATE_MAX];
+	char str[DATE_MAX] = { 0 };
 	__timestamp(str);
 
 	pthread_t thread = pthread_self();
 	pid_t tid = syscall(SYS_gettid);
 
 	if (x <= l->stdout_level) {
-		if (x <= warning)
-			fprintf(stdout, "%s%s %s [0x%lx] [%d] (%s:%d:%s)%s ", level[x][0], str, level[x][1], thread, tid, __file, __line, __func, stop);
-		else
+		x <= warning ?
+			fprintf(stdout, "%s%s %s [0x%lx] [%d] (%s:%d:%s)%s ", level[x][0], str, level[x][1], thread, tid, __file, __line, __func, stop):
 			fprintf(stdout, "%s%s %s [0x%lx] [%d]%s ", level[x][0], str, level[x][1], thread, tid, stop);
 	}
 
 	if (x <= l->stream_level) {
-		if (x <= warning)
-			fprintf(l->stream, "%s %s [0x%lx] [%d] (%s:%d:%s) ", str, level[x][1], thread, tid, __file, __line, __func);
-		else
+		x <= warning?
+			fprintf(l->stream, "%s %s [0x%lx] [%d] (%s:%d:%s) ", str, level[x][1], thread, tid, __file, __line, __func):
 			fprintf(l->stream, "%s %s [0x%lx] [%d] ", str, level[x][1], thread, tid);
 	}
 
 	va_list ap;
 	va_start(ap, fmt);
-	if (x <= l->stdout_level)
-		vfprintf(stdout, fmt, ap);
+	if (x <= l->stdout_level) vfprintf(stdout, fmt, ap);
 	va_end(ap);
 
 	va_start(ap, fmt);
-	if (x <= l->stream_level)
-	{
+	if (x <= l->stream_level) {
 		vfprintf(l->stream, fmt, ap);
-		if (x <= warning)
-		{
+		if (x <= warning) {
 			ret = __flush();
 			assert(ret == 0);
 			// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
@@ -230,8 +209,7 @@ int __logging(enum level x,
 
 	do {
 		/* error */
-		if (diff + 1 < l->diff_max)
-			break; // no flush
+		if (diff + 1 < l->diff_max) break; // no flush
 
 		if (l->cache_max == 0) ; // ...
 		else if (++l->cache < l->cache_max) {
@@ -251,7 +229,7 @@ int __logging(enum level x,
 
 	ret = pthread_mutex_unlock(&__mutex);
 	if (ret != 0) LOGGING_TRACING;
-	return ret;
+	return 0;
 }
 
 int initializing(const char *name, const char *path, const char *mode, 
@@ -268,7 +246,7 @@ int initializing(const char *name, const char *path, const char *mode,
 
 	const char *ptr = rindex(name, '/');
 	ptr == NULL ? 
-		strncpy(l->name, name, strlen(name)) : 
+		strncpy(l->name, name, strlen(name))  : 
 		strncpy(l->name, ptr + 1, strlen(ptr));
 
 	l->pid = getpid();
@@ -297,8 +275,7 @@ int initializing(const char *name, const char *path, const char *mode,
 		return 0;
 	}
 
-	if (l->size_max == 0)
-		l->size_max = SIZE_MAX;
+	if (l->size_max == 0) l->size_max = SIZE_MAX;
 
 	// F_OK, R_OK, W_OK, X_OK test whether the file exists and grants read, write, and execute permissions.
 	// Warning: R_OK maybe not needed.
@@ -345,18 +322,12 @@ int uninitialized(void) {
 			level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "tracing", l);
 #endif
 	assert(l != NULL);
-	if (l->stream_level == none && l->stream == NULL)
-		return 0;
+	if (l->stream_level == none && l->stream == NULL) return 0;
 	assert(l->stream != NULL);
-
-	// The function fflush() forces a write of all user-space buffered data for the given output or update stream via the stream's
-	//		underlying write function.
-	int ret = fflush(l->stream);
-	if (ret == EOF) LOGGING_TRACING;
 
 	// The fclose() function will flushes the stream pointed to by fp (writing any buffered output data using fflush(3)) and closes
 	//		the underlying file descriptor.
-	ret = fclose(l->stream);
+	int ret = fclose(l->stream);
 	if (ret == EOF) LOGGING_TRACING;
 
 	char newpath[PATH_MAX] = { 0 }, oldpath[PATH_MAX] = { 0 };
@@ -367,7 +338,8 @@ int uninitialized(void) {
 	ret = access(newpath, F_OK);
 	if (ret == -1 && errno != ENOENT) LOGGING_TRACING;
 	else if (ret == 0) {
-		fprintf(stderr, "%s%s%s %s:%d: %s: newpath = '%s' already exists!\n", level[error][0], level[error][1], stop, __FILE__, __LINE__, __func__, newpath);
+		fprintf(stderr, "%s%s%s %s:%d: %s: newpath = '%s' already exists!\n", 
+			level[error][0], level[error][1], stop, __FILE__, __LINE__, __func__, newpath);
 		return -1;
 	}
 
@@ -377,8 +349,7 @@ int uninitialized(void) {
 #ifdef LOGGING_DEBUG
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s\n", level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "passed");
 #endif
-	free(l);
-	l = NULL;
+	free(l); l = NULL;
 
 	ret = pthread_mutex_destroy(&__mutex);
 	if (ret != 0) LOGGING_TRACING;

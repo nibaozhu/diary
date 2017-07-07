@@ -7,16 +7,14 @@
 
 #include "logging.h"
 
-const char *level[debug + 1][2] = {
-	{ /* red         */ "\e[31m", "emergency[0]" },
-	{ /* purple      */ "\e[35m", "....alert[1]" },
-	{ /* yellow      */ "\e[33m", ".critical[2]" },
-	{ /* blue        */ "\e[34m", "....error[3]" },
-	{ /* cyan        */ "\e[36m", "..warning[4]" },
-	{ /* green       */ "\e[32m", "...notice[5]" },
-	{ /* white(gray) */ "\e[37m", ".....info[6]" },
-	{ /* white(gray) */ "\e[37m", "....debug[7]" },
-}; /* Number stands for level. */
+const char *level[debug + 1][2] = { { /* red         */ "\e[31m", "emergency[0]" },
+									{ /* purple      */ "\e[35m", "....alert[1]" },
+									{ /* yellow      */ "\e[33m", ".critical[2]" },
+									{ /* blue        */ "\e[34m", "....error[3]" },
+									{ /* cyan        */ "\e[36m", "..warning[4]" },
+									{ /* green       */ "\e[32m", "...notice[5]" },
+									{ /* white(gray) */ "\e[37m", ".....info[6]" },
+									{ /* white(gray) */ "\e[37m", "....debug[7]" } }; /* Number stands for level. */
 static char *stop = "\e[0m";
 static logging *l;
 static pthread_mutexattr_t __mutexattr;
@@ -27,9 +25,6 @@ static int __timestamp(char *str) {
 	struct tm t0;
 	struct timeval t1;
 	size_t size = DATE_MAX;
-
-	// fill memory with a constant byte
-	memset(str, 0, size);
 
 	// gettimeofday() gives the number of seconds and microseconds since the Epoch (see time(2)).
 	gettimeofday(&t1, NULL);
@@ -176,7 +171,7 @@ int __logging(enum level x,
 		localtime_r(&t1.tv_sec, &l->ltime);
 	}
 
-	char str[DATE_MAX];
+	char str[DATE_MAX] = { 0 };
 	__timestamp(str);
 
 	pthread_t thread = pthread_self();
@@ -234,7 +229,7 @@ int __logging(enum level x,
 
 	ret = pthread_mutex_unlock(&__mutex);
 	if (ret != 0) LOGGING_TRACING;
-	return ret;
+	return 0;
 }
 
 int initializing(const char *name, const char *path, const char *mode, 
@@ -330,14 +325,9 @@ int uninitialized(void) {
 	if (l->stream_level == none && l->stream == NULL) return 0;
 	assert(l->stream != NULL);
 
-	// The function fflush() forces a write of all user-space buffered data for the given output or update stream via the stream's
-	//		underlying write function.
-	int ret = fflush(l->stream);
-	if (ret == EOF) LOGGING_TRACING;
-
 	// The fclose() function will flushes the stream pointed to by fp (writing any buffered output data using fflush(3)) and closes
 	//		the underlying file descriptor.
-	ret = fclose(l->stream);
+	int ret = fclose(l->stream);
 	if (ret == EOF) LOGGING_TRACING;
 
 	char newpath[PATH_MAX] = { 0 }, oldpath[PATH_MAX] = { 0 };
@@ -348,7 +338,8 @@ int uninitialized(void) {
 	ret = access(newpath, F_OK);
 	if (ret == -1 && errno != ENOENT) LOGGING_TRACING;
 	else if (ret == 0) {
-		fprintf(stderr, "%s%s%s %s:%d: %s: newpath = '%s' already exists!\n", level[error][0], level[error][1], stop, __FILE__, __LINE__, __func__, newpath);
+		fprintf(stderr, "%s%s%s %s:%d: %s: newpath = '%s' already exists!\n", 
+			level[error][0], level[error][1], stop, __FILE__, __LINE__, __func__, newpath);
 		return -1;
 	}
 
@@ -358,8 +349,7 @@ int uninitialized(void) {
 #ifdef LOGGING_DEBUG
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s\n", level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "passed");
 #endif
-	free(l);
-	l = NULL;
+	free(l); l = NULL;
 
 	ret = pthread_mutex_destroy(&__mutex);
 	if (ret != 0) LOGGING_TRACING;
