@@ -44,17 +44,12 @@ void handler(int signum) {
 		case SIGQUIT:
 		case SIGTERM:
 		case SIGUSR1:
+		case SIGUSR2:
 			/* XXX: avoid infinite recursion, avoid dead-lock */
-			if (pid != tid) break;
-			hotel.bankruptcy = true; // TODO: add pthread_rwlock_...
-#if 0
-			if (pid != tid) break;
-			for(i = 0; i < hotel.staff_number; i++) {
-				int r = pthread_kill( *(hotel.pthread + i), signum);
-				if (r != 0)
-					LOGGING(error, "%s(%d)\n", strerror(r), r);
-			}
-#endif
+			if (pid == tid)
+				hotel.bankruptcy = true; // TODO: add pthread_rwlock_...
+			else
+				; /* do nothing */
 			break;
 		default:
 			; /* do nothing */
@@ -64,7 +59,7 @@ void handler(int signum) {
 void set_disposition(void) {
 	int i;
 					/* 1) 2) 3) 15)  */
-	int signum[] = { SIGHUP, SIGINT, SIGQUIT, SIGTERM, SIGUSR1};
+	int signum[] = {SIGHUP, SIGINT, SIGQUIT, SIGTERM, SIGUSR1, SIGUSR2};
 	for (i = 0; i < sizeof (signum) / sizeof (int); i++) {
     	if (SIG_ERR == signal(signum[i], handler)) {
     		fprintf(stderr, "%s:%d: %s: signum = %d\n", __FILE__, __LINE__, __func__, signum);

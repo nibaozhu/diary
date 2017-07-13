@@ -46,7 +46,10 @@ void *waiter(void *arg) {
 
 	int i, n = INT32_MAX;
 	for(i = 0; i < n; i++) {
-		LOGGING(debug, "do something ...\n");
+		enum level x = (enum level) (rand() % (debug + 1));
+		int timeout = rand() % (int)(1e6);
+
+		LOGGING(x, "do something ...\n");
 		sleep(1);
 		if(hotel.bankruptcy) break;
 	}
