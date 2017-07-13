@@ -13,6 +13,7 @@ RM_OPT       = --force --recursive
 AR           = ar
 RM           = rm
 CTAGS        = ctags
+PREFIX       = /usr/local
 
 
 all: $(PROGRAM) tags
@@ -23,10 +24,13 @@ $(PROGRAM): $(ALL_OBJECTS)
 tags: $(MAKEFILE) $(ALL_HEADERS) $(ALL_SOURCES)
 	$(CTAGS) $^
 
-.PHONY: all clean
+.PHONY: all clean install
 
 clean:
 	$(RM) $(RM_OPT) $(ALL_OBJECTS) $(PROGRAM) core.*
+
+install: $(PROGRAM)
+	install $(PROGRAM) $(PREFIX)/bin
 
 ###########################################################
 # NOTE: DO NOT EDIT, autogen by `gcc -MM *.c'

@@ -35,6 +35,7 @@ LOGGING_TRACING	logging.h	80;"	d
 MAKEFILE	Makefile	/^MAKEFILE     = Makefile$/;"	m
 MODE_MAX	logging.h	37;"	d
 OUTPUT_OPT	Makefile	/^OUTPUT_OPT   = -o$/;"	m
+PREFIX	Makefile	/^PREFIX       = \/usr\/local$/;"	m
 PROGRAM	Makefile	/^PROGRAM      = a.out$/;"	m
 RECEPTION	common.h	/^	RECEPTION,$/;"	e	enum:HOTEL_STAFF
 RECEPTION_H	reception.h	2;"	d
