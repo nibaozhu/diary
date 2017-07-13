@@ -11,14 +11,14 @@ AR	Makefile	/^AR           = ar$/;"	m
 A_H	a.h	2;"	d
 CEO	common.h	/^	CEO,$/;"	e	enum:HOTEL_STAFF
 CEO_number	common.h	/^	size_t CEO_number; \/* Chief Execute Officer: only one *\/$/;"	m	struct:hotel_s
-CFLAGS	Makefile	/^CFLAGS       = -O0 -g$/;"	m
+CFLAGS	Makefile	/^CFLAGS       = -g$/;"	m
 CHAIRMAN	common.h	/^	CHAIRMAN,$/;"	e	enum:HOTEL_STAFF
 CLEANERS	common.h	/^	CLEANERS,$/;"	e	enum:HOTEL_STAFF
 COMMON_H	common.h	2;"	d
 COOK	common.h	/^	COOK,$/;"	e	enum:HOTEL_STAFF
 CPPFLAGS	Makefile	/^CPPFLAGS     = # -D LOGGING_DEBUG # -D HH_MI_SS_XXXXXX$/;"	m
 CTAGS	Makefile	/^CTAGS        = ctags$/;"	m
-DATE_MAX	logging.h	38;"	d
+DATE_MAX	logging.h	39;"	d
 DISHWASHER	common.h	/^	DISHWASHER,$/;"	e	enum:HOTEL_STAFF
 GENERAL_MANAGER	common.h	/^	GENERAL_MANAGER,$/;"	e	enum:HOTEL_STAFF
 HOTEL_NAME	a.c	4;"	d	file:
@@ -26,14 +26,14 @@ HOTEL_STAFF	common.h	/^enum HOTEL_STAFF$/;"	g
 ID	common.h	/^	size_t ID;$/;"	m	struct:task_s
 LDFLAGS	Makefile	/^LDFLAGS      = -pthread$/;"	m
 LOBBY_MANAGER	common.h	/^	LOBBY_MANAGER,$/;"	e	enum:HOTEL_STAFF
-LOGGING	logging.h	96;"	d
-LOGGING_CACHE	logging.h	42;"	d
+LOGGING	logging.h	98;"	d
+LOGGING_CACHE	logging.h	43;"	d
 LOGGING_H	logging.h	9;"	d
-LOGGING_INTERVAL	logging.h	41;"	d
-LOGGING_SIZE	logging.h	43;"	d
-LOGGING_TRACING	logging.h	80;"	d
+LOGGING_INTERVAL	logging.h	42;"	d
+LOGGING_SIZE	logging.h	44;"	d
+LOGGING_TRACING	logging.h	82;"	d
 MAKEFILE	Makefile	/^MAKEFILE     = Makefile$/;"	m
-MODE_MAX	logging.h	37;"	d
+MODE_MAX	logging.h	38;"	d
 OUTPUT_OPT	Makefile	/^OUTPUT_OPT   = -o$/;"	m
 PREFIX	Makefile	/^PREFIX       = \/usr\/local$/;"	m
 PROGRAM	Makefile	/^PROGRAM      = a.out$/;"	m
@@ -48,12 +48,11 @@ UUID	common.h	/^	char UUID[UUID_LEN_STR + 1]; \/* Universal Unique ID *\/$/;"	m	
 UUID	common.h	/^	const char UUID[UUID_LEN_STR + 1]; \/* Universal Unique ID *\/$/;"	m	struct:__anon1
 WAITER	common.h	/^	WAITER,$/;"	e	enum:HOTEL_STAFF
 WAITER_H	waiter.h	2;"	d
-WAITING_SPACE	logging.h	39;"	d
+WAITING_SPACE	logging.h	40;"	d
 _GNU_SOURCE	common.h	13;"	d
 __flush	logging.c	/^static int __flush(void) {$/;"	f	file:
 __logging	logging.c	/^int __logging(enum level x, $/;"	f
-__mutex	logging.c	/^static pthread_mutex_t __mutex;$/;"	v	file:
-__mutexattr	logging.c	/^static pthread_mutexattr_t __mutexattr;$/;"	v	file:
+__mutex	logging.c	/^pthread_mutex_t __mutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 __timestamp	logging.c	/^static int __timestamp(char *str) {$/;"	f	file:
 alert	logging.h	/^	alert,			\/* action must be taken immediately *\/$/;"	e	enum:level
 bankruptcy	common.h	/^	bool bankruptcy;$/;"	m	struct:hotel_s

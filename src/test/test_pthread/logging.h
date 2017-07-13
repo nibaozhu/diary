@@ -33,6 +33,7 @@ extern "C" {
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
+#include <signal.h>
 
 #define MODE_MAX (4)
 #define DATE_MAX (32)
@@ -77,11 +78,12 @@ typedef struct {
 	enum level stream_level;
 } logging;
 
+/* When kill with `20) SIGTSTP', release space and send `18) SIGCONT' */
 #define LOGGING_TRACING do { \
 	fprintf(stderr, "%s%s%s %s:%d: %s: %s(%u)\n", \
 		level[error][0], level[error][1], stop, \
 		__FILE__, __LINE__, __func__, strerror(errno), errno); \
-	if (errno == ENOSPC) sleep(UINT32_MAX); \
+	if (errno == ENOSPC) pthread_kill(pthread_self(), SIGTSTP); \
 	else exit(errno); \
 } while (0)
 
@@ -96,6 +98,8 @@ int initializing(const char *name, const char *path, const char *mode,
 #define LOGGING(x, fmt, ...) (__logging(x, __FILE__, __LINE__, __func__, fmt, ## __VA_ARGS__))
 
 int uninitialized(void);
+
+extern pthread_mutex_t __mutex;
 
 #ifdef __cplusplus
 }

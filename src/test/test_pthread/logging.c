@@ -17,8 +17,7 @@ const char *level[debug + 1][2] = { { /* red         */ "\e[31m", "emergency[0]"
 									{ /* white(gray) */ "\e[37m", "....debug[7]" } }; /* Number stands for level. */
 static char *stop = "\e[0m";
 static logging *l;
-static pthread_mutexattr_t __mutexattr;
-static pthread_mutex_t __mutex;
+pthread_mutex_t __mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static int __timestamp(char *str) {
 	// format: year-month-day hour:minute:second.microsecond
@@ -298,18 +297,6 @@ int initializing(const char *name, const char *path, const char *mode,
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s\n", level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "passed");
 #endif
 
-	ret = pthread_mutexattr_init(&__mutexattr);
-	if (ret != 0) {
-		LOGGING(critical, "%s(%d)\n", strerror(errno), errno);
-		return -1;
-	}
-
-	ret = pthread_mutex_init(&__mutex, &__mutexattr);
-	if (ret != 0) {
-		LOGGING(critical, "%s(%d)\n", strerror(errno), errno);
-		return -1;
-	}
-
 	// Print the program name, pid, release
 	LOGGING(info, "PROGRAM: %s, PID: %u, RELEASE: %s %s\n", 
 		l->name, l->pid, __DATE__, __TIME__);
@@ -350,10 +337,5 @@ int uninitialized(void) {
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s\n", level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "passed");
 #endif
 	free(l); l = NULL;
-
-	ret = pthread_mutex_destroy(&__mutex);
-	if (ret != 0) LOGGING_TRACING;
-	ret = pthread_mutexattr_destroy(&__mutexattr);
-	if (ret != 0) LOGGING_TRACING;
 	return 0;
 }
