@@ -55,6 +55,7 @@ __mutex	logging.c	/^static pthread_mutex_t __mutex;$/;"	v	file:
 __mutexattr	logging.c	/^static pthread_mutexattr_t __mutexattr;$/;"	v	file:
 __timestamp	logging.c	/^static int __timestamp(char *str) {$/;"	f	file:
 alert	logging.h	/^	alert,			\/* action must be taken immediately *\/$/;"	e	enum:level
+bankruptcy	common.h	/^	bool bankruptcy;$/;"	m	struct:hotel_s
 cache	logging.h	/^	unsigned int cache; \/\/ logging has cache lines in memory$/;"	m	struct:__anon2
 cache_max	common.h	/^	size_t cache_max; \/* line cache *\/$/;"	m	struct:hotel_s
 cache_max	logging.h	/^	unsigned int cache_max; \/\/ cache_max lines in memory$/;"	m	struct:__anon2
@@ -76,7 +77,7 @@ file_subfix	logging.h	/^	char file_subfix[NAME_MAX]; \/\/ logging file's temp su
 final_file	logging.h	/^	char final_file[NAME_MAX]; \/\/ logging file's final name$/;"	m	struct:__anon2
 general_manager_number	common.h	/^	size_t general_manager_number; \/* only one *\/$/;"	m	struct:hotel_s
 handler	a.c	/^void handler(int signum) {$/;"	f
-hotel	a.c	/^static hotel_t hotel = { $/;"	v	file:
+hotel	a.c	/^hotel_t hotel = { $/;"	v
 hotel_name	common.h	/^	char hotel_name[NAME_MAX];$/;"	m	struct:hotel_s
 hotel_s	common.h	/^typedef struct hotel_s {$/;"	s
 hotel_t	common.h	/^} hotel_t;$/;"	t	typeref:struct:hotel_s

@@ -11,11 +11,12 @@ const char default_task[4][3][PATH_MAX] = {
 };
 
 /* Set sub-thread number. */
-static hotel_t hotel = { 
+hotel_t hotel = { 
 		.hotel_name = HOTEL_NAME,
 		.staff_number = 4, 
 		.reception_number = 1,
 		.waiter_number = 3,
+		.bankruptcy = false,
 };
 
 void handler(int signum) {
@@ -42,17 +43,18 @@ void handler(int signum) {
 		case SIGINT:
 		case SIGQUIT:
 		case SIGTERM:
-			/* main-thread: */
-			if (pid == tid) exit(1);
-			break;
 		case SIGUSR1:
-			/* sub-thread: XXX: avoid infinite recursion */
+			/* XXX: avoid infinite recursion, avoid dead-lock */
+			if (pid != tid) break;
+			hotel.bankruptcy = true; // TODO: add pthread_rwlock_...
+#if 0
 			if (pid != tid) break;
 			for(i = 0; i < hotel.staff_number; i++) {
 				int r = pthread_kill( *(hotel.pthread + i), signum);
 				if (r != 0)
 					LOGGING(error, "%s(%d)\n", strerror(r), r);
 			}
+#endif
 			break;
 		default:
 			; /* do nothing */

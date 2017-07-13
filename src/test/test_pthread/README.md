@@ -11,15 +11,15 @@ A.out
 Selecting a *release* version (no debugging symbols, messages, enable some
 optimizations, etc):
 
-    ~/test_pthread/build$ cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/tmp/ ../
+    ~/test_pthread/build$ cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local/ ../
 
 If you'd like to enable optimiations but still use a debugger, use this instead:
 
-    ~/test_pthread/build$ cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/tmp/ ../
+    ~/test_pthread/build$ cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr/local/ ../
 
 To disable optimizations and build a more debugging-friendly version:
 
-    ~/test_pthread/build$ cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/tmp/ ../
+    ~/test_pthread/build$ cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr/local/ ../
 
 #### Build A.out
 

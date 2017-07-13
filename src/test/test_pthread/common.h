@@ -63,6 +63,8 @@ typedef struct hotel_s {
 	/* */
 	pthread_t *pthread;
 
+	/* staff should gone */
+	bool bankruptcy;
 } hotel_t;
 
 typedef struct task_s {
@@ -95,5 +97,7 @@ typedef struct {
 	SLIST_HEAD(task_slist_s, task_s) *task_slist;
 } personal_information_t;
 
+
+extern hotel_t hotel;
 
 #endif // COMMON_H
