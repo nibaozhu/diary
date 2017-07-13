@@ -40,17 +40,14 @@ void *waiter(void *arg) {
 	}
 
 	/* begin: do ... */
-
-	unsigned int un = 1; // UINT32_MAX;
-	sleep(un);
-
 	int i, n = INT32_MAX;
 	for(i = 0; i < n; i++) {
 		enum level x = (enum level) (rand() % (debug + 1));
 		int timeout = rand() % (int)(1e6);
 
 		LOGGING(x, "do something ...\n");
-		sleep(1);
+		usleep(timeout);
+		LOGGING(x, "done <%d microseconds>\n", timeout);
 		if(hotel.bankruptcy) break;
 	}
 	/* end: do ... */

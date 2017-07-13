@@ -168,14 +168,14 @@ int main(int argc, char **argv) {
 
 	void *retval;
 	for (i = 0; i < hotel.staff_number; i++) {
-
-		r = pthread_join(*(hotel.pthread + i), &retval);
+		size_t j = hotel.staff_number - (i + 1);
+		r = pthread_join(*(hotel.pthread + j), &retval);
 		if (r != 0) {
 			LOGGING(error, "%s(%d)\n", strerror(errno), errno);
 			continue;
 		}
 
-		LOGGING(notice, "join: Thread[%d]: 0x%lx\n", i, *(hotel.pthread + i));
+		LOGGING(notice, "join: Thread[%d]: 0x%lx\n", j, *(hotel.pthread + j));
 	}
 
 	free(hotel.pthread);
