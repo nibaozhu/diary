@@ -99,8 +99,6 @@ int initializing(const char *name, const char *path, const char *mode,
 
 int uninitialized(void);
 
-extern pthread_mutex_t __mutex;
-
 #ifdef __cplusplus
 }
 #endif

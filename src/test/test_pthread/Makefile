@@ -27,7 +27,7 @@ tags: $(MAKEFILE) $(ALL_HEADERS) $(ALL_SOURCES)
 .PHONY: all clean install
 
 clean:
-	$(RM) $(RM_OPT) $(ALL_OBJECTS) $(PROGRAM) core.*
+	$(RM) $(RM_OPT) $(ALL_OBJECTS) $(PROGRAM) tags core.*
 
 install: $(PROGRAM)
 	install $(PROGRAM) $(PREFIX)/bin
