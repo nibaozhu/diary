@@ -1,9 +1,9 @@
 .PHONY:
-all: test_base64 test_client test_digit test_gnu test_or test_pthread test_pthread_with_lock test_pthread_with_sync test_regex test_sqlite3 test_xml test_const test_list test_logging test_map test_multimap test_string test_unorderedmap test_curl
+all: test_base64 test_client test_digit test_gnu test_or test_routine test_pthread_with_lock test_pthread_with_sync test_regex test_sqlite3 test_xml test_const test_list test_logging test_map test_multimap test_string test_unorderedmap test_curl
 	@ctags * ../../include/*
 clean:
 	rm *.o
-	rm test_base64 test_client test_digit test_gnu test_or test_pthread test_pthread_with_lock test_pthread_with_sync test_regex test_sqlite3 test_xml test_const test_list test_logging test_map test_multimap test_string test_unorderedmap test_curl
+	rm test_base64 test_client test_digit test_gnu test_or test_routine test_pthread_with_lock test_pthread_with_sync test_regex test_sqlite3 test_xml test_const test_list test_logging test_map test_multimap test_string test_unorderedmap test_curl
 
 
 test_base64.o: test_base64.c
@@ -11,7 +11,7 @@ test_client.o: test_client.c
 test_digit.o: test_digit.c
 test_gnu.o: test_gnu.c
 test_or.o: test_or.c
-test_pthread.o: test_pthread.c
+test_routine.o: test_routine.c
 test_pthread_with_lock.o: test_pthread_with_lock.c
 test_pthread_with_sync.o: test_pthread_with_sync.c
 test_regex.o: test_regex.c
@@ -58,7 +58,7 @@ test_sqlite3: test_sqlite3.o
 test_list: test_list.o
 	$(CXX) -o $@ $^
 
-test_pthread: test_pthread.o
+test_routine: test_routine.o
 	$(CXX) -pthread -o $@ $^
 
 test_pthread_with_sync: test_pthread_with_sync.o

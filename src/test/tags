@@ -6,9 +6,9 @@
 !_TAG_PROGRAM_VERSION	5.8	//
 ARR_MAX	middle_number.c	6;"	d	file:
 BUFFER_LENGTH	test_client.c	19;"	d	file:
-CFLAGS	GNUmakefile	/^CFLAGS=-g -O0$/;"	m
-CPPFLAGS	GNUmakefile	/^CPPFLAGS=-I ..\/..\/include\/$/;"	m
-CXXFLAGS	GNUmakefile	/^CXXFLAGS=-g -O0 -Wall -Wextra -std=c++0x$/;"	m
+CFLAGS	Makefile	/^CFLAGS=-g -O0$/;"	m
+CPPFLAGS	Makefile	/^CPPFLAGS=-I ..\/..\/include\/$/;"	m
+CXXFLAGS	Makefile	/^CXXFLAGS=-g -O0 -Wall -Wextra -std=c++0x$/;"	m
 DATE_MAX	../../include/logging.h	37;"	d
 DEQUE_MAIN	test_deque.c	2;"	d	file:
 IP_LENGTH	test_client.c	18;"	d	file:
@@ -23,9 +23,9 @@ S	test_logo.c	3;"	d	file:
 SIZE_500MB	find_not_include_number.c	6;"	d	file:
 SIZE_MAX	../../include/logging.h	16;"	d
 SIZE_MAX	../../include/logging.h	18;"	d
-__MAX	test_pthread.c	17;"	d	file:
 __MAX	test_pthread_with_lock.c	24;"	d	file:
 __MAX	test_pthread_with_sync.c	21;"	d	file:
+__MAX	test_routine.c	17;"	d	file:
 __deque	test_deque.c	/^typedef struct __deque {$/;"	s	file:
 __entry	test_deque.c	/^typedef struct __entry {$/;"	s	file:
 __kv	test_str2kv.c	/^struct __kv {$/;"	s	file:
@@ -69,7 +69,6 @@ length	test_stack.c	/^	size_t length;$/;"	m	struct:stack	file:
 level	../../include/logging.cc	/^const char *level[debug + 1] = $/;"	v
 logging	../../include/logging.h	/^struct logging {$/;"	s
 main	bignumber_multiplication.c	/^int main() {$/;"	f
-main	domain_name_to_ip.c	/^int main(int argc, char **argv)  $/;"	f
 main	file.c	/^int main(int argc, char **argv)$/;"	f
 main	find_not_include_number.c	/^int main() {$/;"	f
 main	flock_test.c	/^int main()$/;"	f
@@ -94,13 +93,13 @@ main	test_logo.c	/^int main(int argc, char** argv) {$/;"	f
 main	test_map.cc	/^int main(void) {$/;"	f
 main	test_multimap.cc	/^int main(void) {$/;"	f
 main	test_or.c	/^int main(int ac, char **argv) {$/;"	f
-main	test_pthread.c	/^int main() {$/;"	f
 main	test_pthread_with_lock.c	/^int main() {$/;"	f
 main	test_pthread_with_sync.c	/^int main() {$/;"	f
 main	test_queue.cc	/^int main ()$/;"	f
 main	test_regex.c	/^int main(int argc, char **argv)$/;"	f
 main	test_regex.cpp	/^int main(void) {$/;"	f
 main	test_rlimit.c	/^int main() {$/;"	f
+main	test_routine.c	/^int main() {$/;"	f
 main	test_sizeof.c	/^int main() {$/;"	f
 main	test_sqlite3.c	/^int main(int argc, char **argv)$/;"	f
 main	test_stack.c	/^int main(int argc, char **argv) {$/;"	f
@@ -145,9 +144,9 @@ setnonblocking	test_client.c	/^int setnonblocking(int fd)$/;"	f
 size	../../include/logging.h	/^	unsigned long size; \/\/ logging has written bytes in file$/;"	m	struct:logging
 size_max	../../include/logging.h	/^	unsigned long size_max; \/\/ size_max bytes in file$/;"	m	struct:logging
 stack	test_stack.c	/^struct stack {$/;"	s	file:
-start_routine	test_pthread.c	/^void *start_routine(void *arg) {$/;"	f
 start_routine	test_pthread_with_lock.c	/^void *start_routine(void *arg) {$/;"	f
 start_routine	test_pthread_with_sync.c	/^void *start_routine(void *arg) {$/;"	f
+start_routine	test_routine.c	/^void *start_routine(void *arg) {$/;"	f
 stdout_level	../../include/logging.h	/^	enum elevel stdout_level;$/;"	m	struct:logging	typeref:enum:logging::elevel
 str2kv	test_str2kv.c	/^void str2kv(const char *str, struct __kv *kv)$/;"	f
 stream	../../include/logging.h	/^	FILE *stream;$/;"	m	struct:logging
