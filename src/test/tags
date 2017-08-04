@@ -105,7 +105,7 @@ main	test_sqlite3.c	/^int main(int argc, char **argv)$/;"	f
 main	test_stack.c	/^int main(int argc, char **argv) {$/;"	f
 main	test_std.c	/^int main(void) {$/;"	f
 main	test_str2kv.c	/^int main(int argc, char **argv)$/;"	f
-main	test_string.cc	/^int main(void) {$/;"	f
+main	test_string.cc	/^int main(int argc, char **argv) {$/;"	f
 main	test_syslog.c	/^int main(int argc, char **argv) {$/;"	f
 main	test_thread.cc	/^int main() {$/;"	f
 main	test_unorderedmap.cc	/^int main(void) {$/;"	f
@@ -151,6 +151,7 @@ stdout_level	../../include/logging.h	/^	enum elevel stdout_level;$/;"	m	struct:l
 str2kv	test_str2kv.c	/^void str2kv(const char *str, struct __kv *kv)$/;"	f
 stream	../../include/logging.h	/^	FILE *stream;$/;"	m	struct:logging
 stream_level	../../include/logging.h	/^	enum elevel stream_level;$/;"	m	struct:logging	typeref:enum:logging::elevel
+string2vector	test_string.cc	/^void string2vector(const std::string &str, const char &delim, std::vector<std::string> &vec)$/;"	f
 sysdate	../../include/logging.cc	/^int sysdate(char *str)$/;"	f
 t0	../../include/logging.h	/^	struct tm t0; \/\/ start time$/;"	m	struct:logging	typeref:struct:logging::tm
 t1	../../include/logging.h	/^	struct tm t1; \/\/ the last flush stream date\/time$/;"	m	struct:logging	typeref:struct:logging::tm
