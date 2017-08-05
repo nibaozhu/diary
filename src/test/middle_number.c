@@ -6,9 +6,9 @@
 #define ARR_MAX (1<<0x10) // 64KB
 #define NMEMB_MAX (1<<0x14) // 1MB
 
-int main() {
+int main(int argc, char **argv) {
 	int r = 0;
-	FILE *stream = fopen("a.1M", "r");
+	FILE *stream = fopen(argv[1], "r");
 	if (stream == NULL)
 	{
 		perror("fopen");
@@ -58,7 +58,6 @@ int main() {
 
 	left_count -= arr[--i]; // backward
 	size_t arr_middle = i; // backward
-	printf("left_count = %lx\n", left_count);
 	printf("left_count = %lx, arr[%lx] = %lx, right_count = %lx, count = %lx\n",
 			left_count, i, arr[i], count - left_count - arr[i], count);
 
