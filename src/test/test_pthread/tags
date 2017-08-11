@@ -84,7 +84,7 @@ hotel_t	common.h	/^} hotel_t;$/;"	t	typeref:struct:hotel_s
 info	logging.h	/^	info,			\/* informational *\/$/;"	e	enum:level
 initializing	logging.c	/^int initializing(const char *name, const char *path, const char *mode, $/;"	f
 l	logging.c	/^static logging *l;$/;"	v	file:
-level	logging.c	/^const char *level[debug + 1][2] = { { \/* red         *\/ "\\e[31m", "emergency[0]" },$/;"	v
+level	logging.c	/^const char *level[debug + 1][2] = {$/;"	v
 level	logging.h	/^enum level {$/;"	g
 lobby_manager_number	common.h	/^	size_t lobby_manager_number; \/* only one *\/$/;"	m	struct:hotel_s
 logging	logging.h	/^} logging;$/;"	t	typeref:struct:__anon2

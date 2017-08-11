@@ -4,52 +4,41 @@
  *
  * Written by Ni Baozhu: <nibz@qq.com>.
  */
-
 #include "logging.h"
 
-const char *level[debug + 1][2] = { { /* red         */ "\e[31m", "emergency[0]" },
-									{ /* purple      */ "\e[35m", "....alert[1]" },
-									{ /* yellow      */ "\e[33m", ".critical[2]" },
-									{ /* blue        */ "\e[34m", "....error[3]" },
-									{ /* cyan        */ "\e[36m", "..warning[4]" },
-									{ /* green       */ "\e[32m", "...notice[5]" },
-									{ /* white(gray) */ "\e[37m", ".....info[6]" },
-									{ /* white(gray) */ "\e[37m", "....debug[7]" } }; /* Number stands for level. */
+const char *level[debug + 1][2] = {
+{ /* red         */ "\e[31m", "emergency[0]" },
+{ /* purple      */ "\e[35m", "....alert[1]" },
+{ /* yellow      */ "\e[33m", ".critical[2]" },
+{ /* blue        */ "\e[34m", "....error[3]" },
+{ /* cyan        */ "\e[36m", "..warning[4]" },
+{ /* green       */ "\e[32m", "...notice[5]" },
+{ /* white(gray) */ "\e[37m", ".....info[6]" },
+{ /* white(gray) */ "\e[37m", "....debug[7]" }}; /* Number stands for level. */
 static char *stop = "\e[0m";
 static logging *l;
 pthread_mutex_t __mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static int __timestamp(char *str) {
-	// format: year-month-day hour:minute:second.microsecond
 	struct tm t0;
 	struct timeval t1;
-	size_t size = DATE_MAX;
-
-	// gettimeofday() gives the number of seconds and microseconds since the Epoch (see time(2)).
 	gettimeofday(&t1, NULL);
-
-	// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
-	//	on January 1, 1970, Coordinated Universal Time (UTC).
 	localtime_r(&t1.tv_sec, &t0);
 
 #ifdef  __USE_BSD
 #ifdef    HH_MI_SS_XXXXXX
-	// The function snprintf() writes at most size bytes (including the trailing null byte ('\0')) to str.
-	return snprintf(str, size, "%02d:%02d:%02d.%06ld %s", 
+	return snprintf(str, DATE_MAX, "%02d:%02d:%02d.%06ld %s", 
 			t0.tm_hour, t0.tm_min, t0.tm_sec, t1.tv_usec, t0.tm_zone);
 #else
-	// The function snprintf() writes at most size bytes (including the trailing null byte ('\0')) to str.
-	return snprintf(str, size, "%04d-%02d-%02d %02d:%02d:%02d.%06ld %s", 
+	return snprintf(str, DATE_MAX, "%04d-%02d-%02d %02d:%02d:%02d.%06ld %s", 
 			t0.tm_year + 1900, t0.tm_mon + 1, t0.tm_mday, t0.tm_hour, t0.tm_min, t0.tm_sec, t1.tv_usec, t0.tm_zone);
 #endif // HH_MI_SS_XXXXXX
 #else
 #ifdef    HH_MI_SS_XXXXXX
-	// The function snprintf() writes at most size bytes (including the trailing null byte ('\0')) to str.
-	return snprintf(str, size, "%02d:%02d:%02d.%06ld %z", 
+	return snprintf(str, DATE_MAX, "%02d:%02d:%02d.%06ld %z", 
 			t0.tm_hour, t0.tm_min, t0.tm_sec, t1.tv_usec, t0.__tm_zone);
 #else
-	// The function snprintf() writes at most size bytes (including the trailing null byte ('\0')) to str.
-	return snprintf(str, size, "%04d-%02d-%02d %02d:%02d:%02d.%06ld %z", 
+	return snprintf(str, DATE_MAX, "%04d-%02d-%02d %02d:%02d:%02d.%06ld %z", 
 			t0.tm_year + 1900, t0.tm_mon + 1, t0.tm_mday, t0.tm_hour, t0.tm_min, t0.tm_sec, t1.tv_usec, t0.__tm_zone);
 #endif // HH_MI_SS_XXXXXX
 #endif // __USE_BSD
@@ -63,15 +52,10 @@ static int __flush(void) {
 #endif
 	if (l->stream_level == none) return 0;
 
-	// The function fflush() forces a write of all user-space buffered data for the given output or update stream via the stream's
-	//		underlying write function.
 	int ret = fflush(l->stream);
 	if (ret == EOF) LOGGING_TRACING;
-
-	// Clean cache when fflush is success.
 	l->cache = 0;
 
-	// The ftell() function obtains the current value of the file position indicator for the stream pointed to by stream.
 	long size = ftell(l->stream);
 	if (size == -1) LOGGING_TRACING;
 
@@ -83,12 +67,7 @@ static int __flush(void) {
 
 	struct tm t0;
 	struct timeval t1;
-
-	// gettimeofday() gives the number of seconds and microseconds since the Epoch (see time(2)).
 	gettimeofday(&t1, NULL);
-
-	// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
-	//	on January 1, 1970, Coordinated Universal Time (UTC).
 	localtime_r(&t1.tv_sec, &t0);
 
 	bool reset_number = false;
@@ -107,7 +86,6 @@ static int __flush(void) {
 
 	if (reset_number) l->number = 0;
 
-	/* F_OK tests for the existence of the file. */
 	ret = access(newpath, F_OK);
 	if (ret == -1 && errno != ENOENT) LOGGING_TRACING;
 	else if (ret == 0) LOGGING_TRACING;
@@ -121,7 +99,7 @@ static int __flush(void) {
 		l->ltime.tm_year + 1900, l->ltime.tm_mon + 1, l->ltime.tm_mday, 
 		l->pid, ++l->number);
 
-	char path[PATH_MAX] = { 0 }; // logging file's path
+	char path[PATH_MAX] = { 0 };
 	snprintf(path, PATH_MAX, "%s/%s.%s", l->path, l->final_file, l->file_subfix);
 
 	FILE *fp = fopen(path, l->mode);
@@ -144,12 +122,7 @@ int __logging(enum level x,
 
 	struct tm t0;
 	struct timeval t1;
-
-	// gettimeofday() gives the number of seconds and microseconds since the Epoch (see time(2)).
 	gettimeofday(&t1, NULL);
-
-	// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
-	//	on January 1, 1970, Coordinated Universal Time (UTC).
 	localtime_r(&t1.tv_sec, &t0);
 	time_t diff = mktime(&t0) - mktime(&l->ltime);
 
@@ -165,8 +138,6 @@ int __logging(enum level x,
 	if (t0.tm_year != l->ltime.tm_year || t0.tm_mon != l->ltime.tm_mon || t0.tm_mday != l->ltime.tm_mday) {
 		ret = __flush();
 		assert(ret == 0);
-		// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
-		//	on January 1, 1970, Coordinated Universal Time (UTC).
 		localtime_r(&t1.tv_sec, &l->ltime);
 	}
 
@@ -199,18 +170,14 @@ int __logging(enum level x,
 		if (x <= warning) {
 			ret = __flush();
 			assert(ret == 0);
-			// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
-			//	on January 1, 1970, Coordinated Universal Time (UTC).
 			localtime_r(&t1.tv_sec, &l->ltime);
 		}
 	}
 	va_end(ap);
 
 	do {
-		/* error */
-		if (diff + 1 < l->diff_max) break; // no flush
-
-		if (l->cache_max == 0) ; // ...
+		if (diff + 1 < l->diff_max) break;
+		if (l->cache_max == 0) ;
 		else if (++l->cache < l->cache_max) {
 #ifdef LOGGING_DEBUG
 			fprintf(stdout, "%s%s%s %s:%d: %s: %s, l->cache = %u, l->cache_max = %u\n",
@@ -221,11 +188,8 @@ int __logging(enum level x,
 
 		ret = __flush();
 		assert(ret == 0);
-		// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
-		//	on January 1, 1970, Coordinated Universal Time (UTC).
 		localtime_r(&t1.tv_sec, &l->ltime);
 	} while (0);
-
 	ret = pthread_mutex_unlock(&__mutex);
 	if (ret != 0) LOGGING_TRACING;
 	return 0;
@@ -259,11 +223,7 @@ int initializing(const char *name, const char *path, const char *mode,
 	strncpy(l->file_subfix, "tmp", NAME_MAX);
 
 	struct timeval t0;
-	// gettimeofday() gives the number of seconds and microseconds since the Epoch (see time(2)).
 	gettimeofday(&t0, NULL);
-
-	// When interpreted as an absolute time value, it represents the number of seconds elapsed since 00:00:00
-	//	on January 1, 1970, Coordinated Universal Time (UTC).
 	localtime_r(&t0.tv_sec, &l->stime);
 	memcpy(&(l->ltime), &(l->stime), sizeof (struct tm));
 
@@ -276,8 +236,6 @@ int initializing(const char *name, const char *path, const char *mode,
 
 	if (l->size_max == 0) l->size_max = SIZE_MAX;
 
-	// F_OK, R_OK, W_OK, X_OK test whether the file exists and grants read, write, and execute permissions.
-	// Warning: R_OK maybe not needed.
 	int ret = access(l->path, F_OK | W_OK | X_OK);
 	if (ret == -1) LOGGING_TRACING;
 
@@ -297,7 +255,6 @@ int initializing(const char *name, const char *path, const char *mode,
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s\n", level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "passed");
 #endif
 
-	// Print the program name, pid, release
 	LOGGING(info, "PROGRAM: %s, PID: %u, RELEASE: %s %s\n", 
 		l->name, l->pid, __DATE__, __TIME__);
 	return 0;
@@ -312,8 +269,6 @@ int uninitialized(void) {
 	if (l->stream_level == none && l->stream == NULL) return 0;
 	assert(l->stream != NULL);
 
-	// The fclose() function will flushes the stream pointed to by fp (writing any buffered output data using fflush(3)) and closes
-	//		the underlying file descriptor.
 	int ret = fclose(l->stream);
 	if (ret == EOF) LOGGING_TRACING;
 
@@ -321,7 +276,6 @@ int uninitialized(void) {
 	snprintf(newpath, PATH_MAX, "%s/%s", l->path, l->final_file);
 	snprintf(oldpath, PATH_MAX, "%s.%s", newpath, l->file_subfix);
 
-	/* F_OK tests for the existence of the file. */
 	ret = access(newpath, F_OK);
 	if (ret == -1 && errno != ENOENT) LOGGING_TRACING;
 	else if (ret == 0) {
