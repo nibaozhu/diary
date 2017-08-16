@@ -12,7 +12,12 @@ CXXFLAGS	Makefile	/^CXXFLAGS=-g -O0 -Wall -Wextra -std=c++0x$/;"	m
 DATE_MAX	../../include/logging.h	37;"	d
 DEQUE_MAIN	test_deque.c	2;"	d	file:
 IP_LENGTH	test_client.c	18;"	d	file:
+LNode	a.c	/^typedef struct LNode {  $/;"	s	file:
+LNode	a.c	/^}LNode,*linkList;  $/;"	t	typeref:struct:LNode	file:
 LOGGING_H	../../include/logging.h	9;"	d
+M1	generate_data.c	5;"	d	file:
+M100	generate_data.c	6;"	d	file:
+M1024	generate_data.c	7;"	d	file:
 MAX_EVENTS	test_client.c	17;"	d	file:
 MAX_LENGTH	bignumber_multiplication.c	3;"	d	file:
 MODE_MAX	../../include/logging.h	36;"	d
@@ -31,23 +36,29 @@ __entry	test_deque.c	/^typedef struct __entry {$/;"	s	file:
 __kv	test_str2kv.c	/^struct __kv {$/;"	s	file:
 __plog	../../include/logging.cc	/^int __plog(enum elevel x, const char *__file, unsigned int __line, const char *__function, const char *fmt, ...)$/;"	f
 alert	../../include/logging.h	/^	alert,			\/* action must be taken immediately *\/$/;"	e	enum:elevel
-bufsize	generate_data.c	7;"	d	file:
 cache	../../include/logging.h	/^	unsigned int cache; \/\/ logging has cache lines in memory$/;"	m	struct:logging
 cache_max	../../include/logging.h	/^	unsigned int cache_max; \/\/ cache_max lines in memory$/;"	m	struct:logging
 cal	bignumber_multiplication.c	/^int cal(const char *number_x, const char *number_y, char *number_result) {$/;"	f
 callback	test_sqlite3.c	/^int callback(void *NotUsed, int argc, char **argv, char **colname)$/;"	f
+cat	test_poly.cc	/^class cat : public object$/;"	c	file:
 clear_color	../../include/logging.cc	/^const char *clear_color = "\\e[0m";$/;"	v
 color	../../include/logging.cc	/^const char *color[debug + 1] = $/;"	v
 count	test_client.c	/^int count = 0;$/;"	v
 count	test_pthread_with_sync.c	/^int count = 0;$/;"	v
+creatLinkList	a.c	/^linkList creatLinkList(int n) {\/\/创建一个含n个元素的单链表  $/;"	f
 critical	../../include/logging.h	/^	critical,		\/* critical conditions *\/$/;"	e	enum:elevel
+data	a.c	/^    int data;  $/;"	m	struct:LNode	file:
 data	test_deque.c	/^  void *data;$/;"	m	struct:__entry	file:
 data	test_stack.c	/^	int data;$/;"	m	struct:entry	file:
 debug	../../include/logging.h	/^	debug,			\/* debug-level messages *\/$/;"	e	enum:elevel
 deque	test_deque.c	/^} deque;$/;"	t	typeref:struct:__deque	file:
 diff	../../include/logging.h	/^	time_t diff; \/\/ time interval$/;"	m	struct:logging
+doFoo	test_poly.cc	/^void cat::doFoo()$/;"	f	class:cat
+doFoo	test_poly.cc	/^void dog::doFoo()$/;"	f	class:dog
+doFoo	test_poly.cc	/^void object::doFoo()$/;"	f	class:object
 do_something	test_logging.cc	/^int do_something(enum elevel x, int timeout)$/;"	f
 do_use_fd	test_client.c	/^int do_use_fd()$/;"	f
+dog	test_poly.cc	/^class dog : public object$/;"	c	file:
 elevel	../../include/logging.h	/^enum elevel {$/;"	g
 emergency	../../include/logging.h	/^	emergency,		\/* application is unusable *\/$/;"	e	enum:elevel
 entry	test_deque.c	/^} entry;$/;"	t	typeref:struct:__entry	file:
@@ -62,19 +73,24 @@ i_want_to_get_this_content	test_curl.c	/^int i_want_to_get_this_content(const ch
 info	../../include/logging.h	/^	info,			\/* informational *\/$/;"	e	enum:elevel
 init_stack	test_stack.c	/^int init_stack(struct stack *s) {$/;"	f
 initializing	../../include/logging.cc	/^int initializing(const char *name, const char *path, const char *mode, enum elevel stream_level, enum elevel stdout_level, time_t diff, unsigned int cache_max, unsigned long size_max)$/;"	f
+intvalue	test_reverse.cc	/^	int intvalue;$/;"	m	struct:node_s	file:
 kv	test_str2kv.c	/^  char kv[10][2][1025];$/;"	m	struct:__kv	file:
 l	../../include/logging.cc	/^struct logging *l;$/;"	v	typeref:struct:logging
 length	test_deque.c	/^  size_t length;$/;"	m	struct:__deque	file:
 length	test_stack.c	/^	size_t length;$/;"	m	struct:stack	file:
 level	../../include/logging.cc	/^const char *level[debug + 1] = $/;"	v
+linkList	a.c	/^}LNode,*linkList;  $/;"	t	typeref:struct:LNode	file:
+listTraverse	a.c	/^void listTraverse(linkList q) {  $/;"	f
 logging	../../include/logging.h	/^struct logging {$/;"	s
+main	a.c	/^int main() {  $/;"	f
 main	bignumber_multiplication.c	/^int main() {$/;"	f
 main	file.c	/^int main(int argc, char **argv)$/;"	f
 main	find_not_include_number.c	/^int main() {$/;"	f
 main	flock_test.c	/^int main()$/;"	f
 main	generate_data.c	/^int main()$/;"	f
-main	middle_number.c	/^int main() {$/;"	f
+main	middle_number.c	/^int main(int argc, char **argv) {$/;"	f
 main	test_FILE.c	/^int main(int argc, char **argv)$/;"	f
+main	test_array.cc	/^int main(int argc, char **argv) {$/;"	f
 main	test_base64.c	/^int main(int argc, char **argv) {$/;"	f
 main	test_class.cc	/^int main(int argc, char **argv) {$/;"	f
 main	test_client.c	/^int main(int argc, char **argv)$/;"	f
@@ -93,11 +109,13 @@ main	test_logo.c	/^int main(int argc, char** argv) {$/;"	f
 main	test_map.cc	/^int main(void) {$/;"	f
 main	test_multimap.cc	/^int main(void) {$/;"	f
 main	test_or.c	/^int main(int ac, char **argv) {$/;"	f
+main	test_poly.cc	/^int main(int argc, char **argv)$/;"	f
 main	test_pthread_with_lock.c	/^int main() {$/;"	f
 main	test_pthread_with_sync.c	/^int main() {$/;"	f
 main	test_queue.cc	/^int main ()$/;"	f
 main	test_regex.c	/^int main(int argc, char **argv)$/;"	f
 main	test_regex.cpp	/^int main(void) {$/;"	f
+main	test_reverse.cc	/^int main(int argc, char **argv)$/;"	f
 main	test_rlimit.c	/^int main() {$/;"	f
 main	test_routine.c	/^int main() {$/;"	f
 main	test_sizeof.c	/^int main() {$/;"	f
@@ -121,11 +139,15 @@ my_write	test_curl.c	/^size_t my_write( void *ptr, size_t size, size_t nmemb, vo
 name	../../include/logging.h	/^	char name[NAME_MAX]; \/\/ program name$/;"	m	struct:logging
 nconnect	test_client.c	/^int nconnect = 0;$/;"	v
 netframe	test_logo.c	4;"	d	file:
+next	a.c	/^    struct LNode *next;  $/;"	m	struct:LNode	typeref:struct:LNode::LNode	file:
 next	test_deque.c	/^  struct __entry *next;$/;"	m	struct:__entry	typeref:struct:__entry::__entry	file:
+next	test_reverse.cc	/^	struct node_s *next;$/;"	m	struct:node_s	typeref:struct:node_s::node_s	file:
 next	test_stack.c	/^	struct entry *next;$/;"	m	struct:entry	typeref:struct:entry::entry	file:
+node_s	test_reverse.cc	/^struct node_s {$/;"	s	file:
 none	../../include/logging.h	/^	none = -1,		\/* none logging *\/$/;"	e	enum:elevel
 notice	../../include/logging.h	/^	notice,			\/* normal but significant condition *\/$/;"	e	enum:elevel
 number	../../include/logging.h	/^	unsigned int number; \/\/ logging file's suffix number when splits file$/;"	m	struct:logging
+object	test_poly.cc	/^class object$/;"	c	file:
 path	../../include/logging.h	/^	char path[PATH_MAX]; \/\/ logging file's path$/;"	m	struct:logging
 pflush	../../include/logging.cc	/^int pflush()$/;"	f
 pid	../../include/logging.h	/^	pid_t pid; \/\/ program process id$/;"	m	struct:logging
@@ -133,12 +155,16 @@ plog	../../include/logging.h	82;"	d
 pop_back	test_stack.c	/^int pop_back(struct stack *s, int *data) {$/;"	f
 pop_front	test_deque.c	/^int pop_front(deque *q, void **data) {$/;"	f
 prev	test_deque.c	/^  struct __entry *prev;$/;"	m	struct:__entry	typeref:struct:__entry::__entry	file:
+print_slist	test_reverse.cc	/^int print_slist(struct node_s *my_slist)$/;"	f
 push_back	test_deque.c	/^int push_back(deque *q, void *data) {$/;"	f
+push_back	test_reverse.cc	/^int push_back(struct node_s *my_slist, int value)$/;"	f
 push_back	test_stack.c	/^int push_back(struct stack *s, int data) {$/;"	f
 quit	test_client.c	/^int quit = 0;$/;"	v
 quit	test_logging.cc	/^unsigned int quit = 0;$/;"	v
 reads	test_client.c	/^int reads(int fd)$/;"	f
 regex_content	test_regex.cpp	/^int regex_content(const char * regex, const char * string1, std::list<std::string> &urls) {$/;"	f
+reverseLinkList	a.c	/^linkList reverseLinkList(linkList head) {  $/;"	f
+reverse_list	test_reverse.cc	/^int reverse_list(struct node_s **my_slist)$/;"	f
 set_disposition	test_logging.cc	/^int set_disposition()$/;"	f
 setnonblocking	test_client.c	/^int setnonblocking(int fd)$/;"	f
 size	../../include/logging.h	/^	unsigned long size; \/\/ logging has written bytes in file$/;"	m	struct:logging

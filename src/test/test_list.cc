@@ -9,8 +9,10 @@ int main(void) {
 	r->push_back(22);
 	r->push_back(11);
 	r->push_back(33);
-	std::list<int>::iterator i = r->begin();
 
+	r->reverse();
+
+	std::list<int>::iterator i = r->begin();
 	while (i != r->end()) {
 		std::cout << "erase " << *i << std::endl;
 		i = r->erase(i);
