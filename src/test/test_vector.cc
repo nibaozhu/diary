@@ -1,18 +1,42 @@
+#include <string.h>
+
 #include <vector>
+#include <string>
+#include <iostream>
+
 int main(int argc, char **argv) {
+	(void)argc; (void)argv;
 
-	std::vector<int> v1;
+	// const std::size_t _Nm = 5;
+	std::vector<std::string> vec1;
 
-	v1.push_back(5);
-	v1.push_back(8);
-	v1.push_back(2);
-	v1.push_back(1);
-	v1.push_back(3);
-	v1.pop_back();
-	v1.pop_back();
-	v1.pop_back();
+	char str[] = "123456";
 
-	int i1 = v1.at(2);
+	std::cout << "size: " << vec1.size() << ", capacity: "<< vec1.capacity() << std::endl;
+
+	for(std::vector<std::string>::size_type _Im = 0; _Im < 5; _Im++)
+	{
+		vec1.push_back(std::string(strfry(str)));
+	}
+
+	for(std::vector<std::string>::size_type _Im = 0; _Im < vec1.size(); _Im++)
+	{
+		std::cout << vec1.at(_Im) << std::endl;
+	}
+
+	std::cout << "size: " << vec1.size() << ", capacity: "<< vec1.capacity() << std::endl;
+
+	for(std::vector<std::string>::size_type _Im = 0; _Im < 2; _Im++)
+	{
+		vec1.pop_back();
+	}
+
+	std::cout << "size: " << vec1.size() << ", capacity: "<< vec1.capacity() << std::endl;
+
+	// NOTE: compile with -std=c++11
+	vec1.shrink_to_fit();
+
+	std::cout << "size: " << vec1.size() << ", capacity: "<< vec1.capacity() << std::endl;
 
 	return 0;
 }
