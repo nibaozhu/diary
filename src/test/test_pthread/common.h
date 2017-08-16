@@ -8,7 +8,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <uuid.h>
+#include <ossp/uuid.h>
 
 #define _GNU_SOURCE        /* or _BSD_SOURCE or _SVID_SOURCE */
 #include <sys/queue.h>

@@ -56,12 +56,12 @@ void handler(int signum) {
 }
 
 void set_disposition(void) {
-	int i;
+	size_t i;
 					/* 1) 2) 3) 15)  */
-	int signum[] = {SIGHUP, SIGINT, SIGQUIT, SIGTERM, SIGUSR1, SIGUSR2};
-	for (i = 0; i < sizeof (signum) / sizeof (int); i++) {
+	size_t signum[] = {SIGHUP, SIGINT, SIGQUIT, SIGTERM, SIGUSR1, SIGUSR2};
+	for (i = 0; i < sizeof (signum) / sizeof (size_t); i++) {
     	if (SIG_ERR == signal(signum[i], handler)) {
-    		fprintf(stderr, "%s:%d: %s: signum = %d\n", __FILE__, __LINE__, __func__, signum);
+    		fprintf(stderr, "%s:%d: %s: signum = %lu\n", __FILE__, __LINE__, __func__, signum[i]);
 			exit(1);
 		}
 	}
@@ -151,7 +151,7 @@ int main(int argc, char **argv) {
 		}
 
 		/* XXX: `arg' maybe had been freed, and we just look it. */
-		LOGGING(notice, "create: Thread[%d]: 0x%lx, arg: %p\n", i, *(hotel.pthread + i), arg);
+		LOGGING(notice, "create: Thread[%lu]: 0x%lx, arg: %p\n", i, *(hotel.pthread + i), arg);
 	}
 
 	r = pthread_attr_destroy(attr);
@@ -174,7 +174,7 @@ int main(int argc, char **argv) {
 			continue;
 		}
 
-		LOGGING(notice, "join: Thread[%d]: 0x%lx\n", j, *(hotel.pthread + j));
+		LOGGING(notice, "join: Thread[%lu]: 0x%lx\n", j, *(hotel.pthread + j));
 	}
 
 	free(hotel.pthread);

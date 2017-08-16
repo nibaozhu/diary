@@ -44,7 +44,8 @@ test_multimap: test_multimap.o
 	$(CXX) -o $@ $^
 
 test_base64: test_base64.o
-	$(CXX) -o $@ $^ -lssl
+	$(CXX) -o $@ $^ -lcrypto
+	# $(CXX) -o $@ $^ -lssl
 
 test_const: test_const.o
 	$(CXX) -o $@ $^

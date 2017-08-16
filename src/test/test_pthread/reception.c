@@ -7,7 +7,7 @@ void *reception(void *arg) {
 	personal_information_t *personal_information = (personal_information_t*)arg;
 
 	if (personal_information != NULL) {
-		LOGGING(notice, "personal_information: %p { department_ID: %d, employee_ID: %d }\n", 
+		LOGGING(notice, "personal_information: %p { department_ID: %lu, employee_ID: %lu }\n", 
 				personal_information,
 				personal_information->department_ID,
 				personal_information->employee_ID
@@ -22,7 +22,7 @@ void *reception(void *arg) {
 			task->tid = syscall(SYS_gettid);
 			task->ptid = pthread_self();
 
-			LOGGING(notice, "task[%d]: { UUID: '%s', ID: %d, path: '%s', ppid: %d, pid: %d, tid: %d, ptid: 0x%lx }\n", 
+			LOGGING(notice, "task[%lu]: { UUID: '%s', ID: %lu, path: '%s', ppid: %d, pid: %d, tid: %d, ptid: 0x%lx }\n", 
 					i++,
 #ifdef UUID_LEN_STR
 					task->UUID,

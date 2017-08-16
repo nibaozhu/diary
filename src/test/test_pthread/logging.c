@@ -35,11 +35,11 @@ static int __timestamp(char *str) {
 #endif // HH_MI_SS_XXXXXX
 #else
 #ifdef    HH_MI_SS_XXXXXX
-	return snprintf(str, DATE_MAX, "%02d:%02d:%02d.%06ld %z", 
-			t0.tm_hour, t0.tm_min, t0.tm_sec, t1.tv_usec, t0.__tm_zone);
+	return snprintf(str, DATE_MAX, "%02d:%02d:%02d.%06ld", 
+			t0.tm_hour, t0.tm_min, t0.tm_sec, t1.tv_usec);
 #else
-	return snprintf(str, DATE_MAX, "%04d-%02d-%02d %02d:%02d:%02d.%06ld %z", 
-			t0.tm_year + 1900, t0.tm_mon + 1, t0.tm_mday, t0.tm_hour, t0.tm_min, t0.tm_sec, t1.tv_usec, t0.__tm_zone);
+	return snprintf(str, DATE_MAX, "%04d-%02d-%02d %02d:%02d:%02d.%06ld", 
+			t0.tm_year + 1900, t0.tm_mon + 1, t0.tm_mday, t0.tm_hour, t0.tm_min, t0.tm_sec, t1.tv_usec);
 #endif // HH_MI_SS_XXXXXX
 #endif // __USE_BSD
 }
