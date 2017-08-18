@@ -2,12 +2,12 @@
 
 
 void *reception(void *arg) {
-	LOGGING(debug, "Entering ...\n");
+	syslog(LOG_DEBUG, "Entering ...\n");
 
 	personal_information_t *personal_information = (personal_information_t*)arg;
 
 	if (personal_information != NULL) {
-		LOGGING(notice, "personal_information: %p { department_ID: %lu, employee_ID: %lu }\n", 
+		syslog(LOG_NOTICE, "personal_information: %p { department_ID: %lu, employee_ID: %lu }\n", 
 				personal_information,
 				personal_information->department_ID,
 				personal_information->employee_ID
@@ -22,7 +22,7 @@ void *reception(void *arg) {
 			task->tid = syscall(SYS_gettid);
 			task->ptid = pthread_self();
 
-			LOGGING(notice, "task[%lu]: { UUID: '%s', ID: %lu, path: '%s', ppid: %d, pid: %d, tid: %d, ptid: 0x%lx }\n", 
+			syslog(LOG_NOTICE, "task[%lu]: { UUID: '%s', ID: %lu, path: '%s', ppid: %d, pid: %d, tid: %d, ptid: 0x%lx }\n", 
 					i++,
 #ifdef UUID_LEN_STR
 					task->UUID,
@@ -42,18 +42,18 @@ void *reception(void *arg) {
 	/* begin: do ... */
 	int i, n = INT32_MAX;
 	for(i = 0; i < n; i++) {
-		enum level x = (enum level) (rand() % (debug + 1));
+		int type = rand() % (LOG_DEBUG + 1);
 		int timeout = rand() % (int)(1e6);
 
-		LOGGING(x, "do something ...\n");
+		syslog(type, "do something ...\n");
 		usleep(timeout);
-		LOGGING(x, "done <%d microseconds>\n", timeout);
+		syslog(type, "done <%d microseconds>\n", timeout);
 		if(hotel.bankruptcy) break;
 	}
 	/* end: do ... */
 
 	free(arg);
 
-	LOGGING(debug, "Leaving\n");
+	syslog(LOG_DEBUG, "Leaving\n");
 	return NULL;
 }

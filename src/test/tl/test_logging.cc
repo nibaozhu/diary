@@ -1,6 +1,6 @@
 #include <strings.h>
 #include <signal.h>
-#include "logging.h"
+#include "../../../include/logging.h"
 
 void handler(int signum) {
 	fprintf(stderr, "%s:%d: %s: signum = %d\n", __FILE__, __LINE__, __func__, signum);

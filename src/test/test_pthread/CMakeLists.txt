@@ -4,7 +4,6 @@ project (a.out)
 
 list (APPEND SRC 
 a.c
-logging.c
 reception.c
 waiter.c
 )

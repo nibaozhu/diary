@@ -1,7 +1,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include "logging.h"
+#include <syslog.h>
 
 #include <errno.h>
 #include <linux/limits.h>
@@ -16,6 +16,8 @@
 #include <unistd.h>
 
 #include <signal.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 
 enum HOTEL_STAFF

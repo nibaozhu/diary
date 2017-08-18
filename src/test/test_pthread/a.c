@@ -26,7 +26,7 @@ void handler(int signum) {
 	pthread_t ptid; /* the ID of the calling thread(This is the same value that is returned in *thread in
        the pthread_create(3) call that created this thread.) */
 
-	LOGGING(notice, "{ signum: %d, ppid: %d, pid: %d, tid: %d, ptid: 0x%lx }\n", 
+	syslog(LOG_NOTICE, "{ signum: %d, ppid: %d, pid: %d, tid: %d, ptid: 0x%lx }\n", 
 			signum,
 			ppid = getppid(),
 			pid = getpid(),
@@ -69,17 +69,8 @@ void set_disposition(void) {
 
 int main(int argc, char **argv) {
 
-	/* logging ... */
-	const char *name = argv[0], *path = "/tmp/test_pthread", *mode = "w+";
-	enum level stream_level = debug, stdout_level = debug;
-	time_t diff_max = LOGGING_INTERVAL;
-	unsigned int cache_max = LOGGING_CACHE;
-	unsigned long size_max = LOGGING_SIZE;
-
-	int r = initializing(name, path, mode, 
-		stream_level, stdout_level, 
-		diff_max, cache_max, size_max);
-	if (r == -1) return EXIT_FAILURE;
+	// void openlog(const char *ident, int option, int facility);
+	// ...
 
 	hotel.pthread = (pthread_t *)malloc(hotel.staff_number * sizeof(pthread_t));
 	if (hotel.pthread == NULL) return EXIT_FAILURE;
@@ -87,9 +78,9 @@ int main(int argc, char **argv) {
 	pthread_attr_t *attr = (pthread_attr_t *)malloc(sizeof(pthread_attr_t));
 	if (attr == NULL) return EXIT_FAILURE;
 
-	r = pthread_attr_init(attr);
+	int r = pthread_attr_init(attr);
 	if (r != 0) {
-		LOGGING(critical, "%s(%d)\n", strerror(errno), errno);
+		syslog(LOG_CRIT, "%s(%d)\n", strerror(errno), errno);
 		return r;
 	}
 
@@ -99,7 +90,7 @@ int main(int argc, char **argv) {
 	size_t i;
 	for (i = 0; i < hotel.staff_number; i++) {
 
-		/* personal_information will be freed at sub-thread. */
+		/* personal_information_t will be freed at sub-thread. */
 		personal_information_t *personal_information = (personal_information_t*)malloc(sizeof(personal_information_t));
 		if (personal_information == NULL) {
 			return EXIT_FAILURE;
@@ -146,17 +137,17 @@ int main(int argc, char **argv) {
 		r = pthread_create(hotel.pthread + i, (const pthread_attr_t *)attr,
 						start_routine, arg);
 		if (r != 0) {
-			LOGGING(error, "%s(%d)\n", strerror(errno), errno);
+			syslog(LOG_ERR, "%s(%d)\n", strerror(errno), errno);
 			continue;
 		}
 
 		/* XXX: `arg' maybe had been freed, and we just look it. */
-		LOGGING(notice, "create: Thread[%lu]: 0x%lx, arg: %p\n", i, *(hotel.pthread + i), arg);
+		syslog(LOG_NOTICE, "create: Thread[%lu]: 0x%lx, arg: %p\n", i, *(hotel.pthread + i), arg);
 	}
 
 	r = pthread_attr_destroy(attr);
 	if (r != 0) {
-		LOGGING(critical, "%s(%d)\n", strerror(errno), errno);
+		syslog(LOG_CRIT, "%s(%d)\n", strerror(errno), errno);
 		return r;
 	}
 
@@ -170,16 +161,13 @@ int main(int argc, char **argv) {
 		size_t j = hotel.staff_number - (i + 1);
 		r = pthread_join(*(hotel.pthread + j), &retval);
 		if (r != 0) {
-			LOGGING(error, "%s(%d)\n", strerror(errno), errno);
+			syslog(LOG_ERR, "%s(%d)\n", strerror(errno), errno);
 			continue;
 		}
 
-		LOGGING(notice, "join: Thread[%lu]: 0x%lx\n", j, *(hotel.pthread + j));
+		syslog(LOG_NOTICE, "join: Thread[%lu]: 0x%lx\n", j, *(hotel.pthread + j));
 	}
 
 	free(hotel.pthread);
-
-	r = uninitialized();
-	if (r == -1) return EXIT_FAILURE;
 	return EXIT_SUCCESS;
 }

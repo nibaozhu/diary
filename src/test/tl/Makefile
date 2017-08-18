@@ -3,8 +3,8 @@ CFLAGS=-g
 CXXFLAGS=-g
 
 
-a.out: logging.o test_logging.o
+a.out: ../../../include/logging.o test_logging.o
 	$(CXX) -o $@ $^ -pthread
 
-logging.o: logging.c logging.h
-test_logging.o: test_logging.cc logging.h
+logging.o: ../../../include/logging.c ../../../include/logging.h
+test_logging.o: test_logging.cc ../../../include/logging.h

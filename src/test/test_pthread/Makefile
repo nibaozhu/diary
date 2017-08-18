@@ -1,12 +1,12 @@
-CPPFLAGS     = # -D LOGGING_DEBUG # -D HH_MI_SS_XXXXXX
+CPPFLAGS     = 
 CFLAGS       = -g
 OUTPUT_OPT   = -o
 LDFLAGS      = -pthread
 
 MAKEFILE     = Makefile
 PROGRAM      = a.out
-ALL_HEADERS  = a.h common.h logging.h reception.h waiter.h
-ALL_SOURCES  = a.c logging.c reception.c waiter.c
+ALL_HEADERS  = a.h common.h reception.h waiter.h
+ALL_SOURCES  = a.c reception.c waiter.c
 ALL_OBJECTS  = $(subst .c,.o, $(ALL_SOURCES))
 RM_OPT       = --force --recursive
 
@@ -35,7 +35,6 @@ install: $(PROGRAM)
 ###########################################################
 # NOTE: DO NOT EDIT, autogen by `gcc -MM *.c'
 ###########################################################
-a.o: a.c a.h common.h logging.h reception.h waiter.h
-logging.o: logging.c logging.h
-reception.o: reception.c reception.h logging.h
-waiter.o: waiter.c waiter.h logging.h
+a.o: a.c a.h common.h reception.h waiter.h
+reception.o: reception.c reception.h
+waiter.o: waiter.c waiter.h
