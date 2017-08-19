@@ -4,10 +4,12 @@
 void *reception(void *arg) {
 	syslog(LOG_DEBUG, "Entering ...\n");
 
-	personal_information_t *personal_information = (personal_information_t*)arg;
+	personal_information_t *personal_information = 
+		(personal_information_t*)arg;
 
 	if (personal_information != NULL) {
-		syslog(LOG_NOTICE, "personal_information: %p { department_ID: %lu, employee_ID: %lu }\n", 
+		syslog(LOG_NOTICE, "personal_information:%p "
+			"{ department_ID:%lu, employee_ID:%lu }\n", 
 				personal_information,
 				personal_information->department_ID,
 				personal_information->employee_ID
@@ -22,7 +24,9 @@ void *reception(void *arg) {
 			task->tid = syscall(SYS_gettid);
 			task->ptid = pthread_self();
 
-			syslog(LOG_NOTICE, "task[%lu]: { UUID: '%s', ID: %lu, path: '%s', ppid: %d, pid: %d, tid: %d, ptid: 0x%lx }\n", 
+			syslog(LOG_NOTICE, "task[%lu]: "
+				"{ UUID:'%s', ID:%lu, path:'%s', "
+				"ppid:%d, pid:%d, tid:%d, ptid: 0x%lx }\n", 
 					i++,
 #ifdef UUID_LEN_STR
 					task->UUID,
@@ -42,12 +46,12 @@ void *reception(void *arg) {
 	/* begin: do ... */
 	int i, n = INT32_MAX;
 	for(i = 0; i < n; i++) {
-		int type = rand() % (LOG_DEBUG + 1);
+		int type = rand() % (LOG_DEBUG) + 1; // avoid LOG_EMERG
 		int timeout = rand() % (int)(1e6);
 
 		syslog(type, "do something ...\n");
 		usleep(timeout);
-		syslog(type, "done <%d microseconds>\n", timeout);
+		syslog(type, "type:%d, done <%d microseconds>\n", type, timeout);
 		if(hotel.bankruptcy) break;
 	}
 	/* end: do ... */

@@ -82,7 +82,8 @@ typedef struct task_s {
 	pid_t ppid; /* the process ID of the parent of the calling process */
 	pid_t pid; /* the process ID of the calling process */
 	pid_t tid; /* the  caller’s thread ID (TID) */
-	pthread_t ptid; /* the ID of the calling thread(This is the same value that is returned in *thread in
+	pthread_t ptid; /* the ID of the calling thread
+		(This is the same value that is returned in *thread in
        the pthread_create(3) call that created this thread.) */
 
 	SLIST_ENTRY(task_s) entry;

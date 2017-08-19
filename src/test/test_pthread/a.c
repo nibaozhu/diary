@@ -20,17 +20,12 @@ hotel_t hotel = {
 };
 
 void handler(int signum) {
-	pid_t ppid; /* the process ID of the parent of the calling process */
-	pid_t pid; /* the process ID of the calling process */
-	pid_t tid; /* the  caller’s thread ID (TID) */
-	pthread_t ptid; /* the ID of the calling thread(This is the same value that is returned in *thread in
-       the pthread_create(3) call that created this thread.) */
+	pid_t ppid, pid, tid;
+	pthread_t ptid;
 
-	syslog(LOG_NOTICE, "{ signum: %d, ppid: %d, pid: %d, tid: %d, ptid: 0x%lx }\n", 
+	syslog(LOG_NOTICE, "{ signum:%d, ppid:%d, pid:%d, tid:%d, ptid:%lx }\n", 
 			signum,
-			ppid = getppid(),
-			pid = getpid(),
-			tid = syscall(SYS_gettid),
+			ppid = getppid(), pid = getpid(), tid = syscall(SYS_gettid),
 			ptid = pthread_self()
 	);
 
@@ -58,10 +53,10 @@ void handler(int signum) {
 void set_disposition(void) {
 	size_t i;
 					/* 1) 2) 3) 15)  */
-	size_t signum[] = {SIGHUP, SIGINT, SIGQUIT, SIGTERM, SIGUSR1, SIGUSR2};
-	for (i = 0; i < sizeof (signum) / sizeof (size_t); i++) {
-    	if (SIG_ERR == signal(signum[i], handler)) {
-    		fprintf(stderr, "%s:%d: %s: signum = %lu\n", __FILE__, __LINE__, __func__, signum[i]);
+	size_t signum_arr[] = {SIGHUP, SIGINT, SIGQUIT, SIGTERM, SIGUSR1, SIGUSR2};
+	for (i = 0; i < sizeof (signum_arr) / sizeof (size_t); i++) {
+    	if (SIG_ERR == signal(signum_arr[i], handler)) {
+    		syslog(LOG_CRIT, "signum_arr[%d]:%lu\n", i, signum_arr[i]);
 			exit(1);
 		}
 	}
@@ -72,10 +67,12 @@ int main(int argc, char **argv) {
 	// void openlog(const char *ident, int option, int facility);
 	// ...
 
-	hotel.pthread = (pthread_t *)malloc(hotel.staff_number * sizeof(pthread_t));
+	hotel.pthread = 
+		(pthread_t *)malloc(hotel.staff_number * sizeof(pthread_t));
 	if (hotel.pthread == NULL) return EXIT_FAILURE;
 
-	pthread_attr_t *attr = (pthread_attr_t *)malloc(sizeof(pthread_attr_t));
+	pthread_attr_t *attr = 
+		(pthread_attr_t *)malloc(sizeof(pthread_attr_t));
 	if (attr == NULL) return EXIT_FAILURE;
 
 	int r = pthread_attr_init(attr);
@@ -84,14 +81,12 @@ int main(int argc, char **argv) {
 		return r;
 	}
 
-	void *(*start_routine) (void *) = NULL;
-	void *arg = NULL;
-
 	size_t i;
 	for (i = 0; i < hotel.staff_number; i++) {
 
 		/* personal_information_t will be freed at sub-thread. */
-		personal_information_t *personal_information = (personal_information_t*)malloc(sizeof(personal_information_t));
+		personal_information_t *personal_information = 
+			(personal_information_t*)malloc(sizeof(personal_information_t));
 		if (personal_information == NULL) {
 			return EXIT_FAILURE;
 		}
@@ -99,20 +94,16 @@ int main(int argc, char **argv) {
 		personal_information->employee_ID = i;
 		personal_information->department_ID = i;
 
-		personal_information->task_slist = (struct task_slist_s*)malloc(sizeof(struct task_slist_s));
-		if(personal_information->task_slist == NULL) {
-			return EXIT_FAILURE;
-		}
-
+		personal_information->task_slist = 
+			(struct task_slist_s*)malloc(sizeof(struct task_slist_s));
+		if(personal_information->task_slist == NULL) return EXIT_FAILURE;
 		SLIST_INIT(personal_information->task_slist);
 
 		int j;
 		for (j = 0; j < 4; j++) {
 			/* */
 			task_t *task = (task_t*)malloc(sizeof(task_t));
-			if (task == NULL) {
-				return EXIT_FAILURE;
-			}
+			if (task == NULL) return EXIT_FAILURE;
 
 			/* Generate a task. */
 			task->ID = random();
@@ -124,12 +115,11 @@ int main(int argc, char **argv) {
 			SLIST_INSERT_HEAD(personal_information->task_slist, task, entry);
 		}
 
-
-		arg = personal_information;
+		void *arg = personal_information;
+		void *(*start_routine) (void *) = NULL;
 
 		if (i <= hotel.reception_number) {
-			/* First waiter is `reception'. */
-			start_routine = reception;
+			start_routine = reception; /* First waiter is `reception'. */
 		} else {
 			start_routine = waiter;
 		}
@@ -142,7 +132,8 @@ int main(int argc, char **argv) {
 		}
 
 		/* XXX: `arg' maybe had been freed, and we just look it. */
-		syslog(LOG_NOTICE, "create: Thread[%lu]: 0x%lx, arg: %p\n", i, *(hotel.pthread + i), arg);
+		syslog(LOG_NOTICE, "create: Thread[%lu]:%lx, arg:%p\n", 
+			i, *(hotel.pthread + i), arg);
 	}
 
 	r = pthread_attr_destroy(attr);
@@ -165,7 +156,8 @@ int main(int argc, char **argv) {
 			continue;
 		}
 
-		syslog(LOG_NOTICE, "join: Thread[%lu]: 0x%lx\n", j, *(hotel.pthread + j));
+		syslog(LOG_NOTICE, "join: Thread[%lu]:%lx\n", 
+			j, *(hotel.pthread + j));
 	}
 
 	free(hotel.pthread);
