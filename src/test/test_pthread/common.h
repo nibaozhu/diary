@@ -18,6 +18,7 @@
 #include <signal.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <libgen.h>
 
 
 enum HOTEL_STAFF

@@ -23,7 +23,7 @@ void handler(int signum) {
 	pid_t ppid, pid, tid;
 	pthread_t ptid;
 
-	syslog(LOG_NOTICE, "{ signum:%d, ppid:%d, pid:%d, tid:%d, ptid:%lx }\n", 
+	syslog(LOG_NOTICE, "{ signum:%d, ppid:%d, pid:%d, tid:%d, ptid:0x%lx }\n", 
 			signum,
 			ppid = getppid(), pid = getpid(), tid = syscall(SYS_gettid),
 			ptid = pthread_self()
@@ -64,8 +64,10 @@ void set_disposition(void) {
 
 int main(int argc, char **argv) {
 
-	// void openlog(const char *ident, int option, int facility);
-	// ...
+    const char *ident = basename(argv[0]);
+	int option = LOG_CONS | LOG_PID;
+	int facility = LOG_USER;
+	openlog(ident, option, facility);
 
 	hotel.pthread = 
 		(pthread_t *)malloc(hotel.staff_number * sizeof(pthread_t));
@@ -132,7 +134,7 @@ int main(int argc, char **argv) {
 		}
 
 		/* XXX: `arg' maybe had been freed, and we just look it. */
-		syslog(LOG_NOTICE, "create: Thread[%lu]:%lx, arg:%p\n", 
+		syslog(LOG_NOTICE, "create: Thread[%lu]:0x%lx, arg:%p\n", 
 			i, *(hotel.pthread + i), arg);
 	}
 
@@ -156,7 +158,7 @@ int main(int argc, char **argv) {
 			continue;
 		}
 
-		syslog(LOG_NOTICE, "join: Thread[%lu]:%lx\n", 
+		syslog(LOG_NOTICE, "join: Thread[%lu]:0x%lx\n", 
 			j, *(hotel.pthread + j));
 	}
 
