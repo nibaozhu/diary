@@ -55,8 +55,8 @@ void set_disposition(void) {
 					/* 1) 2) 3) 15)  */
 	size_t signum_arr[] = {SIGHUP, SIGINT, SIGQUIT, SIGTERM, SIGUSR1, SIGUSR2};
 	for (i = 0; i < sizeof (signum_arr) / sizeof (size_t); i++) {
-    	if (SIG_ERR == signal(signum_arr[i], handler)) {
-    		syslog(LOG_CRIT, "signum_arr[%d]:%lu\n", i, signum_arr[i]);
+		if (SIG_ERR == signal(signum_arr[i], handler)) {
+			syslog(LOG_CRIT, "signum_arr[%d]:%lu\n", i, signum_arr[i]);
 			exit(1);
 		}
 	}
@@ -64,7 +64,7 @@ void set_disposition(void) {
 
 int main(int argc, char **argv) {
 
-    const char *ident = basename(argv[0]);
+	const char *ident = basename(argv[0]);
 	int option = LOG_CONS | LOG_PID;
 	int facility = LOG_USER;
 	openlog(ident, option, facility);
