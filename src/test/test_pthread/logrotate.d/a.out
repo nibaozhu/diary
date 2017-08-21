@@ -1,0 +1,10 @@
+/var/log/a.out/a.out.log {
+    rotate 5
+    daily
+    size 10M
+    compress
+    postrotate
+       	/bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true
+    endscript
+}
+
