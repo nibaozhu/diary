@@ -29,21 +29,15 @@ void handler(int signum) {
 			ptid = pthread_self()
 	);
 
-	int i;
-	void *retval = NULL;
 	switch (signum) {
-		case SIGHUP:
+		case SIGHUP :
 			break;
-		case SIGINT:
+		case SIGINT :
 		case SIGQUIT:
 		case SIGTERM:
 		case SIGUSR1:
 		case SIGUSR2:
-			/* XXX: avoid infinite recursion, avoid dead-lock */
-			if (pid == tid)
-				hotel.bankruptcy = true; // TODO: add pthread_rwlock_...
-			else
-				; /* do nothing */
+			if (pid == tid) hotel.bankruptcy = true; // FIXME: rwlock
 			break;
 		default:
 			; /* do nothing */
@@ -51,23 +45,23 @@ void handler(int signum) {
 }
 
 void set_disposition(void) {
-	size_t i;
-					/* 1) 2) 3) 15)  */
-	size_t signum_arr[] = {SIGHUP, SIGINT, SIGQUIT, SIGTERM, SIGUSR1, SIGUSR2};
+	size_t i, signum_arr[] = {SIGHUP, 
+		SIGINT, SIGQUIT, SIGTERM, SIGUSR1, SIGUSR2};
 	for (i = 0; i < sizeof (signum_arr) / sizeof (size_t); i++) {
 		if (SIG_ERR == signal(signum_arr[i], handler)) {
 			syslog(LOG_CRIT, "signum_arr[%d]:%lu\n", i, signum_arr[i]);
-			exit(1);
+			exit(signum_arr[i]);
 		}
 	}
 }
 
 int main(int argc, char **argv) {
-
 	const char *ident = basename(argv[0]);
 	int option = LOG_CONS | LOG_PID;
 	int facility = LOG_USER;
 	openlog(ident, option, facility);
+
+	set_disposition();
 
 	hotel.pthread = 
 		(pthread_t *)malloc(hotel.staff_number * sizeof(pthread_t));
@@ -143,16 +137,11 @@ int main(int argc, char **argv) {
 		syslog(LOG_CRIT, "%s(%d)\n", strerror(errno), errno);
 		return r;
 	}
-
 	free(attr);
 
-	/* pthread_cancel ... */
-	set_disposition();
-
-	void *retval;
 	for (i = 0; i < hotel.staff_number; i++) {
 		size_t j = hotel.staff_number - (i + 1);
-		r = pthread_join(*(hotel.pthread + j), &retval);
+		r = pthread_join(*(hotel.pthread + j), NULL);
 		if (r != 0) {
 			syslog(LOG_ERR, "%s(%d)\n", strerror(errno), errno);
 			continue;
@@ -161,7 +150,6 @@ int main(int argc, char **argv) {
 		syslog(LOG_NOTICE, "join: Thread[%lu]:0x%lx\n", 
 			j, *(hotel.pthread + j));
 	}
-
 	free(hotel.pthread);
 	return EXIT_SUCCESS;
 }
