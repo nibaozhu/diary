@@ -30,7 +30,9 @@ clean:
 	$(RM) $(RM_OPT) $(ALL_OBJECTS) $(PROGRAM) tags core.*
 
 install: $(PROGRAM)
-	install $(PROGRAM) $(PREFIX)/bin
+	install $(PROGRAM) $(PREFIX)/bin/
+	install rsyslog.d/$(PROGRAM).conf /etc/rsyslog.d/
+	install logrotate.d/$(PROGRAM) /etc/logrotate.d/
 
 ###########################################################
 # NOTE: DO NOT EDIT, autogen by `gcc -MM *.c'
