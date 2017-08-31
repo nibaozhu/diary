@@ -25,11 +25,11 @@ test_multimap.o: test_multimap.cc
 test_string.o: test_string.cc
 test_unorderedmap.o: test_unorderedmap.cc
 test_curl.o: test_curl.c
-../../include/logging.o: ../../include/logging.cc ../../include/logging.h
+../../include/logging.o: ../../include/logging.c ../../include/logging.h
 
 
 test_logging: test_logging.o ../../include/logging.o
-	$(CXX) -o $@ $^
+	$(CXX) -o $@ $^ -pthread
 
 test_string: test_string.o
 	$(CXX) -o $@ $^
