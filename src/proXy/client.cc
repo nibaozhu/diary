@@ -20,7 +20,7 @@ int connect_to_host(const char *host, uint16_t port, const char *buf, size_t cou
 	do {
 		connect_sock = socket(domain, type, protocol);
 		if (connect_sock < 0) {
-			plog(error, "%s(%d)\n", strerror(errno), errno);
+			LOGGING(error, "%s(%d)\n", strerror(errno), errno);
 			ret = -1;
 			break;
 		}
@@ -30,13 +30,13 @@ int connect_to_host(const char *host, uint16_t port, const char *buf, size_t cou
 		const char *haystack = host;
 		const char *needle = (const char *)":";
 		const char *occurrence_COLON = strstr(haystack, needle);
-		plog(debug, "occurrence_COLON(:) = %p\n", occurrence_COLON);
+		LOGGING(debug, "occurrence_COLON(:) = %p\n", occurrence_COLON);
 		if (occurrence_COLON == NULL) {
 			if (strlen(host) < NAME_MAX) {
 				strncpy(name, host, strlen(host));
 			} else {
 				ret = -1;
-				plog(error, "Too long DOMAIN. %s\n", host);
+				LOGGING(error, "Too long DOMAIN. %s\n", host);
 				break;
 			}
 		} else {
@@ -45,7 +45,7 @@ int connect_to_host(const char *host, uint16_t port, const char *buf, size_t cou
 				strncpy(name, host, occurrence_COLON - host);
 			} else {
 				ret = -1;
-				plog(error, "Too long DOMAIN. %s\n", host);
+				LOGGING(error, "Too long DOMAIN. %s\n", host);
 				break;
 			}
 			const char *nptr = occurrence_COLON + 1;
@@ -55,10 +55,10 @@ int connect_to_host(const char *host, uint16_t port, const char *buf, size_t cou
 		struct hostent *ht = NULL;
 		ht = gethostbyname(name);
 		if (ht == NULL) {
-			plog(error, "%s(%d)\n", hstrerror(h_errno), h_errno);
+			LOGGING(error, "%s(%d)\n", hstrerror(h_errno), h_errno);
 		        break;
 		} else {
-			plog(debug, "ht = %p\n", ht);
+			LOGGING(debug, "ht = %p\n", ht);
 		}
 		
 		char dst[NAME_MAX] = {0};
@@ -68,10 +68,10 @@ int connect_to_host(const char *host, uint16_t port, const char *buf, size_t cou
 		inet_ntop(domain, (void *)*(ht->h_addr_list), dst, slt);
 		if (dst == NULL) {
 			ret = -1;
-			plog(error, "%s(%d)\n", strerror(errno), errno);
+			LOGGING(error, "%s(%d)\n", strerror(errno), errno);
 		        break;
 		} else {
-			plog(debug, "dst = %s, port = %u\n", dst, port);
+			LOGGING(debug, "dst = %s, port = %u\n", dst, port);
 		}
 
 		struct sockaddr_in addr;
@@ -83,17 +83,17 @@ int connect_to_host(const char *host, uint16_t port, const char *buf, size_t cou
 		ret = inet_pton(domain, dst, (struct sockaddr *) &addr.sin_addr.s_addr);
 		if (ret != 1) {
 		        ret = -1;
-		        plog(error, "%s(%d)\n", strerror(errno), errno);
+		        LOGGING(error, "%s(%d)\n", strerror(errno), errno);
 		        break;
 		}
 
 		ret = connect(connect_sock, (struct sockaddr *)&addr, addrlen);
 		if (ret == -1) {
-			plog(error, "%s(%d)\n", strerror(errno), errno);
+			LOGGING(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		}
 
-		plog(notice, "It creates a new connected socket = %d.\n", connect_sock);
+		LOGGING(notice, "It creates a new connected socket = %d.\n", connect_sock);
 		ret = setnonblocking(connect_sock); /* Set Non Blocking */
 		if (ret == -1) {
 			break;
@@ -102,10 +102,10 @@ int connect_to_host(const char *host, uint16_t port, const char *buf, size_t cou
 
 		ssize_t rets = write(connect_sock, buf, count);
 		if (rets == -1) {
-			plog(error, "%s(%d)\n", strerror(errno), errno);
+			LOGGING(error, "%s(%d)\n", strerror(errno), errno);
 			break;
 		}
-		plog(notice, "buf[%ld] = %s\n", rets, buf);
+		LOGGING(notice, "buf[%ld] = %s\n", rets, buf);
 
 
 		int nfds = connect_sock + 1;
@@ -124,23 +124,23 @@ int connect_to_host(const char *host, uint16_t port, const char *buf, size_t cou
 
 			ret = select(nfds, &readfds, &writefds, &exceptfds, &timeout);
 			if (ret == -1) {
-				plog(error, "%s(%d)\n", strerror(errno), errno);
+				LOGGING(error, "%s(%d)\n", strerror(errno), errno);
 				break;
 			} else if (ret == 0) {
-				plog(error, "timeout\n");
+				LOGGING(error, "timeout\n");
 			} else if (ret > 0) {
-				plog(debug, "FD_ISSET(%d, %p) = %d\n", connect_sock, &readfds, FD_ISSET(connect_sock, &readfds));
+				LOGGING(debug, "FD_ISSET(%d, %p) = %d\n", connect_sock, &readfds, FD_ISSET(connect_sock, &readfds));
 
 
 				char rbuf[BUFFER_MAX] = {0};
 				size_t rcount = BUFFER_MAX;
 				rets = read(connect_sock, rbuf, rcount);
 
-				plog(notice, "rbuf[%ld] = %s\n", rets, rbuf);
+				LOGGING(notice, "rbuf[%ld] = %s\n", rets, rbuf);
 				memset(rbuf, 0, rets);
 
 				if (rets == -1) {
-					plog(error, "%s(%d)\n", strerror(errno), errno);
+					LOGGING(error, "%s(%d)\n", strerror(errno), errno);
 				} else if ((size_t)rets == rcount) {
 					;
 				} else if ((size_t)rets == 0) {

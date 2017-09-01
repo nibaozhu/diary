@@ -22,26 +22,26 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::list<Tra
 		needle = (const char *)"Content-Length:";
 		const char *occurrence_CONTENTLENGTH = strstr(haystack, needle);
 		uint16_t port = PORT_HTTP;
-		plog(debug, "occurrence_RNRN(\\r\\n\\r\\n) = %p\n", occurrence_RNRN);
-		plog(debug, "occurrence_CONTENTLENGTH(Content-Length) = %p\n", occurrence_CONTENTLENGTH);
+		LOGGING(debug, "occurrence_RNRN(\\r\\n\\r\\n) = %p\n", occurrence_RNRN);
+		LOGGING(debug, "occurrence_CONTENTLENGTH(Content-Length) = %p\n", occurrence_CONTENTLENGTH);
 		if (occurrence_RNRN) {
 
 			if (strncmp(haystack, METHOD_GET, strlen(METHOD_GET)) == 0) {
-				plog(debug, "%s\n", METHOD_GET);
+				LOGGING(debug, "%s\n", METHOD_GET);
 			} else if (strncmp(haystack, METHOD_POST, strlen(METHOD_POST)) == 0) {
-				plog(debug, "%s\n", METHOD_POST);
+				LOGGING(debug, "%s\n", METHOD_POST);
 			} else if (strncmp(haystack, METHOD_CONNECT, strlen(METHOD_CONNECT)) == 0) {
 				port = PORT_HTTPS;
-				plog(debug, "%s\n", METHOD_CONNECT);
+				LOGGING(debug, "%s\n", METHOD_CONNECT);
 			} else if (strncmp(haystack, METHOD_HTTP, strlen(METHOD_HTTP)) == 0) {
 
-				plog(notice, "%s\n", iterator_position);
-				plog(debug, "%s\n", METHOD_HTTP);
+				LOGGING(notice, "%s\n", iterator_position);
+				LOGGING(debug, "%s\n", METHOD_HTTP);
 
 				if (occurrence_CONTENTLENGTH) { 
 					size_t content_length = atol(occurrence_CONTENTLENGTH + strlen(needle));
-					if (content_length + (haystack - occurrence_RNRN) + 4 > t->get_rp()) {
-						plog(debug, "Waiting %ld, %ld\n", content_length, t->get_rp());
+					if (content_length + (occurrence_RNRN - haystack) + 4 > t->get_rp()) {
+						LOGGING(debug, "Waiting %ld, %ld\n", content_length, t->get_rp());
 						break;
 					}
 				}
@@ -53,7 +53,7 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::list<Tra
 				if (im != m->end()) {
 				        backt = im->second;
 				} else {
-					plog(error, "I cannot find backfd (= %d) in m = %p\n", t->get_backfd(), m);
+					LOGGING(error, "I cannot find backfd (= %d) in m = %p\n", t->get_backfd(), m);
 					break;
 				}
 
@@ -68,7 +68,7 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::list<Tra
 			char *http_header = (char *)malloc(http_header_length + 1);
 			memset(http_header, 0, http_header_length + 1);
 			memcpy(http_header, t->get_rx(), http_header_length);
-			plog(info, "--- HTTP HEADER ---\n%s\n------------------------------------------- HTTP ----------\n", http_header);
+			LOGGING(info, "--- HTTP HEADER ---\n%s\n------------------------------------------- HTTP ----------\n", http_header);
 
 			haystack = (const char *)http_header;
 			needle = (const char *)"Host: ";
@@ -93,7 +93,7 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::list<Tra
 			memset(http_header_host, 0, http_header_host_length + 1);
 			memcpy(http_header_host, occurrence_Host + strlen("Host: "), http_header_host_length);
 
-			plog(debug, "Host: %s\n", http_header_host);
+			LOGGING(debug, "Host: %s\n", http_header_host);
 
 
 			struct sockaddr_in peer_addr;
@@ -127,7 +127,7 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::list<Tra
 	} while (true);
 
 	if (t->get_rp() != 0) {
-		plog(info, "[!] Transaction(%d) Cancel! length = 0x%x, t->rp = 0x%lx\n", i, length, t->get_rp());
+		LOGGING(info, "[!] Transaction(%d) Cancel! length = 0x%x, t->rp = 0x%lx\n", i, length, t->get_rp());
 	}
 	return ret;
 }

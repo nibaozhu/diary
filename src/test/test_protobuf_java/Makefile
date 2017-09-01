@@ -8,4 +8,4 @@ src/RegisterCenter.java: proto/RegisterCenter.proto
 	protoc --java_out=src/ proto/RegisterCenter.proto
 
 clean:
-	rm -rf bin/* tmp/* 
+	rm -rf bin/* 

@@ -1,33 +1,13 @@
-syntax = "proto2";
 
-
-// 注册中心::服务注册::请求
 message ServiceRegisterRequest {
 	required string requestId = 1;
-	message ServerList {
-		required string serviceName = 1;
-		required string bindAddress = 2;
-	}
-	repeated ServerList serverList = 2;
+	required string serviceName = 2;
 }
 
-// 注册中心::服务注册::应答
+
 message ServiceRegisterRespond {
 	required string requestId = 1;
 	required string returnStatus = 2;
 	required string returnMessage = 3;
 }
 
-// 注册中心::服务发现::请求
-message ServiceLookupRequest {
-	required string requestId = 1;
-	required string serviceName = 2;
-}
-
-// 注册中心::服务发现::应答
-message ServiceLookupRespond {
-	required string requestId = 1;
-	required string returnStatus = 2;
-	required string returnMessage = 3;
-	repeated string bindAddressList = 4;
-}
