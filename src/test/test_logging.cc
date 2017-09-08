@@ -15,7 +15,7 @@ int main(int argc, char **argv) {
 	set_disposition();
 
 	/* (1): Begin ... */
-	initializing(argv[0], "/tmp/test_logging", "w+", debug, none, LOGGING_INTERVAL, LOGGING_CACHE, LOGGING_SIZE);
+	initializing(argv[0], P_tmpdir, "w+", debug, none, LOGGING_INTERVAL, LOGGING_CACHE, LOGGING_SIZE);
 	do {
 		enum level x = (enum level) (rand() % (debug + 1));
 		int timeout = rand() % (int)(1e6);

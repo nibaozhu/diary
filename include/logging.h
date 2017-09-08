@@ -44,16 +44,16 @@ extern "C" {
 #define LOGGING_SIZE ((1<<20)-(1<<10))
 
 enum level {
-	none = -1,		/* none logging */
+	none = -1,	/* none logging */
 
-	emergency,		/* application is unusable */
-	alert,			/* action must be taken immediately */
-	critical,		/* critical conditions */
-	error,			/* error conditions */
-	warning,		/* warning conditions */
-	notice,			/* normal but significant condition */
-	info,			/* informational */
-	debug,			/* debug-level messages */
+	emergency,	/* application is unusable */
+	alert,		/* action must be taken immediately */
+	critical,	/* critical conditions */
+	error,		/* error conditions */
+	warning,	/* warning conditions */
+	notice,		/* normal but significant condition */
+	info,		/* informational */
+	debug,		/* debug-level messages */
 };
 
 typedef struct {

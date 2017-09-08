@@ -45,7 +45,6 @@ static int __timestamp(char *str) {
 }
 
 static int __flush(void) {
-	assert(l != NULL);
 #ifdef LOGGING_DEBUG
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, fflush, l->stream = %p, l->cache= %u, l->cache_max = %u\n",
 			level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "tracing", l->stream, l->cache, l->cache_max);
@@ -64,7 +63,6 @@ static int __flush(void) {
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l->size = %lu, l->size_max = %lu\n",
 			level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "tracing", l->size, l->size_max);
 #endif
-
 	struct tm t0;
 	struct timeval t1;
 	gettimeofday(&t1, NULL);
@@ -114,12 +112,10 @@ int __logging(enum level x,
 	int ret = pthread_mutex_lock(&__mutex);
 	if (ret != 0) LOGGING_TRACING;
 
-	assert(l != NULL);
 #ifdef LOGGING_DEBUG
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l = %p\n",
 			level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "tracing", l);
 #endif
-
 	struct tm t0;
 	struct timeval t1;
 	gettimeofday(&t1, NULL);
@@ -134,10 +130,8 @@ int __logging(enum level x,
 			diff
 		   );
 #endif
-
 	if (t0.tm_year != l->ltime.tm_year || t0.tm_mon != l->ltime.tm_mon || t0.tm_mday != l->ltime.tm_mday) {
 		ret = __flush();
-		assert(ret == 0);
 		localtime_r(&t1.tv_sec, &l->ltime);
 	}
 
@@ -169,7 +163,6 @@ int __logging(enum level x,
 		vfprintf(l->stream, fmt, ap);
 		if (x <= warning) {
 			ret = __flush();
-			assert(ret == 0);
 			localtime_r(&t1.tv_sec, &l->ltime);
 		}
 	}
@@ -187,7 +180,6 @@ int __logging(enum level x,
 		}
 
 		ret = __flush();
-		assert(ret == 0);
 		localtime_r(&t1.tv_sec, &l->ltime);
 	} while (0);
 	ret = pthread_mutex_unlock(&__mutex);
@@ -206,7 +198,6 @@ int initializing(const char *name, const char *path, const char *mode,
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l = %p\n",
 			level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "tracing", l);
 #endif
-
 	const char *ptr = rindex(name, '/');
 	ptr == NULL ? 
 		strncpy(l->name, name, strlen(name))  : 
@@ -254,7 +245,6 @@ int initializing(const char *name, const char *path, const char *mode,
 #ifdef LOGGING_DEBUG
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s\n", level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "passed");
 #endif
-
 	LOGGING(info, "PROGRAM: %s, PID: %u, RELEASE: %s %s\n", 
 		l->name, l->pid, __DATE__, __TIME__);
 	return 0;
@@ -265,9 +255,7 @@ int uninitialized(void) {
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l = %p\n",
 			level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "tracing", l);
 #endif
-	assert(l != NULL);
 	if (l->stream_level == none && l->stream == NULL) return 0;
-	assert(l->stream != NULL);
 
 	int ret = fclose(l->stream);
 	if (ret == EOF) LOGGING_TRACING;

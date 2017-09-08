@@ -39,14 +39,13 @@ void handler(int signum) {
 		case SIGUSR2:
 			if (pid == tid) hotel.bankruptcy = true; // FIXME: rwlock
 			break;
-		default:
-			; /* do nothing */
+		default: ; /* do nothing */
 	}
 }
 
 void set_disposition(void) {
-	size_t i, signum_arr[] = {SIGHUP, 
-		SIGINT, SIGQUIT, SIGTERM, SIGUSR1, SIGUSR2};
+	size_t i, signum_arr[] = {SIGHUP, SIGINT, SIGQUIT, SIGTERM, 
+					SIGUSR1, SIGUSR2};
 	for (i = 0; i < sizeof (signum_arr) / sizeof (size_t); i++) {
 		if (SIG_ERR == signal(signum_arr[i], handler)) {
 			syslog(LOG_CRIT, "signum_arr[%d]:%lu\n", i, signum_arr[i]);
@@ -62,7 +61,6 @@ int main(int argc, char **argv) {
 	openlog(ident, option, facility);
 
 	set_disposition();
-
 	hotel.pthread = 
 		(pthread_t *)malloc(hotel.staff_number * sizeof(pthread_t));
 	if (hotel.pthread == NULL) return EXIT_FAILURE;
