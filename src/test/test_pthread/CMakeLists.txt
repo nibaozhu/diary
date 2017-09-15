@@ -2,15 +2,15 @@ cmake_minimum_required (VERSION 2.8)
 
 project (a.out)
 
-list (APPEND SRC 
-a.c
-reception.c
-waiter.c
-)
+	list (APPEND SRC 
+			a.c
+			reception.c
+			waiter.c
+	     )
 
-list (APPEND LIBS
-pthread
-)
+	list (APPEND LIBS
+			pthread
+	     )
 
 
 add_executable (${PROJECT_NAME} ${SRC})
@@ -20,5 +20,5 @@ set (EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 set (LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
 
-install (TARGETS ${PROJECT_NAME} 
-RUNTIME DESTINATION bin)
+	install (TARGETS ${PROJECT_NAME} 
+			RUNTIME DESTINATION bin)

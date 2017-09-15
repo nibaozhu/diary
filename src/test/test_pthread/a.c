@@ -149,5 +149,7 @@ int main(int argc, char **argv) {
 			j, *(hotel.pthread + j));
 	}
 	free(hotel.pthread);
+
+	closelog();
 	return EXIT_SUCCESS;
 }
