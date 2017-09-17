@@ -44,7 +44,7 @@ __kv	test_str2kv.c	/^struct __kv {$/;"	s	file:
 __logging	../../include/logging.c	/^int __logging(enum level x, $/;"	f
 __mutex	../../include/logging.c	/^pthread_mutex_t __mutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 __timestamp	../../include/logging.c	/^static int __timestamp(char *str) {$/;"	f	file:
-alert	../../include/logging.h	/^	alert,			\/* action must be taken immediately *\/$/;"	e	enum:level
+alert	../../include/logging.h	/^	alert,		\/* action must be taken immediately *\/$/;"	e	enum:level
 cache	../../include/logging.h	/^	unsigned int cache; \/\/ logging has cache lines in memory$/;"	m	struct:__anon1
 cache_max	../../include/logging.h	/^	unsigned int cache_max; \/\/ cache_max lines in memory$/;"	m	struct:__anon1
 cal	bignumber_multiplication.c	/^int cal(const char *number_x, const char *number_y, char *number_result) {$/;"	f
@@ -52,12 +52,12 @@ callback	test_sqlite3.c	/^int callback(void *NotUsed, int argc, char **argv, cha
 cat	test_poly.cc	/^class cat : public object$/;"	c	file:
 count	test_client.c	/^int count = 0;$/;"	v
 count	test_pthread_with_sync.c	/^int count = 0;$/;"	v
-critical	../../include/logging.h	/^	critical,		\/* critical conditions *\/$/;"	e	enum:level
+critical	../../include/logging.h	/^	critical,	\/* critical conditions *\/$/;"	e	enum:level
 cursor	baidu_image.py	/^	cursor = db.cursor()$/;"	v
 data	test_deque.c	/^  void *data;$/;"	m	struct:__entry	file:
 data	test_stack.c	/^	int data;$/;"	m	struct:entry	file:
 db	baidu_image.py	/^	db = MySQLdb.connect('localhost', 'root', 'toor', 'Dbaidu_image')$/;"	v
-debug	../../include/logging.h	/^	debug,			\/* debug-level messages *\/$/;"	e	enum:level
+debug	../../include/logging.h	/^	debug,		\/* debug-level messages *\/$/;"	e	enum:level
 deque	test_deque.c	/^} deque;$/;"	t	typeref:struct:__deque	file:
 dict_ret	baidu_image.py	/^	dict_ret = json.load(url_ret)$/;"	v
 dict_ret_data	baidu_image.py	/^	dict_ret_data = dict_ret['data']$/;"	v
@@ -67,10 +67,10 @@ doFoo	test_poly.cc	/^void dog::doFoo()$/;"	f	class:dog
 doFoo	test_poly.cc	/^void object::doFoo()$/;"	f	class:object
 do_use_fd	test_client.c	/^int do_use_fd()$/;"	f
 dog	test_poly.cc	/^class dog : public object$/;"	c	file:
-emergency	../../include/logging.h	/^	emergency,		\/* application is unusable *\/$/;"	e	enum:level
+emergency	../../include/logging.h	/^	emergency,	\/* application is unusable *\/$/;"	e	enum:level
 entry	test_deque.c	/^} entry;$/;"	t	typeref:struct:__entry	file:
 entry	test_stack.c	/^struct entry {$/;"	s	file:
-error	../../include/logging.h	/^	error,			\/* error conditions *\/$/;"	e	enum:level
+error	../../include/logging.h	/^	error,		\/* error conditions *\/$/;"	e	enum:level
 fds	test_client.c	/^int fds[MAX_EVENTS] = {0};$/;"	v
 file_subfix	../../include/logging.h	/^	char file_subfix[NAME_MAX]; \/\/ logging file's temp subfix$/;"	m	struct:__anon1
 final_file	../../include/logging.h	/^	char final_file[NAME_MAX]; \/\/ logging file's final name$/;"	m	struct:__anon1
@@ -79,7 +79,7 @@ handler	test_logging.cc	/^void handler(int signum) {$/;"	f
 head	test_deque.c	/^  entry *head;$/;"	m	struct:__deque	file:
 host	test_client.c	/^char host[1024];$/;"	v
 i_want_to_get_this_content	test_curl.c	/^int i_want_to_get_this_content(const char *url) {$/;"	f
-info	../../include/logging.h	/^	info,			\/* informational *\/$/;"	e	enum:level
+info	../../include/logging.h	/^	info,		\/* informational *\/$/;"	e	enum:level
 init_stack	test_stack.c	/^int init_stack(struct stack *s) {$/;"	f
 initializing	../../include/logging.c	/^int initializing(const char *name, const char *path, const char *mode, $/;"	f
 json	baidu_image.py	/^import json$/;"	i
@@ -149,8 +149,8 @@ nconnect	test_client.c	/^int nconnect = 0;$/;"	v
 netframe	test_logo.c	4;"	d	file:
 next	test_deque.c	/^  struct __entry *next;$/;"	m	struct:__entry	typeref:struct:__entry::__entry	file:
 next	test_stack.c	/^	struct entry *next;$/;"	m	struct:entry	typeref:struct:entry::entry	file:
-none	../../include/logging.h	/^	none = -1,		\/* none logging *\/$/;"	e	enum:level
-notice	../../include/logging.h	/^	notice,			\/* normal but significant condition *\/$/;"	e	enum:level
+none	../../include/logging.h	/^	none = -1,	\/* none logging *\/$/;"	e	enum:level
+notice	../../include/logging.h	/^	notice,		\/* normal but significant condition *\/$/;"	e	enum:level
 number	../../include/logging.h	/^	unsigned int number; \/\/ logging file's suffix number when splits file$/;"	m	struct:__anon1
 object	test_poly.cc	/^class object$/;"	c	file:
 path	../../include/logging.h	/^	char path[PATH_MAX]; \/\/ logging file's path$/;"	m	struct:__anon1
@@ -185,6 +185,6 @@ uninitialized	../../include/logging.c	/^int uninitialized(void) {$/;"	f
 url_ret	baidu_image.py	/^	url_ret = urllib2.urlopen($/;"	v
 urllib2	baidu_image.py	/^import urllib2$/;"	i
 usage	test_client.c	/^int usage(const char *argv0)$/;"	f
-warning	../../include/logging.h	/^	warning,		\/* warning conditions *\/$/;"	e	enum:level
+warning	../../include/logging.h	/^	warning,	\/* warning conditions *\/$/;"	e	enum:level
 writes	test_client.c	/^int writes(int fd)$/;"	f
 ~People	test_class.cc	/^	~People() {}$/;"	f	class:People

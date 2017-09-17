@@ -69,9 +69,7 @@ static int __flush(void) {
 	localtime_r(&t1.tv_sec, &t0);
 
 	bool reset_number = false;
-	if (t0.tm_year != l->ltime.tm_year || 
-		t0.tm_mon  != l->ltime.tm_mon  || 
-		t0.tm_mday != l->ltime.tm_mday)
+	if (t0.tm_year != l->ltime.tm_year || t0.tm_mon  != l->ltime.tm_mon  || t0.tm_mday != l->ltime.tm_mday)
 		reset_number = true;
 	else if (l->size < l->size_max) return 0;
 
@@ -92,10 +90,8 @@ static int __flush(void) {
 	if (ret == -1) LOGGING_TRACING;
 
 	localtime_r(&t1.tv_sec, &(l->ltime));
-	snprintf(l->final_file, NAME_MAX, "%s_%04d-%02d-%02d_%u.%u.log", 
-		l->name, 
-		l->ltime.tm_year + 1900, l->ltime.tm_mon + 1, l->ltime.tm_mday, 
-		l->pid, ++l->number);
+	snprintf(l->final_file, NAME_MAX, "%s_%04d-%02d-%02d_%u.%u.log", l->name, 
+		l->ltime.tm_year + 1900, l->ltime.tm_mon + 1, l->ltime.tm_mday, l->pid, ++l->number);
 
 	char path[PATH_MAX] = { 0 };
 	snprintf(path, PATH_MAX, "%s/%s.%s", l->path, l->final_file, l->file_subfix);
@@ -126,9 +122,7 @@ int __logging(enum level x,
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, %04d-%02d-%02d %02d:%02d:%02d => %04d-%02d-%02d %02d:%02d:%02d, diff = %lu seconds\n",
 			level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "tracing", 
 			l->ltime.tm_year + 1900, l->ltime.tm_mon + 1, l->ltime.tm_mday, l->ltime.tm_hour, l->ltime.tm_min, l->ltime.tm_sec, 
-			t0.tm_year + 1900, t0.tm_mon + 1, t0.tm_mday, t0.tm_hour, t0.tm_min, t0.tm_sec, 
-			diff
-		   );
+			t0.tm_year + 1900, t0.tm_mon + 1, t0.tm_mday, t0.tm_hour, t0.tm_min, t0.tm_sec, diff);
 #endif
 	if (t0.tm_year != l->ltime.tm_year || t0.tm_mon != l->ltime.tm_mon || t0.tm_mday != l->ltime.tm_mday) {
 		ret = __flush();
@@ -141,17 +135,15 @@ int __logging(enum level x,
 	pthread_t thread = pthread_self();
 	pid_t tid = syscall(SYS_gettid);
 
-	if (x <= l->stdout_level) {
+	if (x <= l->stdout_level)
 		x <= warning ?
 			fprintf(stdout, "%s%s %s [0x%lx] [%d] (%s:%d:%s)%s ", level[x][0], str, level[x][1], thread, tid, __file, __line, __func, stop):
 			fprintf(stdout, "%s%s %s [0x%lx] [%d]%s ", level[x][0], str, level[x][1], thread, tid, stop);
-	}
 
-	if (x <= l->stream_level) {
+	if (x <= l->stream_level)
 		x <= warning?
 			fprintf(l->stream, "%s %s [0x%lx] [%d] (%s:%d:%s) ", str, level[x][1], thread, tid, __file, __line, __func):
 			fprintf(l->stream, "%s %s [0x%lx] [%d] ", str, level[x][1], thread, tid);
-	}
 
 	va_list ap;
 	va_start(ap, fmt);
@@ -199,9 +191,7 @@ int initializing(const char *name, const char *path, const char *mode,
 			level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "tracing", l);
 #endif
 	const char *ptr = rindex(name, '/');
-	ptr == NULL ? 
-		strncpy(l->name, name, strlen(name))  : 
-		strncpy(l->name, ptr + 1, strlen(ptr));
+	ptr == NULL ? strncpy(l->name, name, strlen(name)) : strncpy(l->name, ptr + 1, strlen(ptr));
 
 	l->pid = getpid();
 	l->diff_max = diff_max;
@@ -230,10 +220,8 @@ int initializing(const char *name, const char *path, const char *mode,
 	int ret = access(l->path, F_OK | W_OK | X_OK);
 	if (ret == -1) LOGGING_TRACING;
 
-	snprintf(l->final_file, NAME_MAX, "%s_%04d-%02d-%02d_%u.%u.log", 
-		l->name, 
-		l->stime.tm_year + 1900, l->stime.tm_mon + 1, l->stime.tm_mday, 
-		l->pid, ++l->number);
+	snprintf(l->final_file, NAME_MAX, "%s_%04d-%02d-%02d_%u.%u.log", l->name, 
+		l->stime.tm_year + 1900, l->stime.tm_mon + 1, l->stime.tm_mday, l->pid, ++l->number);
 
 	char __path[PATH_MAX] = { 0 };
 	snprintf(__path, PATH_MAX, "%s/%s.%s", l->path, l->final_file, l->file_subfix);
@@ -267,7 +255,7 @@ int uninitialized(void) {
 	ret = access(newpath, F_OK);
 	if (ret == -1 && errno != ENOENT) LOGGING_TRACING;
 	else if (ret == 0) {
-		fprintf(stderr, "%s%s%s %s:%d: %s: newpath = '%s' already exists!\n", 
+		fprintf(stderr, "%s%s%s %s:%d: %s: newpath = '%s' already exists.\n", 
 			level[error][0], level[error][1], stop, __FILE__, __LINE__, __func__, newpath);
 		return -1;
 	}
