@@ -109,8 +109,8 @@ int __logging(enum level x,
 	if (ret != 0) LOGGING_TRACING;
 
 #ifdef LOGGING_DEBUG
-	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l = %p\n",
-			level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "tracing", l);
+	fprintf(stdout, "%s%s%s %s:%d: %s: %s\n",
+			level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "tracing");
 #endif
 	struct tm t0;
 	struct timeval t1;
@@ -183,8 +183,8 @@ int initializing(const char *name, const char *path, const char *mode,
 	enum level stream_level, enum level stdout_level, 
 	time_t diff_max, unsigned int cache_max, unsigned long size_max) {
 #ifdef LOGGING_DEBUG
-	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l = %p\n",
-			level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "tracing", l);
+	fprintf(stdout, "%s%s%s %s:%d: %s: %s\n",
+			level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "tracing");
 #endif
 	const char *ptr = rindex(name, '/');
 	ptr == NULL ? strncpy(l.name, name, strlen(name)) : strncpy(l.name, ptr + 1, strlen(ptr));
@@ -236,8 +236,8 @@ int initializing(const char *name, const char *path, const char *mode,
 
 int uninitialized(void) {
 #ifdef LOGGING_DEBUG
-	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l = %p\n",
-			level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "tracing", l);
+	fprintf(stdout, "%s%s%s %s:%d: %s: %s\n",
+			level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "tracing");
 #endif
 	if (l.stream_level == none && l.stream == NULL) return 0;
 
