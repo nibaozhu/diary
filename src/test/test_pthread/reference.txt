@@ -1,0 +1,100 @@
+
+
+[0]查询		query
+[1]注册		register
+[2]销毁		erase
+[3]登入		logon
+[4]登出		logoff
+[5]发消息	send
+[6]收消息	receive
+
+
+request: query: {
+	1 = uuid;
+	2 = timestamp;
+	3 = username;
+};
+response: query: {
+	1 = uuid;
+	2 = timestamp;
+	3 = retvalue;
+	4 = retmessage;
+};
+
+request: register: {
+	1 = uuid;
+	2 = timestamp;
+	3 = username;
+	4 = password;
+};
+response: register: {
+	1 = uuid;
+	2 = timestamp;
+	3 = retvalue;
+	4 = retmessage;
+};
+
+request: erase: {
+	1 = uuid;
+	2 = timestamp;
+	3 = username;
+	4 = password;
+};
+response: erase: {
+	1 = uuid;
+	2 = timestamp;
+	3 = retvalue;
+	4 = retmessage;
+};
+
+request: logon: {
+	1 = uuid;
+	2 = timestamp;
+	3 = username;
+	4 = password;
+};
+response: logon: {
+	1 = uuid;
+	2 = timestamp;
+	3 = retvalue;
+	4 = retmessage;
+};
+
+request: logoff: {
+	1 = uuid;
+	2 = timestamp;
+};
+response: logoff: {
+	1 = uuid;
+	2 = timestamp;
+	3 = retvalue;
+	4 = retmessage;
+};
+
+request: send: {
+	1 = uuid;
+	2 = timestamp;
+	3 = sendto_username;
+	4 = message;
+};
+response: send: {
+	1 = uuid;
+	2 = timestamp;
+	3 = retvalue;
+	4 = retmessage;
+};
+
+request: receive: {
+	1 = uuid;
+	2 = timestamp;
+	3 = receivefrom_username;
+	4 = message;
+};
+response: receive: {
+	1 = uuid;
+	2 = timestamp;
+	3 = retvalue;
+	4 = retmessage;
+};
+
+
