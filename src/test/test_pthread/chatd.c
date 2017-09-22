@@ -2,7 +2,7 @@
 
 
 /* Set sub-thread ... */
-chatd_t chatd = { .name = "Happiness", .number = 0xf, .bankruptcy = false };
+chatd_t chatd = { .name = "Happiness", .number = 0x10, .bankruptcy = false };
 
 void handler(int signum) {
 	pid_t ppid, pid, tid;
@@ -74,29 +74,8 @@ int main(int argc, char **argv) {
 	for (i = 0; i < chatd.number; i++) {
 
 		/* info_t will be freed at sub-thread. */
-		info_t *info = 
-			(info_t*)malloc(sizeof(info_t));
-		if (info == NULL) {
-			return EXIT_FAILURE;
-		}
-
+		info_t *info = (info_t*)malloc(sizeof(info_t));
 		info->ID = i;
-		info->task_slist = 
-			(struct task_slist_s*)malloc(sizeof(struct task_slist_s));
-		if(info->task_slist == NULL) return EXIT_FAILURE;
-		SLIST_INIT(info->task_slist);
-
-		int j;
-		for (j = 0; j < chatd.number; j++) {
-			task_t *task = (task_t*)malloc(sizeof(task_t));
-			if (task == NULL) return EXIT_FAILURE;
-
-			/* Generate a task. */
-			task->ID = random();
-			strncpy(task->UUID, "xxx", UUID_LEN_STR);
-
-			SLIST_INSERT_HEAD(info->task_slist, task, entry);
-		}
 
 		void *arg = info;
 		void *(*start_routine) (void *) = worker;
