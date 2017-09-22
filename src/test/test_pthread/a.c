@@ -48,7 +48,7 @@ void set_disposition(void) {
 					SIGUSR1, SIGUSR2};
 	for (i = 0; i < sizeof (signum_arr) / sizeof (size_t); i++) {
 		if (SIG_ERR == signal(signum_arr[i], handler)) {
-			syslog(LOG_CRIT, "signum_arr[%d]:%lu\n", i, signum_arr[i]);
+			syslog(LOG_CRIT, "signum_arr[%lu]:%lu\n", i, signum_arr[i]);
 			exit(signum_arr[i]);
 		}
 	}

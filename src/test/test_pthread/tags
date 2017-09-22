@@ -3,7 +3,7 @@
 !_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
-!_TAG_PROGRAM_VERSION	5.8	//
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
 ALL_HEADERS	Makefile	/^ALL_HEADERS  = a.h common.h reception.h waiter.h$/;"	m
 ALL_OBJECTS	Makefile	/^ALL_OBJECTS  = $(subst .c,.o, $(ALL_SOURCES))$/;"	m
 ALL_SOURCES	Makefile	/^ALL_SOURCES  = a.c reception.c waiter.c$/;"	m
