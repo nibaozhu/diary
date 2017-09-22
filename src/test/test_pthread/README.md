@@ -1,4 +1,4 @@
-A.out
+chatd
 ===============
 
 #### Create the build directory
@@ -11,21 +11,21 @@ A.out
 Selecting a *release* version (no debugging symbols, messages, enable some
 optimizations, etc):
 
-    ~/test_pthread/build$ cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local/ ../
+    ~/test_pthread/build$ cmake ../ -DCMAKE_INSTALL_PREFIX=/usr/local/ -DCMAKE_BUILD_TYPE=Release
 
 If you'd like to enable optimiations but still use a debugger, use this instead:
 
-    ~/test_pthread/build$ cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr/local/ ../
+    ~/test_pthread/build$ cmake ../ -DCMAKE_INSTALL_PREFIX=/usr/local/ -DCMAKE_BUILD_TYPE=RelWithDebInfo
 
 To disable optimizations and build a more debugging-friendly version:
 
-    ~/test_pthread/build$ cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr/local/ ../
+    ~/test_pthread/build$ cmake ../ -DCMAKE_INSTALL_PREFIX=/usr/local/ -DCMAKE_BUILD_TYPE=Debug
 
-#### Build A.out
+#### Build chatd
 
     ~/test_pthread/build$ make
 
 This will generate a few binaries:
 
- - `a.out`:
+ - `chatd`:
 
