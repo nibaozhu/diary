@@ -45,6 +45,18 @@ int main(int argc, char **argv) {
 	int facility = LOG_USER;
 	openlog(ident, option, facility);
 
+	int r;
+	switch (r = fork()) {
+		case -1: break;
+		case 0: setsid(); break;
+		default: exit(0);
+	}
+
+	if (r == -1) {
+		syslog(LOG_CRIT, "%s(%d)\n", strerror(errno), errno);
+		exit(0);
+	}
+
 	set_disposition();
 	chatd.pthread = 
 		(pthread_t *)malloc(chatd.number * sizeof(pthread_t));
@@ -54,7 +66,7 @@ int main(int argc, char **argv) {
 		(pthread_attr_t *)malloc(sizeof(pthread_attr_t));
 	if (attr == NULL) return EXIT_FAILURE;
 
-	int r = pthread_attr_init(attr);
+	r = pthread_attr_init(attr);
 	if (r != 0) {
 		syslog(LOG_CRIT, "%s(%d)\n", strerror(errno), errno);
 		return r;
