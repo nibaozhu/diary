@@ -2,17 +2,15 @@
 
 
 /* Set sub-thread ... */
-chatd_t chatd = { .chatd_name = "Happiness", .number = 0xf, .bankruptcy = false };
+chatd_t chatd = { .name = "Happiness", .number = 0xf, .bankruptcy = false };
 
 void handler(int signum) {
 	pid_t ppid, pid, tid;
 	pthread_t ptid;
 
-	syslog(LOG_NOTICE, "{ signum:%d, ppid:%d, pid:%d, tid:%d, ptid:0x%lx }\n", 
-			signum,
+	syslog(LOG_NOTICE, "{ signum:%d, ppid:%d, pid:%d, tid:%d, ptid:0x%lx }\n", signum,
 			ppid = getppid(), pid = getpid(), tid = syscall(SYS_gettid),
-			ptid = pthread_self()
-	);
+			ptid = pthread_self());
 
 	switch (signum) {
 		case SIGHUP :

@@ -2,7 +2,6 @@
 #define COMMON_H
 
 #include <syslog.h>
-
 #include <errno.h>
 #include <linux/limits.h>
 #include <pthread.h>
@@ -22,8 +21,7 @@
 
 
 typedef struct chatd_s {
-
-	char chatd_name[NAME_MAX];
+	char name[NAME_MAX];
 	size_t number;
 	pthread_t *pthread;
 
