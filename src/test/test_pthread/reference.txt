@@ -1,13 +1,38 @@
 
 
-[0]查询		query
-[1]注册		register
-[2]销毁		erase
-[3]登入		logon
-[4]登出		logoff
-[5]发消息	send
-[6]收消息	receive
+[1] OSSP uuid
+[2] cJSON
+[3] epoll
+[4] pthread
+[5] http_parser
+[6] gnutls
+[7] c language
+[8] tcp/ip
 
+
++----+----------------------+
+| *  |	包含频率限制；      |	
++----+----------------------+
+| $  |	需要授权；          |
++----+----------------------+
+| =  |	需要定时执行；      |	
++----+----------------------+
+
+
+*[0]查询	query
+*[1]注册	register
+$[2]销毁	erase
+[3]登入		logon
+$[4]登出	logoff
+$[5]发消息	send
+$[6]收消息	receive
+
+$[7]列出好友	list_friend;
+$[8]添加好友	add_friend;
+$[9]移除好友	delete_friend;
+$[10]确认好友	confirm_friend;
+
+=*$[11]心跳	heartbeat;
 
 request: query: {
 	1 = uuid;
@@ -26,6 +51,10 @@ request: register: {
 	2 = timestamp;
 	3 = username;
 	4 = password;
+	5 = captcha;
+	6 = your_nickname;
+	7 = your_motto;
+	8 = your_telephone;
 };
 response: register: {
 	1 = uuid;
@@ -58,6 +87,10 @@ response: logon: {
 	2 = timestamp;
 	3 = retvalue;
 	4 = retmessage;
+	5 = your_timestamp;
+	6 = your_nickname;
+	7 = your_motto;
+	8 = your_telephone;
 };
 
 request: logoff: {
@@ -97,4 +130,64 @@ response: receive: {
 	4 = retmessage;
 };
 
+request: list_friend: {
+	1 = uuid;
+	2 = timestamp;
+};
+response: list_friend {
+	1 = uuid;
+	2 = timestamp;
+	3 = username[i]; [repeat];
+};
+
+request: add_friend: {
+	1 = uuid;
+	2 = timestamp;
+	3 = sendto_username;
+	4 = message;
+};
+response: add_friend: {
+	1 = uuid;
+	2 = timestamp;
+	3 = retvalue;
+	4 = retmessage;
+};
+
+request: delete_friend: {
+	1 = uuid;
+	2 = timestamp;
+	3 = sendto_username;
+};
+response: delete_friend: {
+	1 = uuid;
+	2 = timestamp;
+	3 = retvalue;
+	4 = retmessage;
+};
+
+request: confirm_friend: {
+	1 = uuid;
+	2 = timestamp;
+	3 = receivefrom_username;
+	4 = message;
+};
+response: confirm_friend: {
+	1 = uuid;
+	2 = timestamp;
+	3 = confirm;	[yes,no]
+	3 = retvalue;
+	4 = retmessage;
+};
+
+request: heartbeat: {
+	1 = uuid;
+	2 = timestamp;
+	3 = message;
+};
+response: heartbeat: {
+	1 = uuid;
+	2 = timestamp;
+	3 = retvalue;
+	4 = retmessage;
+};
 
