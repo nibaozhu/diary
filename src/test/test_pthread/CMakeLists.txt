@@ -1,11 +1,10 @@
 cmake_minimum_required (VERSION 2.8)
 
-project (a.out)
+project (chatd)
 
 	list (APPEND SRC 
 			a.c
-			reception.c
-			waiter.c
+			worker.c
 	     )
 
 	list (APPEND LIBS

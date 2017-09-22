@@ -4,9 +4,9 @@ OUTPUT_OPT   = -o
 LDFLAGS      = -pthread
 
 MAKEFILE     = Makefile
-PROGRAM      = a.out
-ALL_HEADERS  = a.h common.h reception.h waiter.h
-ALL_SOURCES  = a.c reception.c waiter.c
+PROGRAM      = chatd
+ALL_HEADERS  = chatd.h common.h worker.h
+ALL_SOURCES  = chatd.c worker.c
 ALL_OBJECTS  = $(subst .c,.o, $(ALL_SOURCES))
 RM_OPT       = --force --recursive
 
@@ -37,6 +37,5 @@ install: $(PROGRAM)
 ###########################################################
 # NOTE: DO NOT EDIT, autogen by `gcc -MM *.c'
 ###########################################################
-a.o: a.c a.h common.h reception.h waiter.h
-reception.o: reception.c reception.h
-waiter.o: waiter.c waiter.h
+chatd.o: chatd.c chatd.h common.h worker.h
+worker.o: worker.c worker.h

@@ -21,87 +21,36 @@
 #include <libgen.h>
 
 
-enum HOTEL_STAFF
-{
-	CHAIRMAN,
-	GENERAL_MANAGER,
-	CEO,
-	CLEANERS,
-	COOK,
-	DISHWASHER,
-	LOBBY_MANAGER,
-	RECEPTION,
-	TYPIST,
-	WAITER,
-	// ...
-};
+typedef struct chatd_s {
 
-typedef struct hotel_s {
-
-	char hotel_name[NAME_MAX];
-
-	/* Human Resources */
-	size_t staff_number; /* default 10 */
-
-	/* Management */
-	size_t chairman_number; /* only one */
-	size_t general_manager_number; /* only one */
-	size_t CEO_number; /* Chief Execute Officer: only one */
-
-	/* Junior */
-	size_t cleaners_number; /* only one */
-	size_t cook_number; /* only one */
-	size_t dishwasher_number; /* only one */
-	size_t lobby_manager_number; /* only one */
-	size_t reception_number; /* only one */
-	size_t typist_number; /* only one */
-	size_t waiter_number; /* default x */
-
-
-	/* Logging */
-	size_t diff_max; /* time interval */
-	size_t cache_max; /* line cache */
-	size_t size_max; /* file size */
-
-	/* */
+	char chatd_name[NAME_MAX];
+	size_t number;
 	pthread_t *pthread;
 
-	/* staff should gone */
+	/* worker should gone */
 	bool bankruptcy;
-} hotel_t;
+} chatd_t;
+extern chatd_t chatd;
 
 typedef struct task_s {
-
 	size_t ID;
-
-#ifdef UUID_LEN_STR
 	char UUID[UUID_LEN_STR + 1]; /* Universal Unique ID */
-#endif
-
-	char path[PATH_MAX];
 
 	pid_t ppid; /* the process ID of the parent of the calling process */
 	pid_t pid; /* the process ID of the calling process */
 	pid_t tid; /* the  caller’s thread ID (TID) */
 	pthread_t ptid; /* the ID of the calling thread
 		(This is the same value that is returned in *thread in
-       the pthread_create(3) call that created this thread.) */
+                 the pthread_create(3) call that created this thread.) */
 
 	SLIST_ENTRY(task_s) entry;
 } task_t;
 
 typedef struct {
-	size_t department_ID;
-	size_t employee_ID;
-
-#ifdef UUID_LEN_STR
+	size_t ID;
 	const char UUID[UUID_LEN_STR + 1]; /* Universal Unique ID */
-#endif
 
 	SLIST_HEAD(task_slist_s, task_s) *task_slist;
-} personal_information_t;
-
-
-extern hotel_t hotel;
+} info_t;
 
 #endif // COMMON_H
