@@ -8,9 +8,6 @@ void *worker(void *arg) {
 	if (arg == NULL) { return NULL; }
 	info_t *info = (info_t*)arg;
 
-	info->task_slist = (struct task_slist_s*)malloc(sizeof(struct task_slist_s));
-	SLIST_INIT(info->task_slist);
-
 	// int j;
 	// for (j = 0; j < chatd.number; j++) {
 	// 	task_t *task = (task_t*)malloc(sizeof(task_t));
@@ -23,9 +20,21 @@ void *worker(void *arg) {
 	// 	SLIST_INSERT_HEAD(info->task_slist, task, entry);
 	// }
 
+	while (true) {
+		doing(info->task_slist);
+
+		if (chatd.bankruptcy) break;
+	}
+
+	free(arg);
+	syslog(LOG_DEBUG, "Leaving\n");
+	return NULL;
+}
+
+int doing(struct task_slist_s *task_slist) {
 	size_t i = 0;
 	task_t *task;
-	SLIST_FOREACH(task, info->task_slist, entry) {
+	SLIST_FOREACH(task, task_slist, entry) {
 		task->ppid = getppid();
 		task->pid = getpid();
 		task->tid = syscall(SYS_gettid);
@@ -34,20 +43,6 @@ void *worker(void *arg) {
 			i++, task->UUID, task->ID, task->ppid, task->pid, task->tid, task->ptid);
 	}
 
-	/* begin: do ... */
-	size_t n = INT32_MAX;
-	for(i = 0; i < n; i++) {
-		int type = rand() % (LOG_DEBUG) + 1; // avoid LOG_EMERG
-		int timeout = rand() % (int)(1e6);
-
-		syslog(type, "do something ...\n");
-		usleep(timeout);
-		syslog(type, "type:%d, done <%d microseconds>\n", type, timeout);
-		if(chatd.bankruptcy) break;
-	}
-	/* end: do ... */
-
-	free(arg);
-	syslog(LOG_DEBUG, "Leaving\n");
-	return NULL;
+	return 0;
 }
+

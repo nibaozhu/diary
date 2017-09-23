@@ -43,17 +43,17 @@ int main(int argc, char **argv) {
 	int facility = LOG_USER;
 	openlog(ident, option, facility);
 
-	int r;
-	switch (r = fork()) {
-		case -1: break;
-		case 0: setsid(); break;
-		default: exit(0);
-	}
+	int r = 0;
+	// switch (r = fork()) {
+	// 	case -1: break;
+	// 	case 0: setsid(); break;
+	// 	default: exit(0);
+	// }
 
-	if (r == -1) {
-		syslog(LOG_CRIT, "%s(%d)\n", strerror(errno), errno);
-		exit(0);
-	}
+	// if (r == -1) {
+	// 	syslog(LOG_CRIT, "%s(%d)\n", strerror(errno), errno);
+	// 	exit(0);
+	// }
 
 	set_disposition();
 	chatd.pthread = 
@@ -76,6 +76,8 @@ int main(int argc, char **argv) {
 		/* info_t will be freed at sub-thread. */
 		info_t *info = (info_t*)malloc(sizeof(info_t));
 		info->ID = i;
+		info->task_slist = (struct task_slist_s*)malloc(sizeof(struct task_slist_s));
+		SLIST_INIT(info->task_slist);
 
 		void *arg = info;
 		void *(*start_routine) (void *) = worker;
@@ -88,7 +90,7 @@ int main(int argc, char **argv) {
 		}
 
 		/* XXX: `arg' maybe had been freed, and we just look it. */
-		syslog(LOG_NOTICE, "create: Thread[%lu]:0x%lx, arg:%p\n", 
+		syslog(LOG_NOTICE, "created: Thread[%lu]:0x%lx, arg:%p\n", 
 			i, *(chatd.pthread + i), arg);
 	}
 

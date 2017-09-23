@@ -32,7 +32,7 @@ extern chatd_t chatd;
 
 typedef struct task_s {
 	size_t ID;
-	char UUID[UUID_LEN_STR + 1]; /* Universal Unique ID */
+	char UUID[UUID_LEN_STR+1]; /* Universal Unique ID */
 
 	pid_t ppid; /* the process ID of the parent of the calling process */
 	pid_t pid; /* the process ID of the calling process */
@@ -46,7 +46,7 @@ typedef struct task_s {
 
 typedef struct {
 	size_t ID;
-	const char UUID[UUID_LEN_STR + 1]; /* Universal Unique ID */
+	const char UUID[UUID_LEN_STR+1]; /* Universal Unique ID */
 
 	SLIST_HEAD(task_slist_s, task_s) *task_slist;
 } info_t;
