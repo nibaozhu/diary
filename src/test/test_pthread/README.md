@@ -1,4 +1,4 @@
-chatd
+chat
 ===============
 
 #### Create the build directory
@@ -21,11 +21,11 @@ To disable optimizations and build a more debugging-friendly version:
 
     ~/test_pthread/build$ cmake ../ -DCMAKE_INSTALL_PREFIX=/usr/local/ -DCMAKE_BUILD_TYPE=Debug
 
-#### Build chatd
+#### Build chat
 
     ~/test_pthread/build$ make
 
 This will generate a few binaries:
 
- - `chatd`:
+ - `chat`:
 
