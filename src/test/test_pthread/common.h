@@ -20,15 +20,15 @@
 #include <libgen.h>
 
 
-typedef struct chatd_s {
+typedef struct chat_s {
 	char name[NAME_MAX];
 	size_t number;
 	pthread_t *pthread;
 
 	/* worker should gone */
 	bool bankruptcy;
-} chatd_t;
-extern chatd_t chatd;
+} chat_t;
+extern chat_t chat;
 
 typedef struct task_s {
 	size_t ID;

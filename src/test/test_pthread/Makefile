@@ -4,9 +4,9 @@ OUTPUT_OPT   = -o
 LDFLAGS      = -pthread
 
 MAKEFILE     = Makefile
-PROGRAM      = chatd
-ALL_HEADERS  = chatd.h common.h worker.h
-ALL_SOURCES  = chatd.c worker.c
+PROGRAM      = chat
+ALL_HEADERS  = chat.h common.h task.h
+ALL_SOURCES  = chat.c task.c
 ALL_OBJECTS  = $(subst .c,.o, $(ALL_SOURCES))
 RM_OPT       = --force --recursive
 
@@ -37,5 +37,5 @@ install: $(PROGRAM)
 ###########################################################
 # NOTE: DO NOT EDIT, autogen by `gcc -MM *.c'
 ###########################################################
-chatd.o: chatd.c chatd.h common.h worker.h
-worker.o: worker.c worker.h
+chat.o: chat.c chat.h common.h task.h
+task.o: task.c task.h

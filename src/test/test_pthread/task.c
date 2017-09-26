@@ -1,7 +1,7 @@
-#include "worker.h"
+#include "task.h"
 
 
-void *worker(void *arg) {
+void *do_receive(void *arg) {
 	syslog(LOG_DEBUG, "Entering ...\n");
 
 	syslog(LOG_NOTICE, "arg: %p", arg);
@@ -9,7 +9,7 @@ void *worker(void *arg) {
 	info_t *info = (info_t*)arg;
 
 	// int j;
-	// for (j = 0; j < chatd.number; j++) {
+	// for (j = 0; j < chat.number; j++) {
 	// 	task_t *task = (task_t*)malloc(sizeof(task_t));
 	// 	if (task == NULL) return EXIT_FAILURE;
 
@@ -23,7 +23,7 @@ void *worker(void *arg) {
 	while (true) {
 		doing(info->task_slist);
 
-		if (chatd.bankruptcy) break;
+		if (chat.bankruptcy) break;
 	}
 
 	free(arg);

@@ -1,4 +1,4 @@
-/var/log/chatd/chatd.log {
+/var/log/chat/chat.log {
     rotate 5
     daily
     size 10M
