@@ -1,9 +1,9 @@
 cmake_minimum_required (VERSION 2.8)
 
-project (chat)
+project (dog)
 
 	list (APPEND SRC 
-			chat.c
+			dog.c
 			task.c
 	     )
 

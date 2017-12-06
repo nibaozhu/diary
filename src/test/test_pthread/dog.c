@@ -1,8 +1,8 @@
-#include "chat.h"
+#include "dog.h"
 
 
 /* Set sub-thread ... */
-chat_t chat = { .name = "Happiness", .number = 0x10, .bankruptcy = false };
+dog_t dog = { .name = "Happiness", .number = 0x10, .bankruptcy = false };
 
 void handler(int signum) {
 	pid_t ppid, pid, tid;
@@ -20,7 +20,7 @@ void handler(int signum) {
 		case SIGTERM:
 		case SIGUSR1:
 		case SIGUSR2:
-			if (pid == tid) chat.bankruptcy = true; // FIXME: rwlock
+			if (pid == tid) dog.bankruptcy = true; // FIXME: rwlock
 			break;
 		default: ; /* do nothing */
 	}
@@ -56,9 +56,9 @@ int main(int argc, char **argv) {
 	// }
 
 	set_disposition();
-	chat.pthread = 
-		(pthread_t *)malloc(chat.number * sizeof(pthread_t));
-	if (chat.pthread == NULL) return EXIT_FAILURE;
+	dog.pthread = 
+		(pthread_t *)malloc(dog.number * sizeof(pthread_t));
+	if (dog.pthread == NULL) return EXIT_FAILURE;
 
 	pthread_attr_t *attr = 
 		(pthread_attr_t *)malloc(sizeof(pthread_attr_t));
@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
 	}
 
 	size_t i;
-	for (i = 0; i < chat.number; i++) {
+	for (i = 0; i < dog.number; i++) {
 
 		/* info_t will be freed at sub-thread. */
 		info_t *info = (info_t*)malloc(sizeof(info_t));
@@ -80,9 +80,9 @@ int main(int argc, char **argv) {
 		SLIST_INIT(info->task_slist);
 
 		void *arg = info;
-		void *(*start_routine) (void *) = do_receive;
+		void *(*start_routine) (void *) = do_task;
 
-		r = pthread_create(chat.pthread + i, (const pthread_attr_t *)attr,
+		r = pthread_create(dog.pthread + i, (const pthread_attr_t *)attr,
 						start_routine, arg);
 		if (r != 0) {
 			syslog(LOG_ERR, "%s(%d)\n", strerror(errno), errno);
@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
 
 		/* XXX: `arg' maybe had been freed, and we just look it. */
 		syslog(LOG_NOTICE, "created: Thread[%lu]:0x%lx, arg:%p\n", 
-			i, *(chat.pthread + i), arg);
+			i, *(dog.pthread + i), arg);
 	}
 
 	r = pthread_attr_destroy(attr);
@@ -101,18 +101,18 @@ int main(int argc, char **argv) {
 	}
 	free(attr);
 
-	for (i = 0; i < chat.number; i++) {
-		size_t j = chat.number - (i + 1);
-		r = pthread_join(*(chat.pthread + j), NULL);
+	for (i = 0; i < dog.number; i++) {
+		size_t j = dog.number - (i + 1);
+		r = pthread_join(*(dog.pthread + j), NULL);
 		if (r != 0) {
 			syslog(LOG_ERR, "%s(%d)\n", strerror(errno), errno);
 			continue;
 		}
 
 		syslog(LOG_NOTICE, "join: Thread[%lu]:0x%lx\n", 
-			j, *(chat.pthread + j));
+			j, *(dog.pthread + j));
 	}
-	free(chat.pthread);
+	free(dog.pthread);
 
 	closelog();
 	return EXIT_SUCCESS;

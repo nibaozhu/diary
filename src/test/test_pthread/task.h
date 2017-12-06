@@ -2,12 +2,7 @@
 #define TASK_H
 
 
-void *do_receive(void *arg);
-
-void *do_transit(void *arg);
-
-void *do_send(void *arg);
-
+void *do_task(void *arg);
 
 #include "common.h"
 

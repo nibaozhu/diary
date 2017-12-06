@@ -1,4 +1,4 @@
-chat
+dog
 ===============
 
 #### Create the build directory
@@ -21,11 +21,11 @@ To disable optimizations and build a more debugging-friendly version:
 
     ~/test_pthread/build$ cmake ../ -DCMAKE_INSTALL_PREFIX=/usr/local/ -DCMAKE_BUILD_TYPE=Debug
 
-#### Build chat
+#### Build dog
 
     ~/test_pthread/build$ make
 
 This will generate a few binaries:
 
- - `chat`:
+ - `dog`:
 

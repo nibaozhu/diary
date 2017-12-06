@@ -1,7 +1,7 @@
 #include "task.h"
 
 
-void *do_receive(void *arg) {
+void *do_task(void *arg) {
 	syslog(LOG_DEBUG, "Entering ...\n");
 
 	syslog(LOG_NOTICE, "arg: %p", arg);
@@ -9,7 +9,7 @@ void *do_receive(void *arg) {
 	info_t *info = (info_t*)arg;
 
 	// int j;
-	// for (j = 0; j < chat.number; j++) {
+	// for (j = 0; j < dog.number; j++) {
 	// 	task_t *task = (task_t*)malloc(sizeof(task_t));
 	// 	if (task == NULL) return EXIT_FAILURE;
 
@@ -21,9 +21,9 @@ void *do_receive(void *arg) {
 	// }
 
 	while (true) {
-		doing(info->task_slist);
+		task_execute(info->task_slist);
 
-		if (chat.bankruptcy) break;
+		if (dog.bankruptcy) break;
 	}
 
 	free(arg);
@@ -31,7 +31,7 @@ void *do_receive(void *arg) {
 	return NULL;
 }
 
-int doing(struct task_slist_s *task_slist) {
+int task_execute(struct task_slist_s *task_slist) {
 	size_t i = 0;
 	task_t *task;
 	SLIST_FOREACH(task, task_slist, entry) {

@@ -1,4 +1,4 @@
-/var/log/chat/chat.log {
+/var/log/dog/dog.log {
     rotate 5
     daily
     size 10M

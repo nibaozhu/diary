@@ -4,9 +4,9 @@ OUTPUT_OPT   = -o
 LDFLAGS      = -pthread
 
 MAKEFILE     = Makefile
-PROGRAM      = chat
-ALL_HEADERS  = chat.h common.h task.h
-ALL_SOURCES  = chat.c task.c
+PROGRAM      = dog
+ALL_HEADERS  = dog.h common.h task.h
+ALL_SOURCES  = dog.c task.c
 ALL_OBJECTS  = $(subst .c,.o, $(ALL_SOURCES))
 RM_OPT       = --force --recursive
 
@@ -37,5 +37,5 @@ install: $(PROGRAM)
 ###########################################################
 # NOTE: DO NOT EDIT, autogen by `gcc -MM *.c'
 ###########################################################
-chat.o: chat.c chat.h common.h task.h
+dog.o: dog.c dog.h common.h task.h
 task.o: task.c task.h
