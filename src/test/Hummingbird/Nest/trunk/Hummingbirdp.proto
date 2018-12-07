@@ -1,0 +1,34 @@
+syntax = "proto3";
+option optimize_for = LITE_RUNTIME;
+package Hummingbirdp;
+
+message TransferRequest {
+	bytes seq = 1;
+	sfixed64 created = 2;
+
+	message Fragment {
+		bytes name = 1;
+		fixed64 offset = 2;
+		bytes ptr = 3;
+		fixed32 crc32 = 4;
+		bool eof = 5;
+		fixed64 plain = 6;
+		bytes path = 7;
+		bytes distinct = 8;
+	}
+	repeated Fragment fragment = 3;
+}
+message TransferRespond {
+	bytes seq = 1;
+	sfixed32 tid = 2;
+	sfixed64 created = 3;
+	sfixed64 errnum = 4;
+	bytes errstring = 5;
+
+	message CopyOnWrite {
+		bytes name = 1;
+		bytes path = 2;
+		bytes distinct = 3;
+	}
+	repeated CopyOnWrite copyonwrite = 6;
+}

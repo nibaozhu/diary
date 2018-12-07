@@ -1,0 +1,17 @@
+gperftools 2.7
+<https://github.com/gperftools/gperftools/releases>
+
+hiredis 0.14.0
+<https://github.com/redis/hiredis/releases>
+
+log4cplus 2.0.2
+<https://github.com/log4cplus/log4cplus/releases>
+
+protobuf 3.6.1
+<https://github.com/protocolbuffers/protobuf/releases>
+
+zlib 1.2.11
+<https://github.com/madler/zlib/releases>
+
+zmq 4.2.3
+<https://github.com/zeromq/libzmq/releases>
