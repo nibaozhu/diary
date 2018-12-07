@@ -26,17 +26,14 @@ HEADERS  += mainwindow.h \
 
 FORMS    += mainwindow.ui
 
-win32:INCLUDEPATH += "C:\Program Files (x86)\ZeroMQ 4.0.4\include"
-win32:LIBS += "C:\Program Files (x86)\ZeroMQ 4.0.4\lib\libzmq-v120-mt-4_0_4.lib"
-
 win32:INCLUDEPATH += "C:\Program Files (x86)\GnuWin32\include"
-win32:LIBS += "C:\Program Files (x86)\GnuWin32\lib\libz.a"
-
-win32:INCLUDEPATH += "C:\Program Files (x86)\protobuf\include"
-win32:LIBS += "C:\Program Files (x86)\protobuf\lib\libprotobuf-lite.a"
-
 win32:INCLUDEPATH += "C:\Program Files (x86)\log4cplus\include"
+win32:INCLUDEPATH += "C:\Program Files (x86)\protobuf\include"
+win32:INCLUDEPATH += "C:\Program Files (x86)\ZeroMQ 4.0.4\include"
+win32:LIBS += "C:\Program Files (x86)\GnuWin32\lib\libz.a"
 win32:LIBS += "C:\Program Files (x86)\log4cplus\lib\liblog4cplusU.dll.a"
+win32:LIBS += "C:\Program Files (x86)\protobuf\lib\libprotobuf-lite.a"
+win32:LIBS += "C:\Program Files (x86)\ZeroMQ 4.0.4\lib\libzmq-v120-mt-4_0_4.lib"
 
 unix:INCLUDEPATH += "/usr/local/include"
 unix:LIBS += "/usr/local/lib/libzmq.dylib"
