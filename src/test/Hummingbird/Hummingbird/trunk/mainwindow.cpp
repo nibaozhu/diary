@@ -5,7 +5,7 @@ MainWindow::MainWindow(QWidget *parent, QString connectionName, QString remote_a
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     remote_addr(remote_addr),
-    HummingbirdDb(this, connectionName)
+    hummingbirdDb(this, connectionName)
 {
     ui->setupUi(this);
 
@@ -60,9 +60,9 @@ bool MainWindow::findFiles(const TblHummingbird &tblHummingbird, const QString &
             tblHummingbirdDetail.f_name = fileInfo.absoluteFilePath();
             tblHummingbirdDetail.f_size = fileInfo.size();
             tblHummingbirdDetail.f_distinct = fileInfo.absoluteFilePath() + "|" + QString::number(fileInfo.size(), 10) + "|" + fileInfo.lastModified().toString() + "|";
-            tblHummingbirdDetail.f_remotedir = fileInfo.absoluteFilePath().replace(QRegExp(":"), "$") + "/";
+            tblHummingbirdDetail.f_remotedir = fileInfo.absoluteFilePath().replace(QRegExp(":"), "$");
 
-            this->HummingbirdDb.insertHummingbirdDetail(tblHummingbirdDetail, rowid);
+            this->hummingbirdDb.insertHummingbirdDetail(tblHummingbirdDetail, rowid);
         }
     } while (i < list.size());
     return true;
@@ -71,7 +71,7 @@ bool MainWindow::findFiles(const TblHummingbird &tblHummingbird, const QString &
 void MainWindow::HummingbirdMonitor()
 {
     QList<TblHummingbirdDetail> tblHummingbirdDetailList;
-    bool rb = HummingbirdDb.queryHummingbirdDetailList(tblHummingbirdDetailList, 16);
+    bool rb = this->hummingbirdDb.queryHummingbirdDetailList(tblHummingbirdDetailList, 16);
     if (!rb)
     {
         return;
@@ -113,12 +113,12 @@ void MainWindow::on_pushButton_clicked()
         return;
     }
     tblHummingbird.f_localdir = local_path;
-    this->HummingbirdDb.get_db().transaction();
-    rb = this->HummingbirdDb.insertHummingbird(tblHummingbird, rowid);
+    this->hummingbirdDb.get_db().transaction();
+    rb = this->hummingbirdDb.insertHummingbird(tblHummingbird, rowid);
     if (!rb)
     {
         LOG4CPLUS_ERROR(root, "insertHummingbird: " << tblHummingbird.f_uuid.toStdString().c_str());
-        this->HummingbirdDb.get_db().rollback();
+        this->hummingbirdDb.get_db().rollback();
         return;
     }
 
@@ -126,8 +126,8 @@ void MainWindow::on_pushButton_clicked()
     if (!rb)
     {
         LOG4CPLUS_ERROR(root, "findFiles: " << tblHummingbird.f_uuid.toStdString().c_str() << ", local_path: " << local_path.toStdString().c_str());
-        this->HummingbirdDb.get_db().rollback();
+        this->hummingbirdDb.get_db().rollback();
         return;
     }
-    this->HummingbirdDb.get_db().commit();
+    this->hummingbirdDb.get_db().commit();
 }

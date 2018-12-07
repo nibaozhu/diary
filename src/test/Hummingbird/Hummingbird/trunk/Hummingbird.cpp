@@ -12,7 +12,7 @@ Hummingbird::Hummingbird(QThread *parent, QString connectionName, QString remote
     QThread(parent),
     remote_addr(remote_addr),
     nitems(nitems), timeout(timeout), max_msg_size(max_msg_size), msg_timeout(msg_timeout),
-    HummingbirdDb(this, connectionName)
+    hummingbirdDb(this, connectionName)
 {
     QString fileName("Hummingbird.ini");
     QSettings settings(fileName, QSettings::IniFormat);
@@ -74,7 +74,7 @@ Hummingbird::Hummingbird(QThread *parent, QString connectionName, QString remote
 
     this->file_buffer = malloc(this->max_msg_size);
 
-    this->HummingbirdDb.resetHummingbirdDetail();
+    this->hummingbirdDb.resetHummingbirdDetail();
 }
 
 Hummingbird::~Hummingbird()
@@ -179,7 +179,7 @@ void Hummingbird::run()
 void Hummingbird::creep(zmq_pollitem_t &item)
 {
     QList<TblHummingbirdDetail> tblHummingbirdDetailList;
-    bool rb = this->HummingbirdDb.queryHummingbirdDetailList(tblHummingbirdDetailList, this->max_msg_size, this->hashFragment, this->remote_addr);
+    bool rb = this->hummingbirdDb.queryHummingbirdDetailList(tblHummingbirdDetailList, this->max_msg_size, this->hashFragment, this->remote_addr);
     if (!rb)
     {
         return;
@@ -410,15 +410,15 @@ void Hummingbird::resendCheck()
             Hummingbirdp::TransferRespond transferRespond;
             transferRespond.set_errnum(-1); // NOTE: pretending to timeout
             quint64 f_speed = 0; // NOTE: B/s
-            bool rb = this->HummingbirdDb.updateHummingbirdDetail(transferRequest, transferRespond, this->hashFragment, f_speed);
-						if (!rb)
-						{
-							it++;
-						}
-						else
-						{
-            	it = this->hashTransferRequest.erase(it);
-						}
+            bool rb = this->hummingbirdDb.updateHummingbirdDetail(transferRequest, transferRespond, this->hashFragment, f_speed);
+            if (!rb)
+            {
+                it++;
+            }
+            else
+            {
+                it = this->hashTransferRequest.erase(it);
+            }
         }
     }
 
@@ -458,7 +458,7 @@ void Hummingbird::receivedMessage(zmq_pollitem_t &item)
         if (transferRequest.seq() == transferRespond.seq())
         {
             quint64 f_speed = 0; // NOTE: B/s
-            this->HummingbirdDb.updateHummingbirdDetail(transferRequest, transferRespond, this->hashFragment, f_speed);
+            this->hummingbirdDb.updateHummingbirdDetail(transferRequest, transferRespond, this->hashFragment, f_speed);
             LOG4CPLUS_INFO(root, "speed: " << HummingbirdDB::numberToHumanReadableValue(f_speed).toStdString().c_str() << "/s");
         }
     }
