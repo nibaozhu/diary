@@ -1,5 +1,6 @@
 #include "Hummingbird.h"
 
+
 void my_free (void *data, void *hint)
 {
     (void)hint;
@@ -109,13 +110,48 @@ void Hummingbird::run()
             return;
         }
 
-        int option_name = ZMQ_RECONNECT_IVL_MAX;
-        int option_value = 200; // NOTE: milliseconds
-        size_t option_len = sizeof (int);
-        r = zmq_setsockopt (item.socket, option_name, &option_value, option_len);
+        int option_name_reconnect_interval_max = ZMQ_RECONNECT_IVL_MAX;
+        int option_value_reconnect_interval_max = 200; // NOTE: milliseconds
+        size_t option_len_reconnect_interval_max = sizeof (int);
+        r = zmq_setsockopt (item.socket, option_name_reconnect_interval_max, &option_value_reconnect_interval_max, option_len_reconnect_interval_max);
         if (r == -1)
         {
-            LOG4CPLUS_ERROR(root, "zmq_setsockopt(" << item.socket << "," << option_name << "," << option_value << "," << option_len << "): " << zmq_strerror(zmq_errno()) << "(" << zmq_errno() << ")");
+            LOG4CPLUS_ERROR(root, "zmq_setsockopt(" << item.socket << ","
+                            << option_name_reconnect_interval_max << ","
+                            << option_value_reconnect_interval_max << ","
+                            << option_len_reconnect_interval_max << "): " << zmq_strerror(zmq_errno()) << "(" << zmq_errno() << ")");
+            return;
+        }
+
+        int option_name_sndhwm = ZMQ_SNDHWM;
+        int option_value_sndhwm = 0; // NOTE: message
+        size_t option_len_sndhwm = sizeof (int);
+        r = zmq_setsockopt (item.socket,
+                            option_name_sndhwm,
+                            &option_value_sndhwm,
+                            option_len_sndhwm);
+        if (r == -1)
+        {
+            LOG4CPLUS_ERROR(root, "zmq_setsockopt(" << item.socket << ","
+                            << option_name_sndhwm << ","
+                            << option_value_sndhwm << ","
+                            << option_len_sndhwm << "): " << zmq_strerror(zmq_errno()) << "(" << zmq_errno() << ")");
+            return;
+        }
+
+        int option_name_rcvhwm = ZMQ_RCVHWM;
+        int option_value_rcvhwm = 0; // NOTE: message
+        size_t option_len_rcvhwm = sizeof (int);
+        r = zmq_setsockopt (item.socket,
+                            option_name_rcvhwm,
+                            &option_value_rcvhwm,
+                            option_len_rcvhwm);
+        if (r == -1)
+        {
+            LOG4CPLUS_ERROR(root, "zmq_setsockopt(" << item.socket << ","
+                            << option_name_rcvhwm << ","
+                            << option_value_rcvhwm << ","
+                            << option_len_rcvhwm << "): " << zmq_strerror(zmq_errno()) << "(" << zmq_errno() << ")");
             return;
         }
 

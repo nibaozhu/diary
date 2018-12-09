@@ -1,5 +1,6 @@
 #include "Hummingbirddb.h"
 
+
 HummingbirdDB::HummingbirdDB(QObject *parent, QString connectionName) : QObject(parent),
     connectionName(connectionName)
 {

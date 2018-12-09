@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+
 MainWindow::MainWindow(QWidget *parent, QString connectionName, QString remote_addr) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
