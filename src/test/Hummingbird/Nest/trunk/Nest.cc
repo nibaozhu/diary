@@ -90,7 +90,7 @@ int main(int argc, char **argv)
 
 	char banner[NAME_MAX];
 	snprintf(banner, NAME_MAX, "%s %s (%s %s), %s, hiredis %d.%d.%d, log4cplus %s, protobuf %s, zlib %s, zmq %d.%d.%d",
-			argv[0], SNAILD_VERSION_STRING, __DATE__, __TIME__,
+			argv[0], NEST_VERSION_STRING, __DATE__, __TIME__,
 			TC_VERSION_STRING, HIREDIS_MAJOR, HIREDIS_MINOR, HIREDIS_PATCH,
 			LOG4CPLUS_VERSION_STR, google::protobuf::internal::VersionString(GOOGLE_PROTOBUF_VERSION).c_str(),
 			zlib_version, zmq_major, zmq_minor, zmq_patch);
@@ -641,11 +641,22 @@ bool Hummingbirdp_cached(redisContext *hiredis_ctx, const char *distinct, const 
 			return false;
 		}
 
+		static bool linkable = true;
+		if (!linkable)
+		{
+			goto cp;
+		}
+
 		r = link(cached_path, new_path);
 		if (unlikely(r == -1))
 		{
+			if (errno == ENOTSUP)
+			{
+				linkable = false;
+			}
 			LOG4CPLUS_WARN(root, "link: " << strerror(errno) << "(" << errno << ")");
 
+cp:
 			char command[PATH_MAX];
 			snprintf(command, PATH_MAX, "cp --force \"%s\" \"%s\"", cached_path, new_path);
 			int r = system(command);
