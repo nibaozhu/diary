@@ -79,7 +79,7 @@ int main(int argc, char **argv)
 	int r = access(property_file, mode);
 	if (unlikely(r == -1))
 	{
-		fprintf(stderr, "access: %s(%d), property_file: '%s'\n", strerror(errno), errno, property_file);
+		fprintf(stderr, "access: %s(%d), property_file: \"%s\"\n", strerror(errno), errno, property_file);
 		return EXIT_FAILURE;
 	}
 
@@ -144,7 +144,7 @@ int main(int argc, char **argv)
 	r = access(workspace, mode);
 	if (unlikely(r == -1))
 	{
-		fprintf(stderr, "access: %s(%d), workspace: '%s'\n", strerror(errno), errno, workspace);
+		fprintf(stderr, "access: %s(%d), workspace: \"%s\"\n", strerror(errno), errno, workspace);
 		return EXIT_FAILURE;
 	}
 
@@ -642,7 +642,7 @@ bool Hummingbirdp_cached(redisContext *hiredis_ctx, const char *distinct, const 
 		}
 
 		static bool linkable = true;
-		if (!linkable)
+		if (unlikely(!linkable))
 		{
 			goto cp;
 		}
@@ -650,7 +650,7 @@ bool Hummingbirdp_cached(redisContext *hiredis_ctx, const char *distinct, const 
 		r = link(cached_path, new_path);
 		if (unlikely(r == -1))
 		{
-			if (errno == ENOTSUP)
+			if (unlikely(errno == ENOTSUP))
 			{
 				linkable = false;
 			}
