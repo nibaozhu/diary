@@ -455,7 +455,7 @@ bool fragment_to_file(const Hummingbirdp::TransferRequest &transferRequest, Humm
 			break;
 		}
 
-		uLongf destLen = fragment.plain();
+		uLongf destLen = fragment.srclen();
 		void *dest = tc_malloc(destLen);
 		if (unlikely(dest == NULL))
 		{

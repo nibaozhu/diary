@@ -333,7 +333,7 @@ void Hummingbird::creep(zmq_pollitem_t &item)
 
         pfragment->set_crc32(crc);
         pfragment->set_eof(eof);
-        pfragment->set_plain(sourceLen);
+        pfragment->set_srclen(sourceLen);
         pfragment->set_path(tblHummingbirdDetail.f_remotedir.toStdString());
 
         if (offset == 0 || eof)

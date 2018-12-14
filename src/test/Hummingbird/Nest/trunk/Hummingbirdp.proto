@@ -12,7 +12,7 @@ message TransferRequest {
 		bytes ptr = 3;
 		fixed32 crc32 = 4;
 		bool eof = 5;
-		fixed64 plain = 6;
+		fixed64 srclen = 6;
 		bytes path = 7;
 		bytes distinct = 8;
 	}

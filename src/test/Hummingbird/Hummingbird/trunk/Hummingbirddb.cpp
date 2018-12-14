@@ -370,7 +370,7 @@ bool HummingbirdDB::updateHummingbirdDetail(const Hummingbirdp::TransferRequest 
                                 quint64 &f_speed)
 {
     this->db.transaction();
-    quint64 offsets = 0;
+    quint64 srclens = 0;
     for (int i = 0; i < transferRequest.fragment_size(); i++)
     {
         const Hummingbirdp::TransferRequest_Fragment &fragment = transferRequest.fragment(i);
@@ -385,8 +385,8 @@ bool HummingbirdDB::updateHummingbirdDetail(const Hummingbirdp::TransferRequest 
 
             if (transferRespond.errnum() == 0)
             {
-                quint64 offset = fragment.plain();
-                tblHummingbirdDetail.f_offset += offset; // NOTE: applied
+                quint64 srclen = fragment.srclen();
+                tblHummingbirdDetail.f_offset += srclen; // NOTE: applied
                 if (fragment.eof())
                 {
                     tblHummingbirdDetail.f_status = 2; // NOTE: finished
@@ -404,8 +404,8 @@ bool HummingbirdDB::updateHummingbirdDetail(const Hummingbirdp::TransferRequest 
                 }
 
                 qint64 currentMSecs = QDateTime::currentMSecsSinceEpoch();
-                tblHummingbirdDetail.f_speed = 1000 * offset / (currentMSecs - transferRequest.created());
-                offsets += offset;
+                tblHummingbirdDetail.f_speed = 1000 * srclen / (currentMSecs - transferRequest.created());
+                srclens += srclen;
             }
 
             /**
@@ -420,7 +420,7 @@ bool HummingbirdDB::updateHummingbirdDetail(const Hummingbirdp::TransferRequest 
     }
 
     qint64 currentMSecs = QDateTime::currentMSecsSinceEpoch();
-    f_speed = 1000 * offsets / (currentMSecs - transferRequest.created());
+    f_speed = 1000 * srclens / (currentMSecs - transferRequest.created());
     return this->db.commit();
 }
 
