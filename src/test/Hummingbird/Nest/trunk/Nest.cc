@@ -663,7 +663,7 @@ cp:
 			if (unlikely(r != 0 && WIFEXITED(r) != 0))
 			{
 				__set_errno (WEXITSTATUS(r));
-				LOG4CPLUS_ERROR(root, "system: " << strerror(errno) << "(" << errno << ")");
+				LOG4CPLUS_ERROR(root, "system: " << strerror(errno) << "(" << errno << ")" << ": command: " << command);
 				return false;
 			}
 		}
