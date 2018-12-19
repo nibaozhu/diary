@@ -51,6 +51,7 @@ char redis_host[NAME_MAX] = "127.0.0.1";
 void my_free(void *data, void *hint)
 {
 	tc_free(data);
+	(void)hint;
 }
 
 void *nest_routine(void *arg);
