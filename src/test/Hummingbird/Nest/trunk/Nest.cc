@@ -414,7 +414,7 @@ bool fragment_to_file(const Hummingbirdp::TransferRequest &transferRequest, Humm
 		if (unlikely(fragment.offset() == 0))
 		{
 			bool rb0 = Hummingbirdp_cached(hiredis_ctx, fragment.distinct().c_str(), new_path);
-			if (rb0)
+			if (unlikely(rb0))
 			{
 				LOG4CPLUS_INFO(root, "[" << i << "]: name: \"" << fragment.name().c_str()
 												<< "\", distinct: \"" << fragment.distinct().c_str() << "\"");
@@ -641,6 +641,12 @@ bool Hummingbirdp_cached(redisContext *hiredis_ctx, const char *distinct, const 
 			return false;
 		}
 
+		if (unlikely(strcmp(cached_path, new_path) == 0))
+		{
+			LOG4CPLUS_DEBUG(root, "cached_path and new_path are: \"" << new_path << "\"");
+			return true;
+		}
+
 		static bool linkable = true;
 		if (unlikely(!linkable))
 		{
@@ -668,10 +674,7 @@ cp:
 			}
 		}
 
-		if (likely(strcmp(cached_path, new_path) != 0))
-		{
-			Hummingbirdp_cached_ctrl(hiredis_ctx, "HSET", nest_hash_field, nest_hash_value);
-		}
+		Hummingbirdp_cached_ctrl(hiredis_ctx, "HSET", nest_hash_field, nest_hash_value);
 		return true;
 	}
 	return false;
