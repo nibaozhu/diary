@@ -41,7 +41,7 @@ void *dealer;
 void *router;
 void *zmq_ctx;
 
-int threads = ZMQ_POLLITEMS_DFLT;
+int threads;
 int nest_port = 49001;
 char workspace[PATH_MAX] = _PATH_TMP;
 
@@ -90,7 +90,7 @@ int main(int argc, char **argv)
 	zmq_version (&zmq_major, &zmq_minor, &zmq_patch);
 
 	char banner[NAME_MAX];
-	snprintf(banner, NAME_MAX, "%s %s (%s %s), %s, hiredis %d.%d.%d, log4cplus %s, protobuf %s, zlib %s, zmq %d.%d.%d",
+	snprintf(banner, NAME_MAX, "%s %s (compiled %s %s), %s, hiredis %d.%d.%d, log4cplus %s, protobuf %s, zlib %s, zmq %d.%d.%d",
 			argv[0], NEST_VERSION_STRING, __DATE__, __TIME__,
 			TC_VERSION_STRING, HIREDIS_MAJOR, HIREDIS_MINOR, HIREDIS_PATCH,
 			LOG4CPLUS_VERSION_STR, google::protobuf::internal::VersionString(GOOGLE_PROTOBUF_VERSION).c_str(),
@@ -125,6 +125,26 @@ int main(int argc, char **argv)
 				break;
 			default:
 				return EXIT_FAILURE;
+		}
+	}
+
+	if (unlikely(threads <= 0))
+	{
+		int name = _SC_NPROCESSORS_ONLN;
+		long _sc_nprocessors_onln = sysconf(name);
+		if (unlikely(_sc_nprocessors_onln == -1))
+		{
+			fprintf(stderr, "sysconf: %s(%d), _SC_NPROCESSORS_ONLN: %d\n", strerror(errno), errno, _SC_NPROCESSORS_ONLN);
+			return EXIT_FAILURE;
+		}
+	
+		if (likely(_sc_nprocessors_onln > 0))
+		{
+			threads = _sc_nprocessors_onln;
+		}
+		else
+		{
+			threads = ZMQ_POLLITEMS_DFLT;
 		}
 	}
 
@@ -495,7 +515,7 @@ bool fragment_to_file(const Hummingbirdp::TransferRequest &transferRequest, Humm
 		else if (told >= offset && told <= guess)
 		{
 			size_t errata = told - offset;
-			if (errata > 0)
+			if (unlikely(errata > 0))
 			{
 				LOG4CPLUS_WARN(root, "errata: " << errata);
 			}
