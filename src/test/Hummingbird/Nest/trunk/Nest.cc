@@ -421,6 +421,14 @@ bool fragment_to_file(const Hummingbirdp::TransferRequest &transferRequest, Humm
 		char rawpath[PATH_MAX];
 		char command[PATH_MAX];
 		strcpy(rawpath, temp_path);
+
+		for (size_t j = 0; j < PATH_MAX; j++)
+		{
+			if (rawpath[j] == '\\')
+			{
+				rawpath[j] = '/';
+			}
+		}
 		snprintf(command, PATH_MAX, "mkdir -p \"%s\"", dirname(rawpath));
 		int r = system(command);
 		if (unlikely(r != 0 && WIFEXITED(r) != 0))
@@ -438,7 +446,8 @@ bool fragment_to_file(const Hummingbirdp::TransferRequest &transferRequest, Humm
 			if (unlikely(rb0))
 			{
 				LOG4CPLUS_INFO(root, "[" << i << "]: name: \"" << fragment.name().c_str()
-												<< "\", distinct: \"" << fragment.distinct().c_str() << "\"");
+												<< "\", distinct: \"" << fragment.distinct().c_str()
+												<< "\", new_path: \"" << new_path << "\"");
 
 				Hummingbirdp::TransferRespond_CopyOnWrite *pcopyonwrite = transferRespond.add_copyonwrite();
 				pcopyonwrite->set_name(fragment.name());
