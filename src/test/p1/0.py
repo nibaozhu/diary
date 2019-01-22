@@ -2,5 +2,6 @@
 
 import py_compile
 import this
+import sys
 
-py_compile.compile('0.py', cfile='0.pyc')
+py_compile.compile(sys.argv[0])
