@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <sys/syscall.h>   /* For SYS_xxx definitions */
 #include <sys/time.h>
 #include <sys/types.h>
@@ -44,14 +45,15 @@ void *zmq_ctx;
 int threads;
 int nest_port = 49001;
 char workspace[PATH_MAX] = _PATH_TMP;
+bool linkable = false;
 
 int redis_port = 6379;
 char redis_host[NAME_MAX] = "127.0.0.1";
 
 void my_free(void *data, void *hint)
 {
-	tc_free(data);
 	(void)hint;
+	tc_free(data);
 }
 
 void *nest_routine(void *arg);
@@ -97,14 +99,17 @@ int main(int argc, char **argv)
 			zlib_version, zmq_major, zmq_minor, zmq_patch);
 	bool flags = false;
 	int opt;
-	while ((opt = getopt(argc, argv, "dhp:t:vw:H:P:")) != -1) {
+	while ((opt = getopt(argc, argv, "dhlp:t:vw:H:P:")) != -1) {
 		switch (opt) {
 			case 'd':
 				flags = true;
 				break;
 			case 'h':
-				fprintf(stdout, "Usage: %s [-d] [-h] [-p port] [-t threads] [-v] [-w workspace] [-H redis_host] [-P redis_port]\n", argv[0]);
+				fprintf(stdout, "Usage: %s [-d] [-h] [-l] [-p port] [-t threads] [-v] [-w workspace] [-H redis_host] [-P redis_port]\n", argv[0]);
 				return EXIT_SUCCESS;
+			case 'l':
+				linkable = true; 
+				break;
 			case 'p':
 				nest_port = atoi(optarg);
 				break;
@@ -409,13 +414,16 @@ bool fragment_to_file(const Hummingbirdp::TransferRequest &transferRequest, Humm
 		uLong sourceLen = fragment.ptr().length();
 		const Bytef *source = (const Bytef *)fragment.ptr().c_str();
 
-		uLong crc = crc32(0L, source, (uInt)sourceLen);
-		if (unlikely(crc != fragment.crc32()))
+		if (likely(fragment.crc32() != 0))
 		{
-			errnum_ = -100;
-			LOG4CPLUS_ERROR(root, "crc(" << crc << ") not match: " << fragment.crc32());
-			rb = false;
-			break;
+			uLong crc = crc32(0L, source, (uInt)sourceLen);
+			if (unlikely(crc != fragment.crc32()))
+			{
+				errnum_ = -100;
+				LOG4CPLUS_ERROR(root, "crc(" << crc << ") not match: " << fragment.crc32());
+				rb = false;
+				break;
+			}
 		}
 
 		char rawpath[PATH_MAX];
@@ -461,7 +469,7 @@ bool fragment_to_file(const Hummingbirdp::TransferRequest &transferRequest, Humm
 		if (unlikely(fp == NULL))
 		{
 			errnum_ = errno;
-			LOG4CPLUS_ERROR(root, "fopen: " << strerror(errno) << "(" << errno << ")");
+			LOG4CPLUS_ERROR(root, "fopen: " << strerror(errno) << "(" << errno << ")" << ": temp_path: " << temp_path);
 			rb = false;
 			break;
 		}
@@ -470,7 +478,7 @@ bool fragment_to_file(const Hummingbirdp::TransferRequest &transferRequest, Humm
 		if (unlikely(r == -1))
 		{
 			errnum_ = errno;
-			LOG4CPLUS_ERROR(root, "fseeko: " << strerror(errno) << "(" << errno << ")");
+			LOG4CPLUS_ERROR(root, "fseeko: " << strerror(errno) << "(" << errno << ")" << ": fp: " << fp);
 			rb = false;
 			break;
 		}
@@ -480,7 +488,7 @@ bool fragment_to_file(const Hummingbirdp::TransferRequest &transferRequest, Humm
 		if (unlikely(told == -1))
 		{
 			errnum_ = errno;
-			LOG4CPLUS_ERROR(root, "ftello: " << strerror(errno) << "(" << errno << ")");
+			LOG4CPLUS_ERROR(root, "ftello: " << strerror(errno) << "(" << errno << ")" << ": fp: " << fp);
 			rb = false;
 			break;
 		}
@@ -490,7 +498,7 @@ bool fragment_to_file(const Hummingbirdp::TransferRequest &transferRequest, Humm
 		if (unlikely(dest == NULL))
 		{
 			errnum_ = errno;
-			LOG4CPLUS_ERROR(root, "tc_malloc: " << strerror(errno) << "(" << errno << ")");
+			LOG4CPLUS_ERROR(root, "tc_malloc: " << strerror(errno) << "(" << errno << ")" << ": destLen: " << destLen);
 			rb = false;
 			break;
 		}
@@ -537,7 +545,7 @@ bool fragment_to_file(const Hummingbirdp::TransferRequest &transferRequest, Humm
 			r = access(new_path, mode);
 			if (unlikely(r == -1))
 			{
-				LOG4CPLUS_WARN(root, "access: " << strerror(errno) << "(" << errno << ")");
+				LOG4CPLUS_WARN(root, "access: " << strerror(errno) << "(" << errno << ")" << ": new_path: " << new_path);
 
 				__set_errno (ESPIPE);
 				errnum_ = errno;
@@ -594,23 +602,27 @@ bool fragment_to_file(const Hummingbirdp::TransferRequest &transferRequest, Humm
 			r = unlink(temp_path);
 			if (unlikely(r == -1))
 			{
-				LOG4CPLUS_WARN(root, "unlink: " << strerror(errno) << "(" << errno << ")");
+				LOG4CPLUS_WARN(root, "unlink: " << strerror(errno) << "(" << errno << ")" << ": temp_path: " << temp_path);
 			}
 		}
 		else if (unlikely(fragment.eof()))
 		{
+			char rand_path[PATH_MAX];
+			const char *done_path = new_path;
 			int mode = F_OK | R_OK | W_OK;
 			r = access(new_path, mode);
 			if (unlikely(r == 0))
 			{
-				LOG4CPLUS_WARN(root, "it will be atomically replaced, new_path: " << new_path << ", mode: " << mode);
+				LOG4CPLUS_WARN(root, "It has been existed, new_path: " << new_path << ", mode: " << mode);
+				snprintf(rand_path, PATH_MAX, "%s%s.%d", workspace, fragment.path().c_str(), rand());
+				done_path = rand_path;
 			}
 
-			r = rename(temp_path, new_path);
+			r = rename(temp_path, done_path);
 			if (unlikely(r == -1))
 			{
 				errnum_ = errno;
-				LOG4CPLUS_ERROR(root, "rename: " << strerror(errno) << "(" << errno << ")");
+				LOG4CPLUS_ERROR(root, "rename: " << strerror(errno) << "(" << errno << ")" << ": temp_path: " << temp_path << ", done_path: " << done_path);
 				rb = false;
 				break;
 			}
@@ -671,13 +683,48 @@ bool Hummingbirdp_cached(redisContext *hiredis_ctx, const char *distinct, const 
 			return false;
 		}
 
+		struct stat sb;
+		r = stat(cached_path, &sb);
+		if (unlikely(r == -1))
+		{
+			Hummingbirdp_cached_ctrl(hiredis_ctx, "HDEL", nest_hash_field, nest_hash_value);
+			return false;
+		}
+
+		switch (sb.st_mode & S_IFMT)
+		{
+			case S_IFBLK:  LOG4CPLUS_DEBUG(root, "block device");            break;
+			case S_IFCHR:  LOG4CPLUS_DEBUG(root, "character device");        break;
+			case S_IFDIR:  LOG4CPLUS_DEBUG(root, "directory");               break;
+			case S_IFIFO:  LOG4CPLUS_DEBUG(root, "FIFO/pipe");               break;
+			case S_IFLNK:  LOG4CPLUS_DEBUG(root, "symlink");                 break;
+			case S_IFREG:  LOG4CPLUS_DEBUG(root, "regular file");            break;
+			case S_IFSOCK: LOG4CPLUS_DEBUG(root, "socket");                  break;
+			default:       LOG4CPLUS_DEBUG(root, "unknown?");                break;
+		}
+		LOG4CPLUS_DEBUG(root, "I-node number:            " << sb.st_ino);
+		LOG4CPLUS_DEBUG(root, "Mode:                     " << sb.st_mode);
+		LOG4CPLUS_DEBUG(root, "Link count:               " << sb.st_nlink);
+		LOG4CPLUS_DEBUG(root, "Ownership:                UID=" << sb.st_uid << "   GID=" << sb.st_gid);
+		LOG4CPLUS_DEBUG(root, "Preferred I/O block size: " << sb.st_blksize << " bytes");
+		LOG4CPLUS_DEBUG(root, "File size:                " << sb.st_size << " bytes");
+		LOG4CPLUS_DEBUG(root, "Blocks allocated:         " << sb.st_blocks);
+		LOG4CPLUS_DEBUG(root, "Last status change:       " << ctime(&sb.st_ctime));
+		LOG4CPLUS_DEBUG(root, "Last file access:         " << ctime(&sb.st_atime));
+		LOG4CPLUS_DEBUG(root, "Last file modification:   " << ctime(&sb.st_mtime));
+
+		if (sb.st_size <= BUFSIZ)
+		{
+			LOG4CPLUS_DEBUG(root, "ignore very smaller file, sb.st_size: \"" << sb.st_size << "\"");
+			return false;
+		}
+
 		if (unlikely(strcmp(cached_path, new_path) == 0))
 		{
 			LOG4CPLUS_DEBUG(root, "cached_path and new_path are: \"" << new_path << "\"");
 			return true;
 		}
 
-		static bool linkable = true;
 		if (unlikely(!linkable))
 		{
 			goto cp;
