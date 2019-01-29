@@ -56,8 +56,8 @@ private:
     int timeout; // NOTE: milliseconds
     void *file_buffer;
 
-    QHash<QString, Hummingbirdp::TransferRequest> hashTransferRequest; // NOTE: key:seq
-    QHash<QString, Hummingbirdp::TransferRequest_Fragment> hashFragment; // NOTE: key:file name
+    QHash<QString, hummingbirdp::Request> hashRequest; // NOTE: key:seq
+    QHash<QString, hummingbirdp::Request_Fragment> hashFragment; // NOTE: key:file name
 
     /**
      * @brief max_msg_size

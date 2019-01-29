@@ -23,7 +23,7 @@
 #include <log4cplus/loggingmacros.h>
 #include <log4cplus/version.h>
 
-#include "Hummingbirdp.pb.h"
+#include "hummingbirdp.pb.h"
 
 #ifndef __set_errno
 # define __set_errno(Val) errno = (Val)
@@ -58,9 +58,10 @@ void my_free(void *data, void *hint)
 
 void *nest_routine(void *arg);
 void received_message(void *nest, void *receivedBuffer, int receivedBufferSize, redisContext *hiredis_ctx);
-bool fragment_to_file(const Hummingbirdp::TransferRequest &transferRequest, Hummingbirdp::TransferRespond &transferRespond, redisContext *hiredis_ctx);
-bool Hummingbirdp_cached(redisContext *hiredis_ctx, const char *distinct, const char *new_path);
-bool Hummingbirdp_cached_ctrl(redisContext *hiredis_ctx, const char *command, const char *nest_hash_field, const char *nest_hash_value);
+bool fragment_to_file(const hummingbirdp::Request &request, hummingbirdp::Respond &respond, redisContext *hiredis_ctx);
+bool hummingbirdp_cached(redisContext *hiredis_ctx, const char *distinct, const char *new_path);
+bool hummingbirdp_cached_ctrl(redisContext *hiredis_ctx, const char *command, const char *nest_hash_field, const char *nest_hash_value);
+void print_stat(struct stat &sb);
 int nest_term();
 
 int main(int argc, char **argv)
@@ -338,21 +339,21 @@ void *nest_routine(void *arg)
 
 void received_message(void *nest, void *receivedBuffer, int receivedBufferSize, redisContext *hiredis_ctx)
 {
-	Hummingbirdp::TransferRequest transferRequest;
-	bool rb = transferRequest.ParseFromArray(receivedBuffer, receivedBufferSize);
+	hummingbirdp::Request request;
+	bool rb = request.ParseFromArray(receivedBuffer, receivedBufferSize);
 	if (unlikely(!rb))
 	{
 		return;
 	}
 
-	Hummingbirdp::TransferRespond transferRespond;
-	rb = fragment_to_file(transferRequest, transferRespond, hiredis_ctx);
+	hummingbirdp::Respond respond;
+	rb = fragment_to_file(request, respond, hiredis_ctx);
 	if (unlikely(!rb))
 	{
 		LOG4CPLUS_ERROR(root, "fragment_to_file is wrong!");
 	}
 
-	size_t size = transferRespond.ByteSizeLong();
+	size_t size = respond.ByteSizeLong();
 	void *send_buffer = tc_malloc(size);
 	if (unlikely(send_buffer == NULL))
 	{
@@ -360,7 +361,7 @@ void received_message(void *nest, void *receivedBuffer, int receivedBufferSize, 
 		return;
 	}
 
-	rb = transferRespond.SerializeToArray(send_buffer, size);
+	rb = respond.SerializeToArray(send_buffer, size);
 	if (unlikely(!rb))
 	{
 		tc_free(send_buffer);
@@ -393,14 +394,14 @@ void received_message(void *nest, void *receivedBuffer, int receivedBufferSize, 
 	}
 }
 
-bool fragment_to_file(const Hummingbirdp::TransferRequest &transferRequest, Hummingbirdp::TransferRespond &transferRespond, redisContext *hiredis_ctx)
+bool fragment_to_file(const hummingbirdp::Request &request, hummingbirdp::Respond &respond, redisContext *hiredis_ctx)
 {
 	bool rb = true;
 	int errnum_ = 0;
 
-	for (int i = 0; i < transferRequest.fragment_size(); i++)
+	for (int i = 0; i < request.fragment_size(); i++)
 	{
-		const Hummingbirdp::TransferRequest_Fragment &fragment = transferRequest.fragment(i);
+		const hummingbirdp::Request_Fragment &fragment = request.fragment(i);
 
 		char name[PATH_MAX];
 		snprintf(name, PATH_MAX, "%s", fragment.name().c_str());
@@ -450,14 +451,14 @@ bool fragment_to_file(const Hummingbirdp::TransferRequest &transferRequest, Humm
 
 		if (unlikely(fragment.offset() == 0))
 		{
-			bool rb0 = Hummingbirdp_cached(hiredis_ctx, fragment.distinct().c_str(), new_path);
+			bool rb0 = hummingbirdp_cached(hiredis_ctx, fragment.distinct().c_str(), new_path);
 			if (unlikely(rb0))
 			{
 				LOG4CPLUS_INFO(root, "[" << i << "]: name: \"" << fragment.name().c_str()
 												<< "\", distinct: \"" << fragment.distinct().c_str()
 												<< "\", new_path: \"" << new_path << "\"");
 
-				Hummingbirdp::TransferRespond_CopyOnWrite *pcopyonwrite = transferRespond.add_copyonwrite();
+				hummingbirdp::Respond_CopyOnWrite *pcopyonwrite = respond.add_copyonwrite();
 				pcopyonwrite->set_name(fragment.name());
 				pcopyonwrite->set_path(fragment.path());
 				pcopyonwrite->set_distinct(fragment.distinct());
@@ -555,7 +556,7 @@ bool fragment_to_file(const Hummingbirdp::TransferRequest &transferRequest, Humm
 			else
 			{
 				ignore = true;
-				LOG4CPLUS_WARN(root, "ignore fragment, new_path: " << new_path << ", mode: " << mode);
+				LOG4CPLUS_WARN(root, "ignore fragment, new_path: " << new_path << ", mode: 0x" << std::hex << mode);
 				rfw = size * nmemb;
 			}
 		}
@@ -613,7 +614,7 @@ bool fragment_to_file(const Hummingbirdp::TransferRequest &transferRequest, Humm
 			r = access(new_path, mode);
 			if (unlikely(r == 0))
 			{
-				LOG4CPLUS_WARN(root, "It has been existed, new_path: " << new_path << ", mode: " << mode);
+				LOG4CPLUS_WARN(root, "It has been existed, new_path: " << new_path << ", mode: 0x" << std::hex << mode);
 				snprintf(rand_path, PATH_MAX, "%s%s.%d", workspace, fragment.path().c_str(), rand());
 				done_path = rand_path;
 			}
@@ -629,7 +630,7 @@ bool fragment_to_file(const Hummingbirdp::TransferRequest &transferRequest, Humm
 
 			const char *nest_hash_field = fragment.distinct().c_str();
 			const char *nest_hash_value = new_path;
-			Hummingbirdp_cached_ctrl(hiredis_ctx, "HSET", nest_hash_field, nest_hash_value);
+			hummingbirdp_cached_ctrl(hiredis_ctx, "HSET", nest_hash_field, nest_hash_value);
 		}
 	}
 
@@ -639,10 +640,10 @@ bool fragment_to_file(const Hummingbirdp::TransferRequest &transferRequest, Humm
 		errstring_ = strerror(errnum_);
 	}
 
-	transferRespond.set_seq(transferRequest.seq());
+	respond.set_seq(request.seq());
 
 	pid_t tid = syscall(SYS_gettid);
-	transferRespond.set_tid(tid);
+	respond.set_tid(tid);
 
 	struct tm tm_;
 	struct timeval tv_;
@@ -650,13 +651,13 @@ bool fragment_to_file(const Hummingbirdp::TransferRequest &transferRequest, Humm
 	localtime_r(&tv_.tv_sec, &tm_);
 	int64_t currentMSecsSinceEpoch = (int64_t)tv_.tv_sec * 1000 + tv_.tv_usec / 1000;
 
-	transferRespond.set_created(currentMSecsSinceEpoch);
-	transferRespond.set_errnum((int64_t)errnum_);
-	transferRespond.set_errstring(errstring_);
+	respond.set_created(currentMSecsSinceEpoch);
+	respond.set_errnum((int64_t)errnum_);
+	respond.set_errstring(errstring_);
 	return true;
 }
 
-bool Hummingbirdp_cached(redisContext *hiredis_ctx, const char *distinct, const char *new_path)
+bool hummingbirdp_cached(redisContext *hiredis_ctx, const char *distinct, const char *new_path)
 {
 	int r;
 	const char *nest_hash_field = distinct;
@@ -679,7 +680,7 @@ bool Hummingbirdp_cached(redisContext *hiredis_ctx, const char *distinct, const 
 		r = access(cached_path, mode);
 		if (unlikely(r == -1))
 		{
-			Hummingbirdp_cached_ctrl(hiredis_ctx, "HDEL", nest_hash_field, nest_hash_value);
+			hummingbirdp_cached_ctrl(hiredis_ctx, "HDEL", nest_hash_field, nest_hash_value);
 			return false;
 		}
 
@@ -687,32 +688,11 @@ bool Hummingbirdp_cached(redisContext *hiredis_ctx, const char *distinct, const 
 		r = stat(cached_path, &sb);
 		if (unlikely(r == -1))
 		{
-			Hummingbirdp_cached_ctrl(hiredis_ctx, "HDEL", nest_hash_field, nest_hash_value);
+			hummingbirdp_cached_ctrl(hiredis_ctx, "HDEL", nest_hash_field, nest_hash_value);
 			return false;
 		}
 
-		switch (sb.st_mode & S_IFMT)
-		{
-			case S_IFBLK:  LOG4CPLUS_DEBUG(root, "block device");            break;
-			case S_IFCHR:  LOG4CPLUS_DEBUG(root, "character device");        break;
-			case S_IFDIR:  LOG4CPLUS_DEBUG(root, "directory");               break;
-			case S_IFIFO:  LOG4CPLUS_DEBUG(root, "FIFO/pipe");               break;
-			case S_IFLNK:  LOG4CPLUS_DEBUG(root, "symlink");                 break;
-			case S_IFREG:  LOG4CPLUS_DEBUG(root, "regular file");            break;
-			case S_IFSOCK: LOG4CPLUS_DEBUG(root, "socket");                  break;
-			default:       LOG4CPLUS_DEBUG(root, "unknown?");                break;
-		}
-		LOG4CPLUS_DEBUG(root, "I-node number:            " << sb.st_ino);
-		LOG4CPLUS_DEBUG(root, "Mode:                     " << sb.st_mode);
-		LOG4CPLUS_DEBUG(root, "Link count:               " << sb.st_nlink);
-		LOG4CPLUS_DEBUG(root, "Ownership:                UID=" << sb.st_uid << "   GID=" << sb.st_gid);
-		LOG4CPLUS_DEBUG(root, "Preferred I/O block size: " << sb.st_blksize << " bytes");
-		LOG4CPLUS_DEBUG(root, "File size:                " << sb.st_size << " bytes");
-		LOG4CPLUS_DEBUG(root, "Blocks allocated:         " << sb.st_blocks);
-		LOG4CPLUS_DEBUG(root, "Last status change:       " << ctime(&sb.st_ctime));
-		LOG4CPLUS_DEBUG(root, "Last file access:         " << ctime(&sb.st_atime));
-		LOG4CPLUS_DEBUG(root, "Last file modification:   " << ctime(&sb.st_mtime));
-
+		print_stat(sb);
 		if (sb.st_size <= BUFSIZ)
 		{
 			LOG4CPLUS_DEBUG(root, "ignore very smaller file, sb.st_size: \"" << sb.st_size << "\"");
@@ -751,14 +731,14 @@ cp:
 			}
 		}
 
-		Hummingbirdp_cached_ctrl(hiredis_ctx, "HSET", nest_hash_field, nest_hash_value);
+		hummingbirdp_cached_ctrl(hiredis_ctx, "HSET", nest_hash_field, nest_hash_value);
 		return true;
 	}
 	return false;
 }
 
 
-bool Hummingbirdp_cached_ctrl(redisContext *hiredis_ctx, const char *command, const char *nest_hash_field, const char *nest_hash_value)
+bool hummingbirdp_cached_ctrl(redisContext *hiredis_ctx, const char *command, const char *nest_hash_field, const char *nest_hash_value)
 {
 	int r;
 	LOG4CPLUS_DEBUG(root, command << " nest \"" << nest_hash_field << "\" \"" << nest_hash_value << "\"");
@@ -782,6 +762,31 @@ bool Hummingbirdp_cached_ctrl(redisContext *hiredis_ctx, const char *command, co
 	}
 	freeReplyObject(reply);
 	return rb;
+}
+
+void print_stat(struct stat &sb)
+{
+	switch (sb.st_mode & S_IFMT)
+	{
+		case S_IFBLK:  LOG4CPLUS_DEBUG(root, "block device");            break;
+		case S_IFCHR:  LOG4CPLUS_DEBUG(root, "character device");        break;
+		case S_IFDIR:  LOG4CPLUS_DEBUG(root, "directory");               break;
+		case S_IFIFO:  LOG4CPLUS_DEBUG(root, "FIFO/pipe");               break;
+		case S_IFLNK:  LOG4CPLUS_DEBUG(root, "symlink");                 break;
+		case S_IFREG:  LOG4CPLUS_DEBUG(root, "regular file");            break;
+		case S_IFSOCK: LOG4CPLUS_DEBUG(root, "socket");                  break;
+		default:       LOG4CPLUS_DEBUG(root, "unknown?");                break;
+	}
+	LOG4CPLUS_DEBUG(root, "I-node number:            " << sb.st_ino);
+	LOG4CPLUS_DEBUG(root, "Mode:                    0" << std::oct << sb.st_mode);
+	LOG4CPLUS_DEBUG(root, "Link count:               " << sb.st_nlink);
+	LOG4CPLUS_DEBUG(root, "Ownership:                UID=" << sb.st_uid << "   GID=" << sb.st_gid);
+	LOG4CPLUS_DEBUG(root, "Preferred I/O block size: " << sb.st_blksize << " bytes");
+	LOG4CPLUS_DEBUG(root, "File size:                " << sb.st_size << " bytes");
+	LOG4CPLUS_DEBUG(root, "Blocks allocated:         " << sb.st_blocks);
+	LOG4CPLUS_DEBUG(root, "Last status change:       " << ctime(&sb.st_ctime));
+	LOG4CPLUS_DEBUG(root, "Last file access:         " << ctime(&sb.st_atime));
+	LOG4CPLUS_DEBUG(root, "Last file modification:   " << ctime(&sb.st_mtime));
 }
 
 int nest_term()

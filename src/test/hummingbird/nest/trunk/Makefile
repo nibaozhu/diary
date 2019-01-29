@@ -1,17 +1,17 @@
-all: Nest
+all: nest
 
-Nest: Nest.o Hummingbirdp.pb.o
+nest: nest.o hummingbirdp.pb.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-Nest.o: Nest.cc Hummingbirdp.pb.h
-Hummingbirdp.pb.o: Hummingbirdp.pb.cc Hummingbirdp.pb.h
+nest.o: nest.cc hummingbirdp.pb.h
+hummingbirdp.pb.o: hummingbirdp.pb.cc hummingbirdp.pb.h
 
-Hummingbirdp.pb.cc Hummingbirdp.pb.h: Hummingbirdp.proto
+hummingbirdp.pb.cc hummingbirdp.pb.h: hummingbirdp.proto
 	protoc --cpp_out=./ $^
 
 .PHONY: all clean
 clean:
-	rm --force Nest Nest.o Hummingbirdp.pb.* /tmp/Nest.log*
+	rm --force nest nest.o hummingbirdp.pb.* /tmp/nest.log*
 
 CPPFLAGS=-DNEST_VERSION_STRING=\"1.2.9\"
 CXXFLAGS=-std=c++11 -Wall -Wno-pointer-arith -Wno-deprecated-declarations -Ofast

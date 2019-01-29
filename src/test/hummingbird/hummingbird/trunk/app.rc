@@ -26,10 +26,10 @@ VS_VERSION_INFO VERSIONINFO
                 VALUE "CompanyName", "Baozhu Ni"
                 VALUE "FileDescription", "Hummingbird -- a faster file upload tool"
                 VALUE "FileVersion", "1.0.0.0"
-                VALUE "InternalName", "Hummingbird.exe"
+                VALUE "InternalName", "hummingbird.exe"
                 VALUE "LegalCopyright", "Copyright (C)2018-2021"
-                VALUE "OriginalFilename", "Hummingbird.exe"
-                VALUE "ProductName", "Hummingbird Transfer Tool"
+                VALUE "OriginalFilename", "hummingbird.exe"
+                VALUE "ProductName", "hummingbird tool"
                 VALUE "ProductVersion", "18.10.20.20"
             END
         END

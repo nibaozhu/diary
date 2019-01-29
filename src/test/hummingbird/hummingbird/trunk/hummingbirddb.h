@@ -15,7 +15,7 @@
 #include <log4cplus/loggingmacros.h>
 #include <log4cplus/version.h>
 
-#include "Hummingbirdp.pb.h"
+#include "hummingbirdp.pb.h"
 extern log4cplus::Logger root;
 
 class TblHummingbird
@@ -69,14 +69,14 @@ public:
     bool insertHummingbirdDetail(TblHummingbirdDetail &tblHummingbirdDetail, qint32 &rowid);
     bool queryHummingbirdDetailList(QList<TblHummingbirdDetail> &tblHummingbirdDetailList, int nitems);
     bool queryHummingbirdDetailList(QList<TblHummingbirdDetail> &tblHummingbirdDetailList, quint64 max_msg_size,
-                              QHash<QString, Hummingbirdp::TransferRequest_Fragment> &hashFragment,
+                              QHash<QString, hummingbirdp::Request_Fragment> &hashFragment,
                               QString remote_addr);
 
     bool updateHummingbird(QString uuid, qint32 status);
     bool updateHummingbirdDetail(TblHummingbirdDetail &tblHummingbirdDetail);
-    bool updateHummingbirdDetail(const Hummingbirdp::TransferRequest &transferRequest,
-                           const Hummingbirdp::TransferRespond &transferRespond,
-                           QHash<QString, Hummingbirdp::TransferRequest_Fragment> &hashFragment,
+    bool updateHummingbirdDetail(const hummingbirdp::Request &transferRequest,
+                           const hummingbirdp::Respond &transferRespond,
+                           QHash<QString, hummingbirdp::Request_Fragment> &hashFragment,
                            quint64 &f_speed);
 
     bool resetHummingbirdDetail();

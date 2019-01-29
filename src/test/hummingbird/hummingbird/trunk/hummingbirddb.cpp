@@ -248,7 +248,7 @@ bool HummingbirdDB::queryHummingbirdDetailList(QList<TblHummingbirdDetail> &tblH
 }
 
 bool HummingbirdDB::queryHummingbirdDetailList(QList<TblHummingbirdDetail> &tblHummingbirdDetailList, quint64 max_msg_size,
-                                   QHash<QString, Hummingbirdp::TransferRequest_Fragment> &hashFragment,
+                                   QHash<QString, hummingbirdp::Request_Fragment> &hashFragment,
                                    QString remote_addr)
 {
     QString query = QString("SELECT t1.* FROM t_Hummingbird_detail AS t1 INNER JOIN t_Hummingbird AS t2 ON t1.f_status=0 AND t2.f_status=0 AND (t1.f_offset<t1.f_size OR (t1.f_offset=0 AND t1.f_size=0)) AND t1.f_uuid=t2.f_uuid AND t2.f_addr='%1'")
@@ -279,7 +279,7 @@ bool HummingbirdDB::queryHummingbirdDetailList(QList<TblHummingbirdDetail> &tblH
         tblHummingbirdDetail.f_updated = sqlQuery.value("f_updated").toString();
         tblHummingbirdDetail.f_remark = sqlQuery.value("f_remark").toString();
 
-        QHash<QString, Hummingbirdp::TransferRequest_Fragment>::iterator it = hashFragment.find(tblHummingbirdDetail.f_name);
+        QHash<QString, hummingbirdp::Request_Fragment>::iterator it = hashFragment.find(tblHummingbirdDetail.f_name);
         if (it != hashFragment.end())
         {
             // FIXME: avoid!!
@@ -364,17 +364,17 @@ bool HummingbirdDB::updateHummingbirdDetail(TblHummingbirdDetail &tblHummingbird
     return rb;
 }
 
-bool HummingbirdDB::updateHummingbirdDetail(const Hummingbirdp::TransferRequest &transferRequest,
-                                const Hummingbirdp::TransferRespond &transferRespond,
-                                QHash<QString, Hummingbirdp::TransferRequest_Fragment> &hashFragment,
+bool HummingbirdDB::updateHummingbirdDetail(const hummingbirdp::Request &transferRequest,
+                                const hummingbirdp::Respond &transferRespond,
+                                QHash<QString, hummingbirdp::Request_Fragment> &hashFragment,
                                 quint64 &f_speed)
 {
     this->db.transaction();
     quint64 srclens = 0;
     for (int i = 0; i < transferRequest.fragment_size(); i++)
     {
-        const Hummingbirdp::TransferRequest_Fragment &fragment = transferRequest.fragment(i);
-        Hummingbirdp::TransferRequest_Fragment sent_fragment = hashFragment.take(QString::fromStdString(fragment.name()));
+        const hummingbirdp::Request_Fragment &fragment = transferRequest.fragment(i);
+        hummingbirdp::Request_Fragment sent_fragment = hashFragment.take(QString::fromStdString(fragment.name()));
         if (sent_fragment.name() == fragment.name())
         {
             TblHummingbirdDetail tblHummingbirdDetail = {};
@@ -394,7 +394,7 @@ bool HummingbirdDB::updateHummingbirdDetail(const Hummingbirdp::TransferRequest 
 
                 for (int j = 0; j < transferRespond.copyonwrite_size(); j++)
                 {
-                    const Hummingbirdp::TransferRespond_CopyOnWrite &copyonwrite = transferRespond.copyonwrite(j);
+                    const hummingbirdp::Respond_CopyOnWrite &copyonwrite = transferRespond.copyonwrite(j);
                     if (copyonwrite.name() == fragment.name()
                             && copyonwrite.path() == fragment.path()
                             && copyonwrite.distinct() == fragment.distinct())

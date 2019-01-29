@@ -227,7 +227,7 @@ void Hummingbird::creep(zmq_pollitem_t &item)
         return;
     }
 
-    Hummingbirdp::TransferRequest transferRequest;
+    hummingbirdp::Request transferRequest;
     QByteArray uuid = QUuid::createUuid().toByteArray();
     transferRequest.set_seq(uuid.toStdString());
 
@@ -238,7 +238,7 @@ void Hummingbird::creep(zmq_pollitem_t &item)
          it != tblHummingbirdDetailList.end(); it++)
     {
         TblHummingbirdDetail tblHummingbirdDetail = *it;
-        Hummingbirdp::TransferRequest_Fragment *pfragment = transferRequest.add_fragment();
+        hummingbirdp::Request_Fragment *pfragment = transferRequest.add_fragment();
 
         pfragment->set_name(tblHummingbirdDetail.f_name.toStdString());
         pfragment->set_offset(tblHummingbirdDetail.f_offset);
@@ -345,10 +345,10 @@ void Hummingbird::creep(zmq_pollitem_t &item)
             pfragment->set_distinct("");
         }
 
-        Hummingbirdp::TransferRequest_Fragment fragment = *pfragment;
+        hummingbirdp::Request_Fragment fragment = *pfragment;
         this->hashFragment.insert(tblHummingbirdDetail.f_name, fragment);
     }
-    this->hashTransferRequest.insert(QString::fromStdString(transferRequest.seq()), transferRequest);
+    this->hashRequest.insert(QString::fromStdString(transferRequest.seq()), transferRequest);
 
     size_t size = transferRequest.ByteSizeLong();
     void *data = malloc(size);
@@ -426,11 +426,11 @@ void Hummingbird::resendCheck()
         return;
     }
 
-    QHash<QString, Hummingbirdp::TransferRequest>::const_iterator it = this->hashTransferRequest.begin();
-    while (it != this->hashTransferRequest.end())
+    QHash<QString, hummingbirdp::Request>::const_iterator it = this->hashRequest.begin();
+    while (it != this->hashRequest.end())
     {
-        const Hummingbirdp::TransferRequest &transferRequest = it.value();
-        LOG4CPLUS_DEBUG(root, "hash:[" << &this->hashTransferRequest
+        const hummingbirdp::Request &transferRequest = it.value();
+        LOG4CPLUS_DEBUG(root, "hash:[" << &this->hashRequest
                         << "] entry:[key: " << it.key().toStdString().c_str()
                         << ", values(created: " << transferRequest.created() << ",..)]");
         if (currentMSecs < transferRequest.created() + this->msg_timeout)
@@ -443,7 +443,7 @@ void Hummingbird::resendCheck()
                            << ", waiting is over, and reset:(" << currentMSecs - transferRequest.created()
                            << "/" << this->msg_timeout << ")");
 
-            Hummingbirdp::TransferRespond transferRespond;
+            hummingbirdp::Respond transferRespond;
             transferRespond.set_errnum(-1); // NOTE: pretending to timeout
             quint64 f_speed = 0; // NOTE: B/s
             bool rb = this->hummingbirdDb.updateHummingbirdDetail(transferRequest, transferRespond, this->hashFragment, f_speed);
@@ -453,7 +453,7 @@ void Hummingbird::resendCheck()
             }
             else
             {
-                it = this->hashTransferRequest.erase(it);
+                it = this->hashRequest.erase(it);
             }
         }
     }
@@ -483,14 +483,14 @@ void Hummingbird::receivedMessage(zmq_pollitem_t &item)
         const void *msg_content = zmq_msg_data (&msg);
         LOG4CPLUS_DEBUG(root, "rr: " << rr << ",msg_content: " << msg_content);
 
-        Hummingbirdp::TransferRespond transferRespond;
+        hummingbirdp::Respond transferRespond;
         bool rb = transferRespond.ParseFromArray(msg_content, rr);
         if (!rb)
         {
             return;
         }
         QString seq = QString::fromStdString(transferRespond.seq());
-        Hummingbirdp::TransferRequest transferRequest = this->hashTransferRequest.take(seq);
+        hummingbirdp::Request transferRequest = this->hashRequest.take(seq);
         if (transferRequest.seq() == transferRespond.seq())
         {
             quint64 f_speed = 0; // NOTE: B/s

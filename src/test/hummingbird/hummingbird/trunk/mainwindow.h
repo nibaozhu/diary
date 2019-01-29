@@ -9,7 +9,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileDialog>
-#include "Hummingbirddb.h"
+#include "hummingbirddb.h"
 
 namespace Ui {
 class MainWindow;

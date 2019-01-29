@@ -8,21 +8,21 @@ QT       += core gui
 QT += sql
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = Hummingbird
+TARGET = hummingbird
 TEMPLATE = app
 RC_FILE += \
     app.rc
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    Hummingbird.cpp \
-    Hummingbirddb.cpp \
-    Hummingbirdp.pb.cc
+    hummingbird.cpp \
+    hummingbirddb.cpp \
+    hummingbirdp.pb.cc
 
 HEADERS  += mainwindow.h \
-    Hummingbird.h \
-    Hummingbirddb.h \
-    Hummingbirdp.pb.h
+    hummingbird.h \
+    hummingbirddb.h \
+    hummingbirdp.pb.h
 
 FORMS    += mainwindow.ui
 

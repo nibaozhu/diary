@@ -1,8 +1,8 @@
 syntax = "proto3";
 option optimize_for = LITE_RUNTIME;
-package Hummingbirdp;
+package hummingbirdp;
 
-message TransferRequest {
+message Request {
 	bytes seq = 1;
 	sfixed64 created = 2;
 
@@ -18,7 +18,7 @@ message TransferRequest {
 	}
 	repeated Fragment fragment = 3;
 }
-message TransferRespond {
+message Respond {
 	bytes seq = 1;
 	sfixed32 tid = 2;
 	sfixed64 created = 3;

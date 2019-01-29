@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Hummingbird</string>
+   <string>hummingbird</string>
   </property>
   <property name="documentMode">
    <bool>false</bool>
