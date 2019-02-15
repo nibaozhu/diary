@@ -521,9 +521,8 @@ bool fragment_to_file(const hummingbirdp::Request &request, hummingbirdp::Respon
 
 		bool ignore = false;
 		size_t size = sizeof (char);
-		size_t nmemb;
-		size_t rfw;
-		nmemb = destLen;
+		size_t rfw = 0;
+		size_t nmemb = destLen;
 		ssize_t guess = offset + size * nmemb;
 		if (unlikely(told > guess && guess > 0))
 		{
@@ -556,7 +555,7 @@ bool fragment_to_file(const hummingbirdp::Request &request, hummingbirdp::Respon
 			else
 			{
 				ignore = true;
-				LOG4CPLUS_WARN(root, "ignore fragment, new_path: " << new_path << ", mode: 0x" << std::hex << mode);
+				LOG4CPLUS_WARN(root, "ignore fragment, new_path: " << new_path << ", mode: 0" << std::oct << mode);
 				rfw = size * nmemb;
 			}
 		}
@@ -572,8 +571,9 @@ bool fragment_to_file(const hummingbirdp::Request &request, hummingbirdp::Respon
 				<< "\", offset: " << offset
 				<< ", uncompress rate: " << rate
 				<< "%, sourceLen: " << sourceLen << ", destLen: " << destLen
-				<< ", dest: " << dest << "(rfw: " << rfw << "), crc32: "
-				<< fragment.crc32() << ", eof: " << fragment.eof());
+				<< ", dest: " << dest << "(rfw: " << rfw << "), crc32: 0x"
+				<< std::hex << fragment.crc32() << ", eof: "
+				<< std::dec << fragment.eof());
 
 		r = fclose(fp);
 		if (unlikely(r == EOF))
@@ -614,7 +614,7 @@ bool fragment_to_file(const hummingbirdp::Request &request, hummingbirdp::Respon
 			r = access(new_path, mode);
 			if (unlikely(r == 0))
 			{
-				LOG4CPLUS_WARN(root, "It has been existed, new_path: " << new_path << ", mode: 0x" << std::hex << mode);
+				LOG4CPLUS_WARN(root, "It has been existed, new_path: " << new_path << ", mode: 0" << std::oct << mode);
 				snprintf(rand_path, PATH_MAX, "%s%s.%d", workspace, fragment.path().c_str(), rand());
 				done_path = rand_path;
 			}
