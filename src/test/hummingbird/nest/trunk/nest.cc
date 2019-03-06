@@ -268,6 +268,9 @@ int main(int argc, char **argv)
 
 void *nest_routine(void *arg)
 {
+	unsigned int seed = syscall(SYS_gettid);
+	srand(seed);
+
 	void *zmq_ctx = arg;
 	int type = ZMQ_REP;
 	void *nest = zmq_socket (zmq_ctx, type);
