@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+import sys
+
 print('name')
 name = input()
 

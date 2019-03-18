@@ -612,21 +612,30 @@ bool fragment_to_file(const hummingbirdp::Request &request, hummingbirdp::Respon
 		else if (unlikely(fragment.eof()))
 		{
 			char rand_path[PATH_MAX];
-			const char *done_path = new_path;
+			const char *legacy_path = new_path;
 			int mode = F_OK | R_OK | W_OK;
 			r = access(new_path, mode);
 			if (unlikely(r == 0))
 			{
 				LOG4CPLUS_WARN(root, "It has been existed, new_path: " << new_path << ", mode: 0" << std::oct << mode);
 				snprintf(rand_path, PATH_MAX, "%s%s.%d", workspace, fragment.path().c_str(), rand());
-				done_path = rand_path;
+				legacy_path = rand_path;
+
+				r = rename(new_path, legacy_path);
+				if (unlikely(r == -1))
+				{
+					errnum_ = errno;
+					LOG4CPLUS_ERROR(root, "rename: " << strerror(errno) << "(" << errno << ")" << ": new_path: " << new_path << ", legacy_path: " << legacy_path);
+					rb = false;
+					break;
+				}
 			}
 
-			r = rename(temp_path, done_path);
+			r = rename(temp_path, new_path);
 			if (unlikely(r == -1))
 			{
 				errnum_ = errno;
-				LOG4CPLUS_ERROR(root, "rename: " << strerror(errno) << "(" << errno << ")" << ": temp_path: " << temp_path << ", done_path: " << done_path);
+				LOG4CPLUS_ERROR(root, "rename: " << strerror(errno) << "(" << errno << ")" << ": temp_path: " << temp_path << ", new_path: " << new_path);
 				rb = false;
 				break;
 			}
