@@ -1,8 +1,10 @@
 CPPFLAGS=-U LOGGING_DEBUG
 CFLAGS=-fPIC
 
-.PHONY: all
+.PHONY: all clean
 all: liblogging.so liblogging.a
+clean:
+	rm liblogging.so liblogging.a logging.o
 
 liblogging.so: logging.o
 	$(CC) -o $@ $^ -shared
