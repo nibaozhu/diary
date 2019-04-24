@@ -2,10 +2,11 @@
 #include "ui_mainwindow.h"
 
 
-MainWindow::MainWindow(QWidget *parent, QString connectionName, QString remote_addr) :
+MainWindow::MainWindow(QWidget *parent, QString connectionName, QString remote_addr, QString sub_path) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     remote_addr(remote_addr),
+    sub_path(sub_path),
     hummingbirdDb(this, connectionName)
 {
     ui->setupUi(this);
@@ -17,6 +18,10 @@ MainWindow::MainWindow(QWidget *parent, QString connectionName, QString remote_a
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(HummingbirdMonitor()));
     timer->start(1000);
+
+    QString title = QString("%1, %2 [%3, %4]").arg(remote_addr)
+            .arg(sub_path).arg(__DATE__).arg(__TIME__);
+    setWindowTitle(title);
 }
 
 MainWindow::~MainWindow()
@@ -61,7 +66,7 @@ bool MainWindow::findFiles(const TblHummingbird &tblHummingbird, const QString &
             tblHummingbirdDetail.f_name = fileInfo.absoluteFilePath();
             tblHummingbirdDetail.f_size = fileInfo.size();
             tblHummingbirdDetail.f_distinct = fileInfo.absoluteFilePath() + "|" + QString::number(fileInfo.size(), 10) + "|" + fileInfo.lastModified().toString() + "|";
-            tblHummingbirdDetail.f_remotedir = fileInfo.absoluteFilePath().replace(QRegExp(":"), "$");
+            tblHummingbirdDetail.f_remotedir = sub_path + "/" + fileInfo.absoluteFilePath().replace(QRegExp(":"), "");
 
             this->hummingbirdDb.insertHummingbirdDetail(tblHummingbirdDetail, rowid);
         }

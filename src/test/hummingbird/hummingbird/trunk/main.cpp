@@ -14,9 +14,31 @@ int main(int argc, char *argv[])
     (void) configureAndWatchThread;
 
     QApplication a(argc, argv);
+    QString remote_addr = "tcp://114.115.208.5:49001";
+    QString sub_path = "benchmark";
 
-    QString remote_addr = "tcp://114.116.16.108:49001";
-    MainWindow w(0, "MainWindow", remote_addr);
+    QString fileName("Hummingbird.ini");
+    QSettings settings(fileName, QSettings::IniFormat);
+
+    if (settings.contains("common/remote_addr"))
+    {
+        remote_addr = settings.value("common/remote_addr").toString();
+    }
+    else
+    {
+        settings.setValue("common/remote_addr", remote_addr);
+    }
+
+    if (settings.contains("common/sub_path"))
+    {
+        sub_path = settings.value("common/sub_path").toString();
+    }
+    else
+    {
+        settings.setValue("common/sub_path", sub_path);
+    }
+
+    MainWindow w(0, "MainWindow", remote_addr, sub_path);
     w.show();
 
     Hummingbird *hummingbird = new Hummingbird(0, "Hummingbird", remote_addr);

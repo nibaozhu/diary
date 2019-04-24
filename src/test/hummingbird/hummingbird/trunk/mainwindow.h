@@ -21,7 +21,7 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = 0, QString connectionName = "",
-                        QString remote_addr = "");
+                        QString remote_addr = "", QString sub_path = "");
     ~MainWindow();
 
     bool findFiles(const TblHummingbird &tblHummingbird, const QString &path, qint32 rowid);
@@ -34,6 +34,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QString remote_addr;
+    QString sub_path;
     HummingbirdDB hummingbirdDb;
 };
 
