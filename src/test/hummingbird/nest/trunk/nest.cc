@@ -711,10 +711,24 @@ bool hummingbirdp_cached(redisContext *hiredis_ctx, const char *distinct, const 
 			return false;
 		}
 
-		if (unlikely(strcmp(cached_path, new_path) == 0))
+		mode = F_OK;
+		int r = access(new_path, mode);
+		if (unlikely(r == 0))
 		{
-			LOG4CPLUS_DEBUG(root, "cached_path and new_path are: \"" << new_path << "\"");
-			return true;
+			// NOTE: I-node number
+			struct stat legacy_sb;
+			r = stat(new_path, &legacy_sb);
+			if (unlikely(r == -1))
+			{
+				LOG4CPLUS_ERROR(root, "stat: " << strerror(errno) << "(" << errno << ")" << ": new_path: " << new_path);
+				return false;
+			}
+
+			if (sb.st_ino > 0 && sb.st_ino == legacy_sb.st_ino)
+			{
+				LOG4CPLUS_INFO(root, "SAME I-node number: " << sb.st_ino);
+				return true;
+			}
 		}
 
 		if (unlikely(!linkable))
