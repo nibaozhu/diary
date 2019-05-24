@@ -49,6 +49,7 @@ bool linkable = false;
 
 int redis_port = 6379;
 char redis_host[NAME_MAX] = "127.0.0.1";
+char redis_key[NAME_MAX] = "nest";
 
 void my_free(void *data, void *hint)
 {
@@ -100,13 +101,13 @@ int main(int argc, char **argv)
 			zlib_version, zmq_major, zmq_minor, zmq_patch);
 	bool flags = false;
 	int opt;
-	while ((opt = getopt(argc, argv, "dhlp:t:vw:H:P:")) != -1) {
+	while ((opt = getopt(argc, argv, "dhlp:t:vw:H:P:K:")) != -1) {
 		switch (opt) {
 			case 'd':
 				flags = true;
 				break;
 			case 'h':
-				fprintf(stdout, "Usage: %s [-d] [-h] [-l] [-p port] [-t threads] [-v] [-w workspace] [-H redis_host] [-P redis_port]\n", argv[0]);
+				fprintf(stdout, "Usage: %s [-d] [-h] [-l] [-p port] [-t threads] [-v] [-w workspace] [-H redis_host] [-P redis_port] [-K redis_key]\n", argv[0]);
 				return EXIT_SUCCESS;
 			case 'l':
 				linkable = true; 
@@ -128,6 +129,9 @@ int main(int argc, char **argv)
 				break;
 			case 'P':
 				redis_port = atoi(optarg);
+				break;
+			case 'K':
+				strcpy(redis_key, optarg);
 				break;
 			default:
 				return EXIT_FAILURE;
@@ -617,7 +621,7 @@ bool fragment_to_file(const hummingbirdp::Request &request, hummingbirdp::Respon
 			r = access(new_path, mode);
 			if (unlikely(r == 0))
 			{
-				LOG4CPLUS_WARN(root, "It has been existed, new_path: " << new_path << ", mode: 0" << std::oct << mode);
+				LOG4CPLUS_WARN(root, "It has been existed, new_path: \"" << new_path << "\", mode: 0" << std::oct << mode);
 				snprintf(rand_path, PATH_MAX, "%s%s.%d", workspace, fragment.path().c_str(), rand());
 				legacy_path = rand_path;
 
@@ -625,7 +629,7 @@ bool fragment_to_file(const hummingbirdp::Request &request, hummingbirdp::Respon
 				if (unlikely(r == -1))
 				{
 					errnum_ = errno;
-					LOG4CPLUS_ERROR(root, "rename: " << strerror(errno) << "(" << errno << ")" << ": new_path: " << new_path << ", legacy_path: " << legacy_path);
+					LOG4CPLUS_ERROR(root, "rename: " << strerror(errno) << "(" << errno << ")" << ": new_path: \"" << new_path << "\", legacy_path: \"" << legacy_path << "\"");
 					rb = false;
 					break;
 				}
@@ -635,7 +639,7 @@ bool fragment_to_file(const hummingbirdp::Request &request, hummingbirdp::Respon
 			if (unlikely(r == -1))
 			{
 				errnum_ = errno;
-				LOG4CPLUS_ERROR(root, "rename: " << strerror(errno) << "(" << errno << ")" << ": temp_path: " << temp_path << ", new_path: " << new_path);
+				LOG4CPLUS_ERROR(root, "rename: " << strerror(errno) << "(" << errno << ")" << ": temp_path: \"" << temp_path << "\", new_path: \"" << new_path << "\"");
 				rb = false;
 				break;
 			}
@@ -673,7 +677,7 @@ bool hummingbirdp_cached(redisContext *hiredis_ctx, const char *distinct, const 
 {
 	int r;
 	const char *nest_hash_field = distinct;
-	redisReply *reply = (redisReply *)redisCommand(hiredis_ctx, "HGET nest %s", nest_hash_field);
+	redisReply *reply = (redisReply *)redisCommand(hiredis_ctx, "HGET %s %s", redis_key, nest_hash_field);
 	if (unlikely(reply == NULL))
 	{
 		r = redisReconnect(hiredis_ctx);
@@ -768,7 +772,7 @@ bool hummingbirdp_cached_ctrl(redisContext *hiredis_ctx, const char *command, co
 {
 	int r;
 	LOG4CPLUS_DEBUG(root, command << " nest \"" << nest_hash_field << "\" \"" << nest_hash_value << "\"");
-	redisReply *reply = (redisReply *)redisCommand(hiredis_ctx, "%s nest %s %s", command, nest_hash_field, nest_hash_value);
+	redisReply *reply = (redisReply *)redisCommand(hiredis_ctx, "%s %s %s %s", command, redis_key, nest_hash_field, nest_hash_value);
 	if (unlikely(reply == NULL))
 	{
 		r = redisReconnect(hiredis_ctx);
