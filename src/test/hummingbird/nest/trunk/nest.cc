@@ -711,7 +711,7 @@ bool hummingbirdp_cached(redisContext *hiredis_ctx, const char *distinct, const 
 		print_stat(sb);
 		if (sb.st_size <= BUFSIZ)
 		{
-			LOG4CPLUS_DEBUG(root, "ignore very smaller file, sb.st_size: \"" << sb.st_size << "\"");
+			LOG4CPLUS_DEBUG(root, "lite file, sb.st_size: " << sb.st_size);
 			return false;
 		}
 
