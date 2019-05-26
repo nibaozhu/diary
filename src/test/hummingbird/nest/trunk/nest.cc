@@ -63,6 +63,7 @@ bool fragment_to_file(const hummingbirdp::Request &request, hummingbirdp::Respon
 bool hummingbirdp_cached(redisContext *hiredis_ctx, const char *distinct, const char *new_path);
 bool hummingbirdp_cached_ctrl(redisContext *hiredis_ctx, const char *command, const char *nest_hash_field, const char *nest_hash_value);
 void print_stat(struct stat &sb);
+char *shell_fix(char *desc, const char *src);
 int nest_term();
 
 int main(int argc, char **argv)
@@ -751,12 +752,14 @@ bool hummingbirdp_cached(redisContext *hiredis_ctx, const char *distinct, const 
 
 cp:
 			char command[PATH_MAX];
+			char command_fix[PATH_MAX];
 			snprintf(command, PATH_MAX, "cp --force \"%s\" \"%s\"", cached_path, new_path);
-			int r = system(command);
+			shell_fix(command_fix, command);
+			int r = system(command_fix);
 			if (unlikely(r != 0 && WIFEXITED(r) != 0))
 			{
 				__set_errno (WEXITSTATUS(r));
-				LOG4CPLUS_ERROR(root, "system: " << strerror(errno) << "(" << errno << ")" << ": command: " << command);
+				LOG4CPLUS_ERROR(root, "system: " << strerror(errno) << "(" << errno << ")" << ": command_fix: " << command_fix);
 				return false;
 			}
 		}
@@ -818,6 +821,24 @@ void print_stat(struct stat &sb)
 	LOG4CPLUS_DEBUG(root, "Last file access:         " << ctime(&sb.st_atime));
 	LOG4CPLUS_DEBUG(root, "Last file modification:   " << ctime(&sb.st_mtime));
 }
+
+char *shell_fix(char *desc, const char *src)
+{
+	for (size_t i = 0, j = 0; i < strlen(src); i++, j++)
+	{
+		switch (src[i])
+		{
+		 case '`':
+		 case '$':
+		        desc[j++] = '\\';
+		        break;
+		 default:;
+		}
+		desc[j] = src[i];
+	}
+	return desc;
+}
+
 
 int nest_term()
 {
