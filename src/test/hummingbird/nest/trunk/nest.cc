@@ -563,7 +563,7 @@ bool fragment_to_file(const hummingbirdp::Request &request, hummingbirdp::Respon
 			else
 			{
 				ignore = true;
-				LOG4CPLUS_WARN(root, "ignore fragment, new_path: " << new_path << ", mode: 0" << std::oct << mode);
+				LOG4CPLUS_WARN(root, "ignore fragment, new_path: \"" << new_path << "\", mode: 0" << std::oct << mode);
 				rfw = size * nmemb;
 			}
 		}
@@ -631,11 +631,24 @@ bool fragment_to_file(const hummingbirdp::Request &request, hummingbirdp::Respon
 				{
 					errnum_ = errno;
 					LOG4CPLUS_ERROR(root, "rename: " << strerror(errno) << "(" << errno << ")" << ": new_path: \"" << new_path << "\", legacy_path: \"" << legacy_path << "\"");
+
+					std::string copied_path = new_path;
+					size_t suffix = copied_path.rfind(".tx");
+					if (suffix + strlen(".tx") == strlen(new_path))
+					{
+					  errnum_ = 0;
+					  LOG4CPLUS_WARN(root, "ignore file(.tx): \"" << new_path << "\"");
+						strcpy(new_path, legacy_path);
+					  rb = true;
+						goto mv;
+					}
+
 					rb = false;
 					break;
 				}
 			}
 
+mv: 
 			r = rename(temp_path, new_path);
 			if (unlikely(r == -1))
 			{
