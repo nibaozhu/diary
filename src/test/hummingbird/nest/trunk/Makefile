@@ -13,7 +13,7 @@ hummingbirdp.pb.cc hummingbirdp.pb.h: hummingbirdp.proto
 clean:
 	rm --force nest nest.o hummingbirdp.pb.* /tmp/nest.log*
 
-CPPFLAGS=-DNEST_VERSION_STRING=\"1.4.1\"
+CPPFLAGS=-DNEST_VERSION_STRING=\"1.4.5\"
 CXXFLAGS=-std=c++11 -Wall -Wno-pointer-arith -Wno-deprecated-declarations -Ofast
 LDFLAGS=-pthread -ldl -lunwind \
 		/usr/local/lib/libtcmalloc.a \

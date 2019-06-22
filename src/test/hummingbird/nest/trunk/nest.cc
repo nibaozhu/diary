@@ -71,6 +71,7 @@ int main(int argc, char **argv)
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
 
 	char current_dir_name[PATH_MAX];
+	memset(current_dir_name, 0, sizeof (current_dir_name));
 	size_t current_dir_name_size = PATH_MAX;
 	char *rdir = getcwd(current_dir_name, current_dir_name_size);
 	if (unlikely(rdir == NULL))
@@ -79,6 +80,7 @@ int main(int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 	char property_file[PATH_MAX];
+	memset(property_file, 0, sizeof (property_file));
 	snprintf(property_file, PATH_MAX, "%s/log4cplus.properties", current_dir_name);
 
 	int mode = F_OK | R_OK;
@@ -95,6 +97,7 @@ int main(int argc, char **argv)
 	zmq_version (&zmq_major, &zmq_minor, &zmq_patch);
 
 	char banner[NAME_MAX];
+	memset(banner, 0, sizeof (banner));
 	snprintf(banner, NAME_MAX, "%s %s (compiled %s %s), %s, hiredis %d.%d.%d, log4cplus %s, protobuf %s, zlib %s, zmq %d.%d.%d",
 			argv[0], NEST_VERSION_STRING, __DATE__, __TIME__,
 			TC_VERSION_STRING, HIREDIS_MAJOR, HIREDIS_MINOR, HIREDIS_PATCH,
@@ -229,6 +232,7 @@ int main(int argc, char **argv)
 	}
 
 	char endpoint[PATH_MAX];
+	memset(endpoint, 0, sizeof (endpoint));
 	snprintf(endpoint, PATH_MAX, "tcp://0.0.0.0:%d", nest_port);
 	r = zmq_bind (router, endpoint);
 	if (unlikely(r == -1))
@@ -287,6 +291,7 @@ void *nest_routine(void *arg)
 	}
 
 	char endpoint[PATH_MAX];
+	memset(endpoint, 0, sizeof (endpoint));
 	strcpy(endpoint, "inproc://nest");
 	int r = zmq_connect (nest, endpoint);
 	if (unlikely(r == -1))
@@ -412,12 +417,15 @@ bool fragment_to_file(const hummingbirdp::Request &request, hummingbirdp::Respon
 		const hummingbirdp::Request_Fragment &fragment = request.fragment(i);
 
 		char name[PATH_MAX];
+		memset(name, 0, sizeof (name));
 		snprintf(name, PATH_MAX, "%s", fragment.name().c_str());
 
 		char temp_path[PATH_MAX];
+		memset(temp_path, 0, sizeof (temp_path));
 		snprintf(temp_path, PATH_MAX, "%s%s~", workspace, fragment.path().c_str());
 
 		char new_path[PATH_MAX];
+		memset(new_path, 0, sizeof (new_path));
 		snprintf(new_path, PATH_MAX, "%s%s", workspace, fragment.path().c_str());
 
 		uLong sourceLen = fragment.ptr().length();
@@ -436,7 +444,9 @@ bool fragment_to_file(const hummingbirdp::Request &request, hummingbirdp::Respon
 		}
 
 		char rawpath[PATH_MAX];
+		memset(rawpath, 0, sizeof (rawpath));
 		char command[PATH_MAX];
+		memset(command, 0, sizeof (command));
 		strcpy(rawpath, temp_path);
 
 		for (size_t j = 0; j < PATH_MAX; j++)
@@ -616,15 +626,15 @@ bool fragment_to_file(const hummingbirdp::Request &request, hummingbirdp::Respon
 		}
 		else if (unlikely(fragment.eof()))
 		{
-			char rand_path[PATH_MAX];
-			const char *legacy_path = new_path;
 			int mode = F_OK | R_OK | W_OK;
 			r = access(new_path, mode);
 			if (unlikely(r == 0))
 			{
 				LOG4CPLUS_WARN(root, "It has been existed, new_path: \"" << new_path << "\", mode: 0" << std::oct << mode);
+				char rand_path[PATH_MAX];
+				memset(rand_path, 0, sizeof (rand_path));
 				snprintf(rand_path, PATH_MAX, "%s%s.%d", workspace, fragment.path().c_str(), rand());
-				legacy_path = rand_path;
+				const char *legacy_path = rand_path;
 
 				r = rename(new_path, legacy_path);
 				if (unlikely(r == -1))
@@ -703,6 +713,7 @@ bool hummingbirdp_cached(redisContext *hiredis_ctx, const char *distinct, const 
 	if (unlikely(reply->type == REDIS_REPLY_STRING))
 	{
 		char cached_path[PATH_MAX];
+		memset(cached_path, 0, sizeof (cached_path));
 		strcpy(cached_path, reply->str);
 		freeReplyObject(reply);
 
@@ -726,6 +737,17 @@ bool hummingbirdp_cached(redisContext *hiredis_ctx, const char *distinct, const 
 		if (sb.st_size <= BUFSIZ)
 		{
 			LOG4CPLUS_DEBUG(root, "lite file, sb.st_size: " << sb.st_size);
+			return false;
+		}
+
+		char st_size_s[NAME_MAX];
+		memset(st_size_s, 0, sizeof (st_size_s));
+		snprintf(st_size_s, NAME_MAX, "|%ld|", sb.st_size);
+		std::string distinct_s(distinct);
+		size_t size_s_i = distinct_s.rfind(st_size_s);
+		if (size_s_i == std::string::npos)
+		{
+			LOG4CPLUS_WARN(root, "HAS-MODIFIED sb.st_size: " << sb.st_size);
 			return false;
 		}
 
@@ -765,7 +787,9 @@ bool hummingbirdp_cached(redisContext *hiredis_ctx, const char *distinct, const 
 
 cp:
 			char command[PATH_MAX];
+			memset(command, 0, sizeof (command));
 			char command_fix[PATH_MAX];
+			memset(command_fix, 0, sizeof (command_fix));
 			snprintf(command, PATH_MAX, "cp --force \"%s\" \"%s\"", cached_path, new_path);
 			shell_fix(command_fix, command);
 			int r = system(command_fix);
