@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
 		struct evconnlistener *lev = evconnlistener_new_bind(eb, listenercb, (void*)eb, 
 										flags, backlog, (struct sockaddr *) &addr, socklen);
 		if (lev == NULL) {
-			ret = -14;
+			ret = -9;
 			fprintf(stderr, "lev: %p\n", lev);
 			break;
 		}
@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
 		event_base_free(eb);
 		evconnlistener_free(lev);
 	} while (0);
-	if (ret == -1) {
+	if (ret < 0) {
 		return ret;
 	}
 
@@ -151,7 +151,7 @@ void bev_data_read_cb(struct bufferevent *bev, void *ctx) {
 		ret = bufferevent_write(bev, bptr->data, bptr->length);
 		BIO_free_all(b64);
 		if (ret == -1) {
-			ret = -13;
+			ret = -3;
 			fprintf(stdout, "ret: %d\n", ret);
 			break ;
 		}

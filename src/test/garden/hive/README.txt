@@ -12,7 +12,7 @@
 [active]deletefriends
 [active]sendmessage
 [active]signout
-[active]heartbeat{elastic time, default 120 seconds}
+[active]heartbeat{elastic time, default 30 seconds}
 
 
 ---------------------
