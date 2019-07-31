@@ -1,37 +1,27 @@
-#include <errno.h>
-#include <stdio.h>
-#include <string.h>
+#include <cerrno>
+#include <cstdio>
+#include <cstring>
+
 #include <event.h>
+#include <event2/listener.h>
+
 #include <arpa/inet.h>
 
 #include <openssl/buffer.h>
 #include <openssl/bio.h>
 #include <openssl/evp.h>
 
-#define TEST 1
 
-void accept_fn(evutil_socket_t fd, short events, void *arg);
+void listener_cb(struct evconnlistener *lev, evutil_socket_t fd, struct sockaddr *addr, int socklen, void *user_arg);
 void bev_data_read_cb(struct bufferevent *bev, void *ctx);
 void bev_data_write_cb(struct bufferevent *bev, void *ctx);
 void bev_data_event_cb(struct bufferevent *bev, short what, void *ctx);
 
 
 int main(int argc, char **argv) {
-
 	int ret = 0;
 	do {
-		int listen_sock = socket(AF_INET, SOCK_STREAM, 0);
-		if (listen_sock < 0) {
-			fprintf(stderr, "%s(%d)\n", strerror(errno), errno);
-			ret = -1;
-			break;
-		}
-
-#if TEST
-		const char *ip = "0.0.0.0";
-#else
 		const char *ip = "127.0.0.1";
-#endif
 		short int port = 12340;
 		struct sockaddr_in addr;
 		memset(&addr, 0, sizeof (struct sockaddr_in));
@@ -44,35 +34,6 @@ int main(int argc, char **argv) {
 			break;
 		}
 
-		evutil_socket_t sock = listen_sock;
-		ret = evutil_make_listen_socket_reuseable(sock);
-		if (ret == -1) {
-			fprintf(stderr, "%s(%d)\n", strerror(errno), errno);
-			ret = -11;
-			break;
-		}
-
-		socklen_t addrlen = sizeof (struct sockaddr_in);
-		ret = bind(listen_sock, (struct sockaddr *) &addr, addrlen);
-		if (ret == -1) {
-			fprintf(stderr, "%s(%d)\n", strerror(errno), errno);
-			break;
-		}
-
-		int backlog = (1<<10);
-		ret = listen(listen_sock, backlog);
-		if (ret == -1) {
-			fprintf(stderr, "%s(%d)\n", strerror(errno), errno);
-			break;
-		}
-
-		ret = evutil_make_socket_nonblocking(sock);
-		if (ret == -1) {
-			fprintf(stderr, "%s(%d)\n", strerror(errno), errno);
-			ret = -12;
-			break;
-		}
-
 		struct event_base *eb = event_base_new();
 		if (eb == NULL) {
 			ret = -2;
@@ -81,25 +42,18 @@ int main(int argc, char **argv) {
 		}
 		fprintf(stdout, "eb: %p\n", eb);
 
-		evutil_socket_t fd = listen_sock;
-		short events = EV_READ|EV_PERSIST;
-		event_callback_fn evfn = accept_fn;
-		struct event *ev = event_new(eb, fd, events, evfn, (void *)eb);
-		if (ev == NULL) {
-			ret = -3;
-			fprintf(stderr, "ev: %p\n", ev);
+		evconnlistener_cb listenercb = listener_cb;
+		unsigned flags = LEV_OPT_CLOSE_ON_FREE | LEV_OPT_REUSEABLE | LEV_OPT_THREADSAFE;
+		int backlog = (1<<10);
+		int socklen = sizeof (struct sockaddr_in);
+		struct evconnlistener *lev = evconnlistener_new_bind(eb, listenercb, (void*)eb, 
+										flags, backlog, (struct sockaddr *) &addr, socklen);
+		if (lev == NULL) {
+			ret = -14;
+			fprintf(stderr, "lev: %p\n", lev);
 			break;
 		}
-		fprintf(stdout, "ev: %p\n", ev);
-
-		const struct timeval *timeout = NULL;
-		ret = event_add(ev, timeout);
-		if (ret == -1) {
-			ret = -9;
-			fprintf(stderr, "ret: %d\n", ret);
-			break;
-		}
-		fprintf(stdout, "ret: %d\n", ret);
+		fprintf(stdout, "lev: %p\n", lev);
 
 		ret = event_base_dispatch(eb);
 		if (ret == -1) {
@@ -109,6 +63,8 @@ int main(int argc, char **argv) {
 		}
 		fprintf(stdout, "ret: %d\n", ret);
 
+		event_base_free(eb);
+		evconnlistener_free(lev);
 	} while (0);
 	if (ret == -1) {
 		return ret;
@@ -117,21 +73,11 @@ int main(int argc, char **argv) {
 	return 0;
 }
 
-void accept_fn(evutil_socket_t fd, short events, void *arg) {
-	struct event_base *eb = (struct event_base *)arg;
-	struct sockaddr_in addr;
-	socklen_t addrlen;
+void listener_cb(struct evconnlistener *lev, evutil_socket_t fd, struct sockaddr *addr, int socklen, void *user_arg) {
+	struct event_base *eb = (struct event_base *)user_arg;
 	int ret = 0;
-
-	evutil_socket_t afd = accept(fd, (struct sockaddr *)&addr, &addrlen);
-	if (afd < 0) {
-		fprintf(stderr, "%s(%d)\n", strerror(errno), errno);
-		return ;
-	}
-	fprintf(stdout, "afd: %d\n", afd);
-
 	int options = BEV_OPT_CLOSE_ON_FREE;
-	struct bufferevent *bufev = bufferevent_socket_new(eb, afd, options);
+	struct bufferevent *bufev = bufferevent_socket_new(eb, fd, options);
 	if (bufev == NULL) {
 		ret = -4;
 		fprintf(stderr, "bufev: %p\n", bufev);
@@ -178,14 +124,8 @@ void bev_data_read_cb(struct bufferevent *bev, void *ctx) {
 		return ;
 	}
 
-#if TEST
-	char data[5];
-	size_t datlen = 5 - 1;
-#else
 	char data[BUFSIZ];
 	size_t datlen = BUFSIZ - 1;
-#endif
-
 	while (1) {
 		static int i = 0;
 		memset(&data, 0, sizeof data);
@@ -232,8 +172,8 @@ void bev_data_write_cb(struct bufferevent *bev, void *ctx) {
 }
 
 void bev_data_event_cb(struct bufferevent *bev, short what, void *ctx) {
-
 	fprintf(stdout, "bev_data_event_cb: bev: %p, what: 0x%x, ctx: %p\n", bev, what, ctx);
+
 	if (what & BEV_EVENT_READING) {
 		fprintf(stderr, "error encountered while reading\n");
 	}
@@ -258,8 +198,4 @@ void bev_data_event_cb(struct bufferevent *bev, short what, void *ctx) {
 		fprintf(stderr, "connect operation finished.\n");
 	}
 }
-
-
-
-
 

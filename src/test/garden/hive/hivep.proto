@@ -24,7 +24,7 @@ message Request {
 		bytes passwd = 3;
 		bytes nickname = 4;
 	}
-	SignUp signUp = 4;
+	SignUp signup = 4;
 
 	message GetFriends {
 		bytes sessionid = 1;
@@ -75,7 +75,23 @@ message Respond {
 		fixed64 hivenumber = 1;
 		bytes email = 2;
 		bytes avatar = 3;
-		bytes status = 4; // NOTE: { ONLINE, OFFLINE, CONTACT_ME, BUSY }
+
+		enum SignStatus {
+			ONLINE = 0;
+			OFFLINE = 1;
+			CONTACT_ME = 2;
+			BUSY = 3;
+			ZOMBIE = 4;
+			WINDOWS = 5;
+			IMAC = 6;
+			IPHONE = 7;
+			IPAD = 8;
+			ANDROID = 9;
+			WEB = 10;
+			WAP = 11;
+			LINUX = 12;
+		}
+		SignStatus status = 4;
 	}
 	repeated FriendsDetail friendsdetail = 7;
 }

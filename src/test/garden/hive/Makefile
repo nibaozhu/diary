@@ -1,6 +1,9 @@
-all: hive
+all: hive h2
 
 hive: hive.o hivep.pb.o
+	$(CXX) -o $@ $^ $(LDFLAGS) $(pkg-config libevent_pthreads openssl --libs --cflags)
+
+h2: h2.o hivep.pb.o
 	$(CXX) -o $@ $^ $(LDFLAGS) $(pkg-config libevent_pthreads openssl --libs --cflags)
 
 hive.o: hive.cc hivep.pb.h
@@ -11,7 +14,7 @@ hivep.pb.cc hivep.pb.h: hivep.proto
 
 .PHONY: all clean
 clean:
-	rm --force hive hive.o hivep.pb.* /tmp/hive.log*
+	rm --force hive h2 hive.o h2.o hivep.pb.* /tmp/hive.log*
 
 CPPFLAGS=-DHIVE_VERSION_STRING=\"1.0.0\"
 CXXFLAGS=-std=c++11 -Wall -Wno-pointer-arith -Wno-deprecated-declarations -Ofast
