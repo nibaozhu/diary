@@ -1,0 +1,109 @@
+syntax = "proto3";
+option optimize_for = LITE_RUNTIME;
+package hivep;
+
+// ***ACTIVE MESSAGE***
+message Request {
+	bytes seq = 1;
+	sfixed64 created = 2;
+
+	message SignIn {
+		fixed64 hivenumber = 1;
+		bytes email = 2;
+		bytes qrcode = 3;
+		bytes passwd = 4;
+		bytes clientversion = 5;
+		bytes osversion = 6;
+		bytes osmanufacturer = 7;
+	}
+	SignIn signin = 3;
+
+	message SignUp {
+		bytes email = 1;
+		bytes telephone = 2;
+		bytes passwd = 3;
+		bytes nickname = 4;
+	}
+	SignUp signUp = 4;
+
+	message GetFriends {
+		bytes sessionid = 1;
+	}
+	GetFriends getfriends = 5;
+
+	message DeleteFriends {
+		bytes sessionid = 1;
+		repeated fixed64 hivenumber = 2;
+	}
+	DeleteFriends deletefriends = 6;
+
+	message SendMessage {
+		bytes sessionid = 1;
+		fixed64 otherhivenumber = 2;
+		bytes text = 3;
+	}
+	SendMessage sendmessage = 7;
+
+	message SignOut {
+		bytes sessionid = 1;
+	}
+	SignOut signout = 8;
+
+	message HeartBeat {
+		bytes sessionid = 1;
+		bytes extra = 2;
+	}
+	HeartBeat heartbeat = 9;
+}
+message Respond {
+	bytes seq = 1;
+	sfixed32 tid = 2;
+	sfixed64 created = 3;
+	sfixed64 errnum = 4;
+	bytes errstring = 5;
+
+	message UserDetail {
+		fixed64 hivenumber = 1;
+		bytes email = 2;
+		bytes sessionid = 3;
+		bytes avatar = 4;
+		bytes serverversion = 5;
+	}
+	UserDetail userdetail = 6;
+
+	message FriendsDetail {
+		fixed64 hivenumber = 1;
+		bytes email = 2;
+		bytes avatar = 3;
+		bytes status = 4; // NOTE: { ONLINE, OFFLINE, CONTACT_ME, BUSY }
+	}
+	repeated FriendsDetail friendsdetail = 7;
+}
+
+
+// ***PASSIVE MESSAGE***
+message PushMessageRequest {
+	bytes seq = 1;
+	sfixed64 created = 2;
+
+	message ReceiveMessage {
+		bytes sessionid = 1;
+		fixed64 originhivenumber = 2;
+		bytes text = 3;
+	}
+	ReceiveMessage receivemessage = 3;
+
+	message SignOutForce {
+		bytes sessionid = 1;
+		bytes extra = 2;
+	}
+	SignOutForce signoutforce = 4;
+}
+message PushMessageResond {
+	bytes seq = 1;
+	sfixed32 tid = 2;
+	sfixed64 created = 3;
+	sfixed64 errnum = 4;
+	bytes errstring = 5;
+}
+
