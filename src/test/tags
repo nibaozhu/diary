@@ -6,7 +6,9 @@
 !_TAG_PROGRAM_VERSION	5.8	//
 ARR_MAX	middle_number.c	6;"	d	file:
 BUFFER_LENGTH	test_client.c	19;"	d	file:
+CFLAGS	../../include/Makefile	/^CFLAGS=-fPIC$/;"	m
 CFLAGS	Makefile	/^CFLAGS=-g -O0 -std=gnu89$/;"	m
+CPPFLAGS	../../include/Makefile	/^CPPFLAGS=-U LOGGING_DEBUG$/;"	m
 CPPFLAGS	Makefile	/^CPPFLAGS=-I ..\/..\/include\/$/;"	m
 CXXFLAGS	Makefile	/^CXXFLAGS=-g -O0 -Wall -Wextra -std=c++0x$/;"	m
 DATE_MAX	../../include/logging.h	39;"	d
@@ -26,14 +28,20 @@ MAX_LENGTH	bignumber_multiplication.c	3;"	d	file:
 MODE_MAX	../../include/logging.h	38;"	d
 MySQLdb	baidu_image.py	/^import MySQLdb$/;"	i
 NMEMB_MAX	middle_number.c	7;"	d	file:
-PROGRAMS	Makefile	/^PROGRAMS=test_base64 test_client test_digit test_gnu test_or test_routine test_pthread_with_lock test_pthread_with_sync test_regex test_sqlite3 test_xml test_const test_list test_logging test_map test_multimap test_string test_unorderedmap test_curl test_sem_post test_sem_wait$/;"	m
+NODE	test_slist.c	/^} NODE, *SLIST;$/;"	t	typeref:struct:Node	file:
+Node	test_slist.c	/^typedef struct Node {$/;"	s	file:
+PROGRAMS	Makefile	/^PROGRAMS=test_base64 test_client test_digit test_gnu test_or test_routine test_pthread_with_lock test_pthread_with_sync test_regex test_sqlite3 test_xml test_const test_list test_logging test_map test_multimap test_string test_unorderedmap test_curl test_curl test_sem_post test_sem_wait$/;"	m
 People	test_class.cc	/^	People() {}$/;"	f	class:People
 People	test_class.cc	/^class People {$/;"	c	file:
 S	test_logo.c	3;"	d	file:
 SIZE_500MB	find_not_include_number.c	6;"	d	file:
 SIZE_MAX	../../include/logging.h	15;"	d
 SIZE_MAX	../../include/logging.h	17;"	d
+SLIST	test_slist.c	/^} NODE, *SLIST;$/;"	t	typeref:struct:Node	file:
+SWAP	swap.c	3;"	d	file:
+TEST	test_event.c	10;"	d	file:
 WAITING_SPACE	../../include/logging.h	40;"	d
+_GNU_SOURCE	test_a.cc	2;"	d	file:
 __MAX	test_pthread_with_lock.c	24;"	d	file:
 __MAX	test_pthread_with_sync.c	21;"	d	file:
 __MAX	test_routine.c	17;"	d	file:
@@ -44,7 +52,10 @@ __kv	test_str2kv.c	/^struct __kv {$/;"	s	file:
 __logging	../../include/logging.c	/^int __logging(enum level x, $/;"	f
 __mutex	../../include/logging.c	/^pthread_mutex_t __mutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 __timestamp	../../include/logging.c	/^static int __timestamp(char *str) {$/;"	f	file:
+accept_fn	test_event.c	/^void accept_fn(evutil_socket_t fd, short events, void *arg) {$/;"	f
 alert	../../include/logging.h	/^	alert,		\/* action must be taken immediately *\/$/;"	e	enum:level
+bev_data_read_cb	test_event.c	/^void bev_data_read_cb(struct bufferevent *bev, void *ctx) {$/;"	f
+bev_data_write_cb	test_event.c	/^void bev_data_write_cb(struct bufferevent *bev, void *ctx) {$/;"	f
 cache	../../include/logging.h	/^	unsigned int cache; \/\/ logging has cache lines in memory$/;"	m	struct:__anon1
 cache_max	../../include/logging.h	/^	unsigned int cache_max; \/\/ cache_max lines in memory$/;"	m	struct:__anon1
 cal	bignumber_multiplication.c	/^int cal(const char *number_x, const char *number_y, char *number_result) {$/;"	f
@@ -55,6 +66,7 @@ count	test_pthread_with_sync.c	/^int count = 0;$/;"	v
 critical	../../include/logging.h	/^	critical,	\/* critical conditions *\/$/;"	e	enum:level
 cursor	baidu_image.py	/^	cursor = db.cursor()$/;"	v
 data	test_deque.c	/^  void *data;$/;"	m	struct:__entry	file:
+data	test_slist.c	/^	int data;$/;"	m	struct:Node	file:
 data	test_stack.c	/^	int data;$/;"	m	struct:entry	file:
 db	baidu_image.py	/^	db = MySQLdb.connect('localhost', 'root', 'toor', 'Dbaidu_image')$/;"	v
 debug	../../include/logging.h	/^	debug,		\/* debug-level messages *\/$/;"	e	enum:level
@@ -84,7 +96,7 @@ init_stack	test_stack.c	/^int init_stack(struct stack *s) {$/;"	f
 initializing	../../include/logging.c	/^int initializing(const char *name, const char *path, const char *mode, $/;"	f
 json	baidu_image.py	/^import json$/;"	i
 kv	test_str2kv.c	/^  char kv[10][2][1025];$/;"	m	struct:__kv	file:
-l	../../include/logging.c	/^static logging *l;$/;"	v	file:
+l	../../include/logging.c	/^static logging l;$/;"	v	file:
 length	test_deque.c	/^  size_t length;$/;"	m	struct:__deque	file:
 length	test_stack.c	/^	size_t length;$/;"	m	struct:stack	file:
 level	../../include/logging.c	/^const char *level[debug + 1][2] = {$/;"	v
@@ -97,7 +109,9 @@ main	find_not_include_number.c	/^int main() {$/;"	f
 main	flock_test.c	/^int main()$/;"	f
 main	generate_data.c	/^int main()$/;"	f
 main	middle_number.c	/^int main(int argc, char **argv) {$/;"	f
-main	test_FILE.c	/^int main(int argc, char **argv)$/;"	f
+main	print_ip.c	/^int main(int argc, char **argv) {$/;"	f
+main	swap.c	/^int main(int argc, char **argv) {$/;"	f
+main	test_a.cc	/^int main(int argc, char **argv)$/;"	f
 main	test_array.cc	/^int main(int argc, char **argv) {$/;"	f
 main	test_base64.c	/^int main(int argc, char **argv) {$/;"	f
 main	test_class.cc	/^int main(int argc, char **argv) {$/;"	f
@@ -106,27 +120,34 @@ main	test_const.cc	/^int main()$/;"	f
 main	test_curl.c	/^int main(int ac, char **av) {$/;"	f
 main	test_deque.c	/^int main() {$/;"	f
 main	test_digit.c	/^int main(void)$/;"	f
+main	test_event.c	/^int main(int argc, char **argv) {$/;"	f
 main	test_exit.c	/^int main() {$/;"	f
-main	test_file.c	/^int main(int argc, char **argv) {$/;"	f
 main	test_fread.c	/^int main() {$/;"	f
+main	test_fstat.c	/^main(int argc, char *argv[])$/;"	f
 main	test_gethostbyaddr.c	/^int main(int argc, char **argv) {$/;"	f
 main	test_gnu.c	/^int main(void) {$/;"	f
+main	test_hiredis.c	/^int main(int argc, char **argv)$/;"	f
 main	test_list.cc	/^int main(void) {$/;"	f
 main	test_logging.cc	/^int main(int argc, char **argv) {$/;"	f
 main	test_logo.c	/^int main(int argc, char** argv) {$/;"	f
+main	test_lzma.c	/^int main(int argc, char **argv)$/;"	f
 main	test_map.cc	/^int main(void) {$/;"	f
 main	test_multimap.cc	/^int main(void) {$/;"	f
+main	test_mysql_execute.c	/^int main(int argc, char **argv) {$/;"	f
+main	test_mysql_query.c	/^int main(int argc, char **argv) {$/;"	f
 main	test_or.c	/^int main(int ac, char **argv) {$/;"	f
 main	test_poly.cc	/^int main(int argc, char **argv)$/;"	f
 main	test_pthread_with_lock.c	/^int main() {$/;"	f
 main	test_pthread_with_sync.c	/^int main() {$/;"	f
 main	test_queue.cc	/^int main ()$/;"	f
+main	test_readline.c	/^int main(int argc, char **argv)$/;"	f
 main	test_regex.c	/^int main(int argc, char **argv)$/;"	f
 main	test_regex.cpp	/^int main(void) {$/;"	f
 main	test_rlimit.c	/^int main() {$/;"	f
 main	test_routine.c	/^int main() {$/;"	f
 main	test_sem.c	/^int main(int argc, char **argv) {$/;"	f
 main	test_sizeof.c	/^int main() {$/;"	f
+main	test_slist.c	/^int main(int argc, char **argv) {$/;"	f
 main	test_sqlite3.c	/^int main(int argc, char **argv)$/;"	f
 main	test_stack.c	/^int main(int argc, char **argv) {$/;"	f
 main	test_std.c	/^int main(void) {$/;"	f
@@ -148,6 +169,7 @@ name	../../include/logging.h	/^	char name[NAME_MAX]; \/\/ program name$/;"	m	str
 nconnect	test_client.c	/^int nconnect = 0;$/;"	v
 netframe	test_logo.c	4;"	d	file:
 next	test_deque.c	/^  struct __entry *next;$/;"	m	struct:__entry	typeref:struct:__entry::__entry	file:
+next	test_slist.c	/^	struct Node *next;$/;"	m	struct:Node	typeref:struct:Node::Node	file:
 next	test_stack.c	/^	struct entry *next;$/;"	m	struct:entry	typeref:struct:entry::entry	file:
 none	../../include/logging.h	/^	none = -1,	\/* none logging *\/$/;"	e	enum:level
 notice	../../include/logging.h	/^	notice,		\/* normal but significant condition *\/$/;"	e	enum:level
@@ -158,11 +180,13 @@ pid	../../include/logging.h	/^	pid_t pid; \/\/ program process id$/;"	m	struct:_
 pop_back	test_stack.c	/^int pop_back(struct stack *s, int *data) {$/;"	f
 pop_front	test_deque.c	/^int pop_front(deque *q, void **data) {$/;"	f
 prev	test_deque.c	/^  struct __entry *prev;$/;"	m	struct:__entry	typeref:struct:__entry::__entry	file:
+printNode	test_slist.c	/^void printNode(SLIST sl1) {$/;"	f
 push_back	test_deque.c	/^int push_back(deque *q, void *data) {$/;"	f
 push_back	test_stack.c	/^int push_back(struct stack *s, int data) {$/;"	f
 quit	test_client.c	/^int quit = 0;$/;"	v
 reads	test_client.c	/^int reads(int fd)$/;"	f
 regex_content	test_regex.cpp	/^int regex_content(const char * regex, const char * string1, std::list<std::string> &urls) {$/;"	f
+reverse1	test_slist.c	/^void reverse1(SLIST *sl1) {$/;"	f
 set_disposition	test_logging.cc	/^void set_disposition() {$/;"	f
 setnonblocking	test_client.c	/^int setnonblocking(int fd)$/;"	f
 size	../../include/logging.h	/^	unsigned long size; \/\/ logging has written bytes in file$/;"	m	struct:__anon1

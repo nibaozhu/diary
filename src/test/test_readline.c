@@ -18,6 +18,9 @@ int main(int argc, char **argv)
 			i++;
 		}
 		char *command = readline (prompt);
+		if (command != NULL && strlen(command) > 0) {
+			add_history(command);
+		}
 		printf("[%s]", command);
 		free(command);
 	}

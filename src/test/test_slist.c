@@ -41,9 +41,13 @@ int main(int argc, char **argv) {
 	sl1->data = -1;
 	sl1->next = NULL;
 
-	for (int i = 0; i < 1024*1024*1024; i++)
+	int i;
+	for (i = 0; i < 10*1024*1024; i++)
 	{
 		NODE *node = malloc(sizeof (NODE));
+		if (node == NULL) {
+			break;
+		}
 		node->data = i;
 		node->next = NULL;
 

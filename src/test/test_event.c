@@ -3,6 +3,11 @@
 #include <string.h>
 #include <event.h>
 
+#include <openssl/buffer.h>
+#include <openssl/bio.h>
+#include <openssl/evp.h>
+
+#define TEST 1
 
 void accept_fn(evutil_socket_t fd, short events, void *arg);
 void bev_data_read_cb(struct bufferevent *bev, void *ctx);
@@ -20,7 +25,11 @@ int main(int argc, char **argv) {
 			break;
 		}
 
+#if TEST
+		const char *ip = "0.0.0.0";
+#else
 		const char *ip = "127.0.0.1";
+#endif
 		short int port = 12340;
 		struct sockaddr_in addr;
 		memset(&addr, 0, sizeof (struct sockaddr_in));
@@ -106,7 +115,6 @@ int main(int argc, char **argv) {
 	return 0;
 }
 
-
 void accept_fn(evutil_socket_t fd, short events, void *arg) {
 	struct event_base *eb = (struct event_base *)arg;
 	struct sockaddr_in addr;
@@ -168,16 +176,41 @@ void bev_data_read_cb(struct bufferevent *bev, void *ctx) {
 		return ;
 	}
 
+#if TEST
+	char data[5];
+	size_t datlen = 5 - 1;
+#else
 	char data[BUFSIZ];
 	size_t datlen = BUFSIZ - 1;
+#endif
+
 	while (1) {
 		static int i = 0;
 		memset(&data, 0, sizeof data);
 		int ss = evbuffer_remove(buf, data, datlen);
-		fprintf(stdout, "data[%d]: %s\n", i++, data);
+		fprintf(stdout, "data[%d]: %s\n", i, data);
+
+		BIO *b64 = BIO_new(BIO_f_base64());
+		BIO *bmem = BIO_new(BIO_s_mem());
+		b64 = BIO_push(b64, bmem);
+		BIO_write(b64, data, ss);
+		BIO_flush(b64);
+		BUF_MEM *bptr = NULL;
+		BIO_get_mem_ptr(b64, &bptr);
+		fprintf(stdout, "data base64[%d]: %s\n", i, bptr->data);
+
+		ret = bufferevent_write(bev, bptr->data, bptr->length);
+		BIO_free_all(b64);
+		if (ret == -1) {
+			ret = -13;
+			fprintf(stdout, "ret: %d\n", ret);
+			break ;
+		}
+
 		if (ss < datlen) {
 			break;
 		}
+		i++;
 	}
 
 	evbuffer_free(buf);
@@ -187,4 +220,6 @@ void bev_data_read_cb(struct bufferevent *bev, void *ctx) {
 
 void bev_data_write_cb(struct bufferevent *bev, void *ctx) {
 	;;;
+	int ret = 0;
+	fprintf(stdout, "bev_data_write_cb: %d\n", ret);
 }
