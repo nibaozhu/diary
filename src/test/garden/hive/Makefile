@@ -1,7 +1,7 @@
 all: hive
 
 hive: hive.o hivep.pb.o
-	$(CXX) -o $@ $^ $(LDFLAGS) $(pkg-config libevent_pthreads openssl --libs --cflags)
+	$(CXX) -o $@ $^ $(LDFLAGS)
 
 hive.o: hive.cc hivep.pb.h
 hivep.pb.o: hivep.pb.cc hivep.pb.h
@@ -23,5 +23,7 @@ LDFLAGS=-pthread -ldl -lunwind \
 		/usr/local/lib/libz.a \
 		/usr/local/lib/libzmq.a \
 		/usr/lib64/libevent.so \
+		/usr/lib64/libevent_openssl.so \
 		/usr/lib64/libssl.so \
-		/usr/lib64/libcrypto.so
+		/usr/lib64/libcrypto.so \
+		/usr/lib64/libnghttp2.so
