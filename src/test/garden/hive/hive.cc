@@ -45,7 +45,7 @@ typedef struct app_context app_context;
 
 typedef struct http2_stream_data {
   struct http2_stream_data *prev, *next;
-  char *request_path;
+  char *path;
   int32_t stream_id;
   int fd;
 } http2_stream_data;
@@ -188,7 +188,7 @@ static void delete_http2_stream_data(http2_stream_data *stream_data) {
   if (stream_data->fd != -1) {
     close(stream_data->fd);
   }
-  free(stream_data->request_path);
+  free(stream_data->path);
   free(stream_data);
 }
 
@@ -441,14 +441,14 @@ static int on_header_callback(nghttp2_session *session,
     }
     stream_data =
         (http2_stream_data *)nghttp2_session_get_stream_user_data(session, frame->hd.stream_id);
-    if (!stream_data || stream_data->request_path) {
+    if (!stream_data || stream_data->path) {
       break;
     }
     if (namelen == sizeof(PATH) - 1 && memcmp(PATH, name, namelen) == 0) {
       size_t j;
       for (j = 0; j < valuelen && value[j] != '?'; ++j)
         ;
-      stream_data->request_path = percent_decode(value, j);
+      stream_data->path = percent_decode(value, j);
     }
     break;
   }
@@ -487,21 +487,21 @@ static int on_request_recv(nghttp2_session *session,
   nghttp2_nv hdrs[] = {MAKE_NV(":status", "200")};
   char *rel_path;
 
-  if (!stream_data->request_path) {
+  if (!stream_data->path) {
     if (error_reply(session, stream_data) != 0) {
       return NGHTTP2_ERR_CALLBACK_FAILURE;
     }
     return 0;
   }
   fprintf(stderr, "%s GET %s\n", session_data->client_addr,
-          stream_data->request_path);
-  if (!check_path(stream_data->request_path)) {
+          stream_data->path);
+  if (!check_path(stream_data->path)) {
     if (error_reply(session, stream_data) != 0) {
       return NGHTTP2_ERR_CALLBACK_FAILURE;
     }
     return 0;
   }
-  for (rel_path = stream_data->request_path; *rel_path == '/'; ++rel_path)
+  for (rel_path = stream_data->path; *rel_path == '/'; ++rel_path)
     ;
   fd = open(rel_path, O_RDONLY);
   if (fd == -1) {
@@ -758,7 +758,7 @@ int main(int argc, char **argv) {
   struct sigaction act;
 
   if (argc < 4) {
-    fprintf(stderr, "Usage: libevent-server PORT KEY_FILE CERT_FILE\n");
+    fprintf(stderr, "Usage: %s PORT KEY_FILE CERT_FILE\n", argv[0]);
     exit(EXIT_FAILURE);
   }
 
