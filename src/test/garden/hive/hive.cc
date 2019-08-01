@@ -581,7 +581,6 @@ static int on_frame_recv_callback(nghttp2_session *session,
                                   const nghttp2_frame *frame, void *user_data) {
   http2_session_data *session_data = (http2_session_data *)user_data;
   http2_stream_data *stream_data;
-  fprintf(stderr, "frame->hd.type: %d\n", frame->hd.type);
   switch (frame->hd.type) {
   case NGHTTP2_DATA:
     fprintf(stderr, "user_data: '%s'\n", (char *)user_data);
@@ -597,7 +596,7 @@ static int on_frame_recv_callback(nghttp2_session *session,
     }
     break;
   case NGHTTP2_HEADERS:
-    /* Check that the client request headers has finished */
+    /* Check that the client request stream has finished */
     if (frame->hd.flags & NGHTTP2_FLAG_END_STREAM) {
       stream_data =
           (http2_stream_data *)nghttp2_session_get_stream_user_data(session, frame->hd.stream_id);
@@ -608,6 +607,8 @@ static int on_frame_recv_callback(nghttp2_session *session,
       return on_request_recv(session, session_data, stream_data);
     }
     break;
+  case NGHTTP2_SETTINGS:
+  case NGHTTP2_PING:
   case NGHTTP2_WINDOW_UPDATE:
     /* Check that the client request headers has finished */
     if (frame->hd.flags & NGHTTP2_FLAG_END_STREAM) {
