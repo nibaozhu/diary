@@ -45,7 +45,19 @@ typedef struct app_context app_context;
 
 typedef struct http2_stream_data {
   struct http2_stream_data *prev, *next;
+
+  char *method;
   char *path;
+  char *authority;
+	char *scheme;
+
+	char *user_agent;
+	char *accept_language;
+	char *accept;
+	char *upgrade_insecure_requests;
+	char *accept_encoding;
+	char *cache_control;
+
   int32_t stream_id;
   int fd;
 } http2_stream_data;
@@ -188,7 +200,12 @@ static void delete_http2_stream_data(http2_stream_data *stream_data) {
   if (stream_data->fd != -1) {
     close(stream_data->fd);
   }
+  free(stream_data->method);
   free(stream_data->path);
+  free(stream_data->authority);
+  free(stream_data->scheme);
+
+  free(stream_data->user_agent);
   free(stream_data);
 }
 
@@ -430,10 +447,23 @@ static int on_header_callback(nghttp2_session *session,
                               size_t namelen, const uint8_t *value,
                               size_t valuelen, uint8_t flags, void *user_data) {
   http2_stream_data *stream_data;
+
+  const char METHOD[] = ":method";
   const char PATH[] = ":path";
+  const char AUTHORITY[] = ":authority";
+  const char SCHEME[] = ":scheme";
+
+  const char USER_AGENT[] = "user-agent";
+  const char ACCEPT_LANGUAGE[] = "accept-language";
+  const char ACCEPT[] = "accept";
+  const char UPGRADE_INSECURE_REQUESTS[] = "upgrade-insecure-requests";
+  const char ACCEPT_ENCODING[] = "accept-encoding";
+  const char CACHE_CONTROL[] = "cache-control";
+
   (void)flags;
   (void)user_data;
 
+  fprintf(stderr, "['%s': '%s']\n", name, value);
   switch (frame->hd.type) {
   case NGHTTP2_HEADERS:
     if (frame->headers.cat != NGHTTP2_HCAT_REQUEST) {
@@ -441,14 +471,38 @@ static int on_header_callback(nghttp2_session *session,
     }
     stream_data =
         (http2_stream_data *)nghttp2_session_get_stream_user_data(session, frame->hd.stream_id);
-    if (!stream_data || stream_data->path) {
+    if (!stream_data) {
       break;
+    }
+    if (namelen == sizeof(METHOD) - 1 && memcmp(METHOD, name, namelen) == 0) {
+      size_t j;
+      for (j = 0; j < valuelen && value[j] != '?'; ++j)
+        ;
+      stream_data->method = percent_decode(value, j);
     }
     if (namelen == sizeof(PATH) - 1 && memcmp(PATH, name, namelen) == 0) {
       size_t j;
       for (j = 0; j < valuelen && value[j] != '?'; ++j)
         ;
       stream_data->path = percent_decode(value, j);
+    }
+    if (namelen == sizeof(AUTHORITY) - 1 && memcmp(AUTHORITY, name, namelen) == 0) {
+      size_t j;
+      for (j = 0; j < valuelen && value[j] != '?'; ++j)
+        ;
+      stream_data->authority = percent_decode(value, j);
+    }
+    if (namelen == sizeof(SCHEME) - 1 && memcmp(SCHEME, name, namelen) == 0) {
+      size_t j;
+      for (j = 0; j < valuelen && value[j] != '?'; ++j)
+        ;
+      stream_data->scheme = percent_decode(value, j);
+    }
+    if (namelen == sizeof(USER_AGENT) - 1 && memcmp(USER_AGENT, name, namelen) == 0) {
+      size_t j;
+      for (j = 0; j < valuelen && value[j] != '?'; ++j)
+        ;
+      stream_data->user_agent = percent_decode(value, j);
     }
     break;
   }
@@ -493,8 +547,9 @@ static int on_request_recv(nghttp2_session *session,
     }
     return 0;
   }
-  fprintf(stderr, "%s GET %s\n", session_data->client_addr,
-          stream_data->path);
+  fprintf(stderr, "%s %s %s://%s%s, user-agent: %s\n", session_data->client_addr,
+          stream_data->method, stream_data->scheme, stream_data->authority, stream_data->path,
+					stream_data->user_agent);
   if (!check_path(stream_data->path)) {
     if (error_reply(session, stream_data) != 0) {
       return NGHTTP2_ERR_CALLBACK_FAILURE;
@@ -525,7 +580,6 @@ static int on_frame_recv_callback(nghttp2_session *session,
   http2_session_data *session_data = (http2_session_data *)user_data;
   http2_stream_data *stream_data;
   switch (frame->hd.type) {
-  case NGHTTP2_DATA:
   case NGHTTP2_HEADERS:
     /* Check that the client request has finished */
     if (frame->hd.flags & NGHTTP2_FLAG_END_STREAM) {
