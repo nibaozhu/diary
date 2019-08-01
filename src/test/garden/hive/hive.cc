@@ -49,14 +49,16 @@ typedef struct http2_stream_data {
   char *method;
   char *path;
   char *authority;
-	char *scheme;
+  char *scheme;
 
-	char *user_agent;
-	char *accept_language;
-	char *accept;
-	char *upgrade_insecure_requests;
-	char *accept_encoding;
-	char *cache_control;
+  char *user_agent;
+  char *accept_language;
+  char *accept;
+  char *upgrade_insecure_requests;
+  char *accept_encoding;
+  char *cache_control;
+
+  char *body;
 
   int32_t stream_id;
   int fd;
@@ -547,9 +549,9 @@ static int on_request_recv(nghttp2_session *session,
     }
     return 0;
   }
-  fprintf(stderr, "%s %s %s://%s%s, user-agent: %s\n", session_data->client_addr,
+  fprintf(stdout, "%s %s %s://%s%s, user-agent: %s\n", session_data->client_addr,
           stream_data->method, stream_data->scheme, stream_data->authority, stream_data->path,
-					stream_data->user_agent);
+          stream_data->user_agent);
   if (!check_path(stream_data->path)) {
     if (error_reply(session, stream_data) != 0) {
       return NGHTTP2_ERR_CALLBACK_FAILURE;
@@ -579,14 +581,39 @@ static int on_frame_recv_callback(nghttp2_session *session,
                                   const nghttp2_frame *frame, void *user_data) {
   http2_session_data *session_data = (http2_session_data *)user_data;
   http2_stream_data *stream_data;
+  fprintf(stderr, "frame->hd.type: %d\n", frame->hd.type);
   switch (frame->hd.type) {
-  case NGHTTP2_HEADERS:
-    /* Check that the client request has finished */
+  case NGHTTP2_DATA:
+    fprintf(stderr, "user_data: '%s'\n", (char *)user_data);
+    /* Check that the client request stream has finished */
     if (frame->hd.flags & NGHTTP2_FLAG_END_STREAM) {
       stream_data =
           (http2_stream_data *)nghttp2_session_get_stream_user_data(session, frame->hd.stream_id);
-      /* For DATA and HEADERS frame, this callback may be called after
-         on_stream_close_callback. Check that stream still alive. */
+      /* For DATA frame,  */
+      if (!stream_data) {
+        return 0;
+      }
+      return on_request_recv(session, session_data, stream_data);
+    }
+    break;
+  case NGHTTP2_HEADERS:
+    /* Check that the client request headers has finished */
+    if (frame->hd.flags & NGHTTP2_FLAG_END_STREAM) {
+      stream_data =
+          (http2_stream_data *)nghttp2_session_get_stream_user_data(session, frame->hd.stream_id);
+      /* For HEADERS frame,  */
+      if (!stream_data) {
+        return 0;
+      }
+      return on_request_recv(session, session_data, stream_data);
+    }
+    break;
+  case NGHTTP2_WINDOW_UPDATE:
+    /* Check that the client request headers has finished */
+    if (frame->hd.flags & NGHTTP2_FLAG_END_STREAM) {
+      stream_data =
+          (http2_stream_data *)nghttp2_session_get_stream_user_data(session, frame->hd.stream_id);
+      /* For HEADERS frame,  */
       if (!stream_data) {
         return 0;
       }
@@ -770,7 +797,7 @@ static void start_listen(struct event_base *evbase, const char *service,
   }
   for (rp = res; rp; rp = rp->ai_next) {
     struct evconnlistener *listener;
-		int backlog = (1<<10);
+    int backlog = (1<<10);
     listener = evconnlistener_new_bind(
         evbase, listenercb, app_ctx, LEV_OPT_CLOSE_ON_FREE | LEV_OPT_REUSEABLE,
         backlog, rp->ai_addr, (int)rp->ai_addrlen);
@@ -825,6 +852,6 @@ int main(int argc, char **argv) {
 
   run(argv[1], argv[2], argv[3]);
 
-	return 0;
+  return 0;
 }
 
