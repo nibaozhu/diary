@@ -466,7 +466,7 @@ static int on_header_callback(nghttp2_session *session,
   (void)flags;
   (void)user_data;
 
-  fprintf(stderr, "['%s': '%s']\n", name, value);
+  fprintf(stdout, "%s: %s\n", name, value);
   switch (frame->hd.type) {
   case NGHTTP2_HEADERS:
     if (frame->headers.cat != NGHTTP2_HCAT_REQUEST) {
@@ -550,10 +550,9 @@ static int on_request_recv(nghttp2_session *session,
     }
     return 0;
   }
-  fprintf(stdout, "%s %s %s://%s%s, user-agent: %s\n", session_data->client_addr,
-          stream_data->method, stream_data->scheme, stream_data->authority, stream_data->path,
-          stream_data->user_agent);
+  fprintf(stdout, "From %s\n", session_data->client_addr);
   fwrite((char *)stream_data->data, 1, stream_data->datlen, stdout);
+  fprintf(stdout, "\n");
 
   if (!check_path(stream_data->path)) {
     if (error_reply(session, stream_data) != 0) {
