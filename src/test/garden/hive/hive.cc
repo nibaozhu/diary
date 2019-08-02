@@ -58,7 +58,8 @@ typedef struct http2_stream_data {
   char *accept_encoding;
   char *cache_control;
 
-  char *body;
+  const uint8_t *data;
+  size_t datlen;
 
   int32_t stream_id;
   int fd;
@@ -552,6 +553,8 @@ static int on_request_recv(nghttp2_session *session,
   fprintf(stdout, "%s %s %s://%s%s, user-agent: %s\n", session_data->client_addr,
           stream_data->method, stream_data->scheme, stream_data->authority, stream_data->path,
           stream_data->user_agent);
+  fwrite((char *)stream_data->data, 1, stream_data->datlen, stdout);
+
   if (!check_path(stream_data->path)) {
     if (error_reply(session, stream_data) != 0) {
       return NGHTTP2_ERR_CALLBACK_FAILURE;
@@ -583,7 +586,6 @@ static int on_frame_recv_callback(nghttp2_session *session,
   http2_stream_data *stream_data;
   switch (frame->hd.type) {
   case NGHTTP2_DATA:
-    fprintf(stderr, "user_data: '%s'\n", (char *)user_data);
     /* Check that the client request stream has finished */
     if (frame->hd.flags & NGHTTP2_FLAG_END_STREAM) {
       stream_data =
@@ -627,6 +629,27 @@ static int on_frame_recv_callback(nghttp2_session *session,
   return 0;
 }
 
+static int on_data_chunk_recv_callback(nghttp2_session *session, uint8_t flags,
+                                       int32_t stream_id, const uint8_t *data,
+                                       size_t len, void *user_data) {
+  http2_session_data *session_data = (http2_session_data *)user_data;
+  http2_stream_data *stream_data;
+  (void)session;
+  (void)flags;
+
+  stream_data = (http2_stream_data *)nghttp2_session_get_stream_user_data(session, stream_id);
+  if (!stream_data) {
+    return 0;
+  }
+
+  stream_data->data = (const uint8_t *)realloc((void *)stream_data->data, stream_data->datlen + len);
+  if (stream_data->data) {
+    memcpy((void *)stream_data->data + stream_data->datlen, data, len);
+    stream_data->datlen += len;
+  }
+  return 0;
+}
+
 static int on_stream_close_callback(nghttp2_session *session, int32_t stream_id,
                                     uint32_t error_code, void *user_data) {
   http2_session_data *session_data = (http2_session_data *)user_data;
@@ -651,6 +674,9 @@ static void initialize_nghttp2_session(http2_session_data *session_data) {
 
   nghttp2_session_callbacks_set_on_frame_recv_callback(callbacks,
                                                        on_frame_recv_callback);
+
+  nghttp2_session_callbacks_set_on_data_chunk_recv_callback(
+    callbacks, on_data_chunk_recv_callback);
 
   nghttp2_session_callbacks_set_on_stream_close_callback(
       callbacks, on_stream_close_callback);
