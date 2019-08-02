@@ -14,7 +14,7 @@ clean:
 	rm --force hive hive.o hivep.pb.* /tmp/hive.log*
 
 CPPFLAGS=-DHIVE_VERSION_STRING=\"1.0.0\"
-CXXFLAGS=-std=c++11 -Wall -Wno-pointer-arith -Wno-deprecated-declarations -Wno-unused-variable -O0 -g
+CXXFLAGS=-std=c++11 -Wall -Wno-pointer-arith -Wno-deprecated-declarations -Wno-unused-variable -Ofast
 LDFLAGS=-pthread -ldl -lunwind \
 		/usr/local/lib/libtcmalloc.a \
 		/usr/local/lib/libhiredis.a \
