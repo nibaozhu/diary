@@ -58,12 +58,15 @@ typedef struct http2_stream_data {
   char *accept_encoding;
   char *cache_control;
 
-  const uint8_t *data;
-  size_t datlen;
+  const uint8_t *request_context;
+  size_t request_context_length;
 
   int32_t stream_id;
   int fd;
-  int offset;
+
+  const uint8_t *respond_context;
+  size_t respond_context_length;
+  int respond_context_offset;
 } http2_stream_data;
 
 typedef struct http2_session_data {
@@ -380,18 +383,18 @@ static ssize_t file_read_callback(nghttp2_session *session, int32_t stream_id,
   }
 
   fprintf(stderr, "fd: %d\n", fd);
-  if (fd > 0 && stream_data->datlen == 0) {
+  if (fd > 0 && stream_data->respond_context_length == 0) {
     while ((r = read(fd, buf, length)) == -1 && errno == EINTR)
       ;
   } else {
-    if (stream_data->offset + length < stream_data->datlen) {
+    if (stream_data->respond_context_offset + length < stream_data->respond_context_length) {
       r = length;
-      fprintf(stderr, "datlen: %lu(>%lu) too long, chunked\n", stream_data->datlen, length);
+      fprintf(stderr, "datlen: %lu(>%lu) too long, chunked\n", stream_data->respond_context_length, length);
     } else {
-      r = stream_data->datlen - stream_data->offset;
+      r = stream_data->respond_context_length - stream_data->respond_context_offset;
     }
-    stream_data->offset = r;
-    memcpy(buf, stream_data->data, r);
+    stream_data->respond_context_offset = r;
+    memcpy(buf, stream_data->request_context, r);
   }
 
   if (r == -1) {
@@ -399,7 +402,7 @@ static ssize_t file_read_callback(nghttp2_session *session, int32_t stream_id,
   }
   if ((size_t)r < length) {
     *data_flags |= NGHTTP2_DATA_FLAG_EOF;
-    stream_data->offset = 0;
+    stream_data->respond_context_offset = 0;
   }
   return r;
 }
@@ -554,6 +557,20 @@ static int check_path(const char *path) {
          !ends_with(path, "/..") && !ends_with(path, "/.");
 }
 
+static int handle(nghttp2_session *session,
+                           http2_session_data *session_data,
+                           http2_stream_data *stream_data)
+{
+  int r = 0;
+
+  // TODO: echo!
+  stream_data->respond_context = stream_data->request_context;
+  stream_data->respond_context_length = stream_data->request_context_length;
+  stream_data->respond_context_offset = 0;
+
+  return r;
+}
+
 static int on_request_recv(nghttp2_session *session,
                            http2_session_data *session_data,
                            http2_stream_data *stream_data) {
@@ -568,8 +585,13 @@ static int on_request_recv(nghttp2_session *session,
     return 0;
   }
   fprintf(stdout, "From %s\n", session_data->client_addr);
-  fwrite((char *)stream_data->data, 1, stream_data->datlen, stdout);
+  fwrite((char *)stream_data->request_context, 1, stream_data->request_context_length, stdout);
   fprintf(stdout, "\n");
+
+  /**************************
+   * `hivep.proto'
+   * ************************/
+  handle(session, session_data, stream_data);
 
   if (!check_path(stream_data->path)) {
     if (error_reply(session, stream_data) != 0) {
@@ -658,10 +680,10 @@ static int on_data_chunk_recv_callback(nghttp2_session *session, uint8_t flags,
     return 0;
   }
 
-  stream_data->data = (const uint8_t *)realloc((void *)stream_data->data, stream_data->datlen + len);
-  if (stream_data->data) {
-    memcpy((void *)stream_data->data + stream_data->datlen, data, len);
-    stream_data->datlen += len;
+  stream_data->request_context = (const uint8_t *)realloc((void *)stream_data->request_context, stream_data->request_context_length + len);
+  if (stream_data->request_context) {
+    memcpy((void *)stream_data->request_context + stream_data->request_context_length, data, len);
+    stream_data->request_context_length += len;
   }
   return 0;
 }
