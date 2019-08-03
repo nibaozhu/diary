@@ -63,6 +63,7 @@ typedef struct http2_stream_data {
 
   int32_t stream_id;
   int fd;
+  int offset;
 } http2_stream_data;
 
 typedef struct http2_session_data {
@@ -372,17 +373,33 @@ static ssize_t file_read_callback(nghttp2_session *session, int32_t stream_id,
                                   void *user_data) {
   int fd = source->fd;
   ssize_t r;
-  (void)session;
-  (void)stream_id;
   (void)user_data;
+  http2_stream_data *stream_data = (http2_stream_data *)nghttp2_session_get_stream_user_data(session, stream_id);
+  if (!stream_data) {
+    return 0;
+  }
 
-  while ((r = read(fd, buf, length)) == -1 && errno == EINTR)
-    ;
+  fprintf(stderr, "fd: %d\n", fd);
+  if (fd > 0) {
+    while ((r = read(fd, buf, length)) == -1 && errno == EINTR)
+      ;
+  } else {
+    if (stream_data->offset + length < stream_data->datlen) {
+      r = length;
+      fprintf(stderr, "datlen: %lu(>%lu) too long, chunked\n", stream_data->datlen, length);
+    } else {
+      r = stream_data->datlen - stream_data->offset;
+    }
+    stream_data->offset = r;
+    memcpy(buf, stream_data->data, r);
+  }
+
   if (r == -1) {
     return NGHTTP2_ERR_TEMPORAL_CALLBACK_FAILURE;
   }
-  if (r == 0) {
+  if ((size_t)r < length) {
     *data_flags |= NGHTTP2_DATA_FLAG_EOF;
+    stream_data->offset = 0;
   }
   return r;
 }
@@ -436,7 +453,8 @@ static int error_reply(nghttp2_session *session,
   stream_data->fd = pipefd[0];
 
   if (send_response(session, stream_data->stream_id, hdrs, ARRLEN(hdrs),
-                    pipefd[0]) != 0) {
+                    -1) != 0) {
+//                    pipefd[0]) != 0) {
     close(pipefd[0]);
     return -1;
   }
