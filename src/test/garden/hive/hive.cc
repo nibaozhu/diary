@@ -15,6 +15,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
+#include <string>
 
 #include <event.h>
 #include <event2/listener.h>
@@ -28,6 +29,9 @@
 #include <openssl/conf.h>
 
 #include <nghttp2/nghttp2.h>
+
+#include <google/protobuf/util/json_util.h>
+#include "hivep.pb.h"
 
 #define OUTPUT_WOULDBLOCK_THRESHOLD (1 << 16)
 
@@ -52,6 +56,8 @@ typedef struct http2_stream_data {
   char *scheme;
 
   char *user_agent;
+  char *content_type;
+  char *content_length;
   char *accept_language;
   char *accept;
   char *upgrade_insecure_requests;
@@ -477,6 +483,8 @@ static int on_header_callback(nghttp2_session *session,
   const char SCHEME[] = ":scheme";
 
   const char USER_AGENT[] = "user-agent";
+  const char CONTENT_TYPE[] = "content-type";
+  const char CONTENT_LENGTH[] = "content-length";
   const char ACCEPT_LANGUAGE[] = "accept-language";
   const char ACCEPT[] = "accept";
   const char UPGRADE_INSECURE_REQUESTS[] = "upgrade-insecure-requests";
@@ -527,6 +535,18 @@ static int on_header_callback(nghttp2_session *session,
         ;
       stream_data->user_agent = percent_decode(value, j);
     }
+    if (namelen == sizeof(CONTENT_TYPE) - 1 && memcmp(CONTENT_TYPE, name, namelen) == 0) {
+      size_t j;
+      for (j = 0; j < valuelen && value[j] != '?'; ++j)
+        ;
+      stream_data->content_type = percent_decode(value, j);
+    }
+    if (namelen == sizeof(CONTENT_LENGTH) - 1 && memcmp(CONTENT_LENGTH, name, namelen) == 0) {
+      size_t j;
+      for (j = 0; j < valuelen && value[j] != '?'; ++j)
+        ;
+      stream_data->content_length = percent_decode(value, j);
+    }
     break;
   }
   return 0;
@@ -557,16 +577,70 @@ static int check_path(const char *path) {
          !ends_with(path, "/..") && !ends_with(path, "/.");
 }
 
-static int handle(nghttp2_session *session,
+static int handle_hivep(hivep::Request &request, hivep::Respond &respond) {
+  int r = 0;
+
+  request.PrintDebugString();
+
+
+  return r;
+}
+
+static int handle_http2(nghttp2_session *session,
                            http2_session_data *session_data,
                            http2_stream_data *stream_data)
 {
   int r = 0;
+  if (!stream_data->content_type) {
+    stream_data->content_type = (char *)malloc(sizeof (char));
+    memset(stream_data->content_type, 0, sizeof (char));
+  }
 
-  // TODO: echo!
-  stream_data->respond_context = stream_data->request_context;
-  stream_data->respond_context_length = stream_data->request_context_length;
-  stream_data->respond_context_offset = 0;
+  size_t n = strlen(stream_data->content_type);
+  hivep::Request request;
+
+  if (memcmp(stream_data->content_type, "application/x-www-form-urlencoded",
+                          n) == 0) {
+    // TODO: parse key1=value1&key2=value2&.., and decode url.
+    //
+    //
+
+    stream_data->respond_context = stream_data->request_context;
+    stream_data->respond_context_length = stream_data->request_context_length;
+    stream_data->respond_context_offset = 0;
+
+  } else if (memcmp(stream_data->content_type, "application/json",
+                          n) == 0) {
+    std::string input((const char *)stream_data->request_context, stream_data->request_context_length);
+    google::protobuf::util::Status s = google::protobuf::util::JsonStringToMessage(input, 
+                    (google::protobuf::Message *)&request);
+    if (!s.ok()) {
+      fprintf(stderr, "JsonStringToMessage fails, %s!\n", s.error_message().as_string().c_str());
+    }
+  } else if (memcmp(stream_data->content_type, "application/x-protobuf",
+                          n) == 0) {
+	  if (!request.ParseFromArray(stream_data->request_context, stream_data->request_context_length)) {
+      fprintf(stderr, "ParseFromArray fails!\n");
+    }
+  } else {
+    fprintf(stderr, "invalid Content-Type: '%s'\n", stream_data->content_type);
+
+    stream_data->respond_context = stream_data->request_context;
+    stream_data->respond_context_length = stream_data->request_context_length;
+    stream_data->respond_context_offset = 0;
+  }
+
+  // NOTE: DO BUSINESS...
+  hivep::Respond respond;
+  handle_hivep(request, respond);
+
+	stream_data->respond_context_length = respond.ByteSizeLong();
+	stream_data->respond_context = (const uint8_t *)malloc(stream_data->respond_context_length);
+	if (!respond.SerializeToArray((void *)stream_data->respond_context, stream_data->respond_context_length))
+	{
+		free((void *)stream_data->respond_context); // XXX: reset to zero
+		return r; // XXX: return value ...
+	}
 
   return r;
 }
@@ -585,13 +659,13 @@ static int on_request_recv(nghttp2_session *session,
     return 0;
   }
   fprintf(stdout, "From %s\n", session_data->client_addr);
-  fwrite((char *)stream_data->request_context, 1, stream_data->request_context_length, stdout);
-  fprintf(stdout, "\n");
+  // fwrite((char *)stream_data->request_context, 1, stream_data->request_context_length, stdout);
+  // fprintf(stdout, "\n");
 
   /**************************
    * `hivep.proto'
    * ************************/
-  handle(session, session_data, stream_data);
+  handle_http2(session, session_data, stream_data);
 
   if (!check_path(stream_data->path)) {
     if (error_reply(session, stream_data) != 0) {

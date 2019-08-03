@@ -11,15 +11,16 @@ hivep.pb.cc hivep.pb.h: hivep.proto
 
 .PHONY: all clean
 clean:
-	rm --force hive hive.o hivep.pb.* /tmp/hive.log*
+	rm --force hive hive.o hivep.pb.* /tmp/hive.log* core.*
 
 CPPFLAGS=-DHIVE_VERSION_STRING=\"1.0.0\"
-CXXFLAGS=-std=c++11 -Wall -Wno-pointer-arith -Wno-deprecated-declarations -Wno-unused-variable -Ofast
+# CXXFLAGS=-std=c++11 -Wall -Wno-pointer-arith -Wno-deprecated-declarations -Wno-unused-variable -Ofast
+CXXFLAGS=-std=c++11 -Wall -Wno-pointer-arith -Wno-deprecated-declarations -Wno-unused-variable -O0 -g
 LDFLAGS=-pthread -ldl -lunwind \
 		/usr/local/lib/libtcmalloc.a \
 		/usr/local/lib/libhiredis.a \
 		/usr/local/lib/liblog4cplus.a \
-		/usr/local/lib/libprotobuf-lite.a \
+		/usr/local/lib/libprotobuf.a \
 		/usr/local/lib/libz.a \
 		/usr/local/lib/libzmq.a \
 		/usr/lib64/libevent.so \
