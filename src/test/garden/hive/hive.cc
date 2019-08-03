@@ -380,7 +380,7 @@ static ssize_t file_read_callback(nghttp2_session *session, int32_t stream_id,
   }
 
   fprintf(stderr, "fd: %d\n", fd);
-  if (fd > 0) {
+  if (fd > 0 && stream_data->datlen == 0) {
     while ((r = read(fd, buf, length)) == -1 && errno == EINTR)
       ;
   } else {
@@ -453,8 +453,7 @@ static int error_reply(nghttp2_session *session,
   stream_data->fd = pipefd[0];
 
   if (send_response(session, stream_data->stream_id, hdrs, ARRLEN(hdrs),
-                    -1) != 0) {
-//                    pipefd[0]) != 0) {
+                    pipefd[0]) != 0) {
     close(pipefd[0]);
     return -1;
   }
