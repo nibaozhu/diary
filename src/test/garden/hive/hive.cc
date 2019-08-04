@@ -10,6 +10,7 @@
 #include <netinet/tcp.h>
 #include <err.h>
 #include <arpa/inet.h>
+#include <sys/syscall.h>
 
 #include <cerrno>
 #include <cstdio>
@@ -29,6 +30,7 @@
 #include <openssl/conf.h>
 
 #include <nghttp2/nghttp2.h>
+#include <hiredis/hiredis.h>
 
 #include <google/protobuf/util/json_util.h>
 #include "hivep.pb.h"
@@ -43,6 +45,9 @@
         NGHTTP2_NV_FLAG_NONE                                                   \
   }
 
+int redis_port = 6379;
+char redis_host[NAME_MAX] = "127.0.0.1";
+char redis_key[NAME_MAX] = "hive";
 
 struct app_context;
 typedef struct app_context app_context;
@@ -86,6 +91,7 @@ typedef struct http2_session_data {
 struct app_context {
   SSL_CTX *ssl_ctx;
   struct event_base *evbase;
+  redisContext *rds_ctx;
 };
 
 static unsigned char next_proto_list[256];
@@ -400,7 +406,7 @@ static ssize_t file_read_callback(nghttp2_session *session, int32_t stream_id,
       r = stream_data->respond_context_length - stream_data->respond_context_offset;
     }
     stream_data->respond_context_offset = r;
-    memcpy(buf, stream_data->request_context, r);
+    memcpy(buf, stream_data->respond_context, r);
   }
 
   if (r == -1) {
@@ -577,10 +583,72 @@ static int check_path(const char *path) {
          !ends_with(path, "/..") && !ends_with(path, "/.");
 }
 
-static int handle_hivep(hivep::Request &request, hivep::Respond &respond) {
+static int hivep_signup(redisContext *rds_ctx, std::string &telephone, std::string &passwd) {
   int r = 0;
 
+  fprintf(stdout, "#SIGNUP# telephone: '%s', passwd: '%s'\n", telephone.c_str(), passwd.c_str());
+  redisReply *reply = (redisReply *)redisCommand(rds_ctx, "%s %s %s", "SETNX", telephone.c_str(), passwd.c_str());
+  if (reply == NULL) {
+    r = redisReconnect(rds_ctx);
+    fprintf(stderr, "redisReconnect: '%s', r: %d\n", rds_ctx->errstr, r);
+    return -1;
+  }
+
+  if (reply->type == REDIS_REPLY_INTEGER && reply->integer >= 0) {
+    if (reply->integer == 1) {
+      fprintf(stdout, "signup success\n");
+      r = 1;
+    }
+    fprintf(stdout, "type: %d integer: %lld, str: '%s'\n", reply->type, reply->integer, reply->str);
+  } else {
+    fprintf(stderr, "type: %d integer: %lld, str: '%s'\n", reply->type, reply->integer, reply->str);
+    r = -1;
+  }
+  freeReplyObject(reply);
+  return r;
+}
+
+static int handle_hivep(http2_session_data *session_data,
+                hivep::Request &request, hivep::Respond &respond) {
+  int r = 0;
   request.PrintDebugString();
+
+  if (request.has_signin()) {
+    request.signin().hivenumber();
+//  request.signin().email();
+    request.signin().qrcode();
+    std::string passwd = request.signin().passwd();
+    std::string clientversion = request.signin().clientversion();
+    std::string osversion = request.signin().osversion();
+    std::string osmanufacturer = request.signin().osmanufacturer();
+  } else if (request.has_signup()) {
+//  request.signup().email();
+    std::string telephone = request.signup().telephone();
+    std::string passwd = request.signup().passwd();
+    std::string nickname = request.signup().nickname();
+
+    r = hivep_signup(session_data->app_ctx->rds_ctx, telephone, passwd);
+    if (r == 1) {
+      // respond.set_errnum((int64_t)errnum_);
+      // respond.set_errstring(errstring_);
+    }
+
+  } else if (request.has_getfriends()) {
+    std::string hiveid = request.getfriends().hiveid();
+  } else if (request.has_deletefriend()) {
+    std::string hiveid = request.deletefriend().hiveid();
+    uint64_t hivenumber = request.deletefriend().hivenumber();
+  } else if (request.has_sendmessage()) {
+    std::string hiveid = request.sendmessage().hiveid();
+    uint64_t otherhivenumber = request.sendmessage().otherhivenumber();
+  } else if (request.has_signout()) {
+    std::string hiveid = request.signout().hiveid();
+  } else if (request.has_heartbeat()) {
+    std::string hiveid = request.heartbeat().hiveid();
+    std::string extra = request.heartbeat().extra();
+  } else {
+    fprintf(stderr, "not found invalid operation\n");
+  }
 
 
   return r;
@@ -598,6 +666,7 @@ static int handle_http2(nghttp2_session *session,
 
   size_t n = strlen(stream_data->content_type);
   hivep::Request request;
+  hivep::Respond respond;
 
   if (memcmp(stream_data->content_type, "application/x-www-form-urlencoded",
                           n) == 0) {
@@ -605,9 +674,9 @@ static int handle_http2(nghttp2_session *session,
     //
     //
 
-    stream_data->respond_context = stream_data->request_context;
-    stream_data->respond_context_length = stream_data->request_context_length;
-    stream_data->respond_context_offset = 0;
+    // stream_data->respond_context = stream_data->request_context;
+    // stream_data->respond_context_length = stream_data->request_context_length;
+    // stream_data->respond_context_offset = 0;
 
   } else if (memcmp(stream_data->content_type, "application/json",
                           n) == 0) {
@@ -616,11 +685,15 @@ static int handle_http2(nghttp2_session *session,
                     (google::protobuf::Message *)&request);
     if (!s.ok()) {
       fprintf(stderr, "JsonStringToMessage fails, %s!\n", s.error_message().as_string().c_str());
+    } else {
+      respond.set_seq(request.seq());
     }
   } else if (memcmp(stream_data->content_type, "application/x-protobuf",
                           n) == 0) {
-	  if (!request.ParseFromArray(stream_data->request_context, stream_data->request_context_length)) {
+    if (!request.ParseFromArray(stream_data->request_context, stream_data->request_context_length)) {
       fprintf(stderr, "ParseFromArray fails!\n");
+    } else {
+      respond.set_seq(request.seq());
     }
   } else {
     fprintf(stderr, "invalid Content-Type: '%s'\n", stream_data->content_type);
@@ -630,17 +703,37 @@ static int handle_http2(nghttp2_session *session,
     stream_data->respond_context_offset = 0;
   }
 
-  // NOTE: DO BUSINESS...
-  hivep::Respond respond;
-  handle_hivep(request, respond);
+  pid_t tid = syscall(SYS_gettid);
+  respond.set_tid(tid);
+ 
+  struct tm tm_;
+  struct timeval tv_;
+  gettimeofday(&tv_, NULL);
+  localtime_r(&tv_.tv_sec, &tm_);
+  int64_t currentMSecsSinceEpoch = (int64_t)tv_.tv_sec * 1000 + tv_.tv_usec / 1000;
+  respond.set_created(currentMSecsSinceEpoch);
 
-	stream_data->respond_context_length = respond.ByteSizeLong();
-	stream_data->respond_context = (const uint8_t *)malloc(stream_data->respond_context_length);
-	if (!respond.SerializeToArray((void *)stream_data->respond_context, stream_data->respond_context_length))
-	{
-		free((void *)stream_data->respond_context); // XXX: reset to zero
-		return r; // XXX: return value ...
-	}
+  handle_hivep(session_data, request, respond);
+
+#if 0
+  stream_data->respond_context_length = respond.ByteSizeLong();
+  stream_data->respond_context = (const uint8_t *)malloc(stream_data->respond_context_length);
+  if (!respond.SerializeToArray((void *)stream_data->respond_context, stream_data->respond_context_length))
+  {
+    free((void *)stream_data->respond_context); // XXX: reset to zero
+    return r; // XXX: return value ...
+  }
+#endif
+
+  std::string output;
+  google::protobuf::util::Status s1 = google::protobuf::util::MessageToJsonString(respond, &output);
+  stream_data->respond_context_length = output.length();
+  stream_data->respond_context = (const uint8_t *)malloc(stream_data->respond_context_length + 1);
+  stream_data->respond_context_offset = 0;
+  memset((void *)stream_data->respond_context, 0, stream_data->respond_context_length + 1);
+  memcpy((void *)stream_data->respond_context, (const void *)output.c_str(), stream_data->respond_context_length);
+  fprintf(stderr, "output: '%s'\n", output.c_str());
+  fprintf(stderr, "respond_context: '%s'(%ld)\n", stream_data->respond_context, stream_data->respond_context_length);
 
   return r;
 }
@@ -950,10 +1043,11 @@ static void start_listen(struct event_base *evbase, const char *service,
 }
 
 static void initialize_app_context(app_context *app_ctx, SSL_CTX *ssl_ctx,
-                                   struct event_base *evbase) {
+                                   struct event_base *evbase, redisContext *rds_ctx) {
   memset(app_ctx, 0, sizeof(app_context));
   app_ctx->ssl_ctx = ssl_ctx;
   app_ctx->evbase = evbase;
+  app_ctx->rds_ctx = rds_ctx;
 }
 
 static void run(const char *service, const char *key_file,
@@ -961,10 +1055,19 @@ static void run(const char *service, const char *key_file,
   SSL_CTX *ssl_ctx;
   app_context app_ctx;
   struct event_base *evbase;
+  redisContext *rds_ctx;
 
   ssl_ctx = create_ssl_ctx(key_file, cert_file);
   evbase = event_base_new();
-  initialize_app_context(&app_ctx, ssl_ctx, evbase);
+  rds_ctx = redisConnect(redis_host, redis_port);
+  if (rds_ctx == NULL || rds_ctx->err) {
+    if (rds_ctx != NULL) {
+      fprintf(stderr, "redisConnect: %s\n", rds_ctx->errstr);
+      return ;
+    }
+  }
+
+  initialize_app_context(&app_ctx, ssl_ctx, evbase, rds_ctx);
   start_listen(evbase, service, &app_ctx);
 
   event_base_loop(evbase, 0);
