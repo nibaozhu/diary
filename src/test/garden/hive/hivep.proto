@@ -30,11 +30,11 @@ message Request {
 	}
 	GetFriends getfriends = 5;
 
-	message DeleteFriends {
+	message DeleteFriend {
 		string hiveid = 1;
 		fixed64 hivenumber = 2;
 	}
-	DeleteFriends deletefriends = 6;
+	DeleteFriend deletefriend = 6;
 
 	message SendMessage {
 		string hiveid = 1;
@@ -70,7 +70,7 @@ message Respond {
 	}
 	UserDetail userdetail = 6;
 
-	message FriendsDetail {
+	message FriendDetail {
 		fixed64 hivenumber = 1;
 		string email = 2;
 		string avatar = 3;
@@ -92,7 +92,7 @@ message Respond {
 		}
 		SignStatus status = 4;
 	}
-	repeated FriendsDetail friendsdetail = 7;
+	repeated FriendDetail friendsdetail = 7;
 }
 
 
