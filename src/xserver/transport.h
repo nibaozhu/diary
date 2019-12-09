@@ -21,7 +21,10 @@
 
 #include <arpa/inet.h>
 #include <sys/types.h>
-#include "logging.h"
+
+#include <yajl/yajl_tree.h>
+
+#include <logging.h>
 
 /* output BYTES bytes per line */
 #define WIDTH (1<<3)
@@ -29,9 +32,12 @@
 /* 1024 bytes = 1KB */
 #define SIZE (1<<10)
 
+#define BUFFER_MAX (1<<8)
+
 class Transport {
 	private:
-		uint32_t id; /* unsigned int 32 */
+		std::string appid; /* AppChat Unique ID */
+		std::string command; /* AppChatProtocol Command */
 		time_t created; /* the first communication time */
 		time_t updated; /* the lastest communication time */
 		bool alive; /* true: live; false: die */
@@ -51,10 +57,9 @@ class Transport {
 		Transport(int fd, time_t created, struct sockaddr_in peer_addr, socklen_t peer_addrlen, size_t size = SIZE) {
 			assert(size > 0);
 
-			this->created = created;
-			this->updated = this->created;
+			this->updated = this->created = created;
 
-			this->id = 0;
+			this->appid = "";
 			this->fd = fd;
 			this->peer_addr = peer_addr;
 			this->peer_addrlen = peer_addrlen;
@@ -76,17 +81,36 @@ class Transport {
 			this->set_alive(true);
 			this->set_events(0);
 
-			plog(debug, "Construct %p. malloc rx = %p, rp = 0x%lx, rs = 0x%lx, malloc wx = %p, wp = 0x%lx, ws = 0x%lx\n", 
+			LOGGING(debug, "Construct %p. malloc rx = %p, rp = 0x%lx, rs = 0x%lx, malloc wx = %p, wp = 0x%lx, ws = 0x%lx\n", 
 					this, this->rx, this->rp, this->rs, this->wx, this->wp, this->ws);
 		}
 
-		uint32_t set_id(uint32_t id) {
+		std::string set_appid(std::string &appid) {
 			this->created = time(NULL);
-			return this->id = id;
+			return this->appid = appid;
 		}
 
-		uint32_t get_id() {
-			return this->id;
+		std::string set_appid(const char *appid) {
+			this->created = time(NULL);
+			return this->appid = std::string(appid);
+		}
+
+		std::string set_command(std::string &command) {
+			this->created = time(NULL);
+			return this->command = command;
+		}
+
+		std::string set_command(const char *command) {
+			this->created = time(NULL);
+			return this->command = std::string(command);
+		}
+
+		std::string get_appid() {
+			return this->appid;
+		}
+
+		std::string get_command() {
+			return this->command;
 		}
 
 		time_t set_updated() {
@@ -132,11 +156,11 @@ class Transport {
 
 		void *set_rx(void *rx, size_t rs) {
 			while (rs >= this->rs - this->rp) {
-				plog(debug, "realloc {rx = %p, rp = 0x%lx, rs = 0x%lx}, {0x%lx}\n", this->rx, this->rp, this->rs, rs);
+				LOGGING(debug, "realloc {rx = %p, rp = 0x%lx, rs = 0x%lx}, {0x%lx}\n", this->rx, this->rp, this->rs, rs);
 				assert(this->rs > 0);
 				void *tx = realloc(this->rx, this->rs << 1);
 				if (tx == NULL) {
-					plog(critical, "%s(%d)\n", strerror(errno), errno);
+					LOGGING(critical, "%s(%d)\n", strerror(errno), errno);
 					return tx;
 				} else {
 					this->rx = tx;
@@ -155,7 +179,7 @@ class Transport {
 			memset(this->rx, 0, sizeof this->rp);
 			void *tx = realloc(this->rx, size);
 			if (tx == NULL) {
-				plog(critical, "%s(%d)\n", strerror(errno), errno);
+				LOGGING(critical, "%s(%d)\n", strerror(errno), errno);
 				return tx;
 			} else {
 				this->rx = tx;
@@ -173,11 +197,11 @@ class Transport {
 
 		void *set_wx(void *wx, size_t ws) {
 			while (ws >= this->ws - this->wp) {
-				plog(debug, "realloc {wx = %p, wp = 0x%lx, ws = 0x%lx}, {0x%lx}\n", this->wx, this->wp, this->ws, ws);
+				LOGGING(debug, "realloc {wx = %p, wp = 0x%lx, ws = 0x%lx}, {0x%lx}\n", this->wx, this->wp, this->ws, ws);
 				assert(this->ws > 0);
 				void *tx = realloc(this->wx, this->ws << 1);
 				if (tx == NULL) {
-					plog(critical, "%s(%d)\n", strerror(errno), errno);
+					LOGGING(critical, "%s(%d)\n", strerror(errno), errno);
 					return tx;
 				} else {
 					this->wx = tx;
@@ -196,7 +220,7 @@ class Transport {
 			assert(size > 0);
 			void *tx = realloc(this->wx, size);
 			if (tx == NULL) {
-				plog(critical, "%s(%d)\n", strerror(errno), errno);
+				LOGGING(critical, "%s(%d)\n", strerror(errno), errno);
 				return tx;
 			} else {
 				this->wx = tx;
@@ -258,33 +282,29 @@ class Transport {
 			return this->events;
 		}
 
-		void pr(size_t width = WIDTH, bool b0 = false) {
+		void printread(size_t width = WIDTH) {
 			if (width <= 0 || width > 1024) {
 				width = WIDTH;
 			}
-			assert(b0 == false);
 
 			struct sockaddr_in peer_addr;
 			socklen_t peer_addrlen;
 			this->get_peer(&peer_addr, &peer_addrlen);
 
-			char peer_ip[3 + 1 + 3 + 1 + 3 + 1 + 3 + 1];
-			memset(peer_ip, 0, sizeof peer_ip);
+			char peer_ip[16];
 			strcpy(peer_ip, inet_ntoa(peer_addr.sin_addr));
 
-			plog(info, "|%s:%u| this = %p, this->rx = %p, this->rp = 0x%lx, this->rs = 0x%lx\n",
+			LOGGING(info, "|%s:%u| this = %p, this->rx = %p, this->rp = 0x%lx, this->rs = 0x%lx\n",
 					peer_ip, htons(peer_addr.sin_port), this, this->rx, this->rp, this->rs);
-#if 0
+
+#ifndef NDEBUG
 			size_t i = 0;
-			plog(debug, "--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
+			LOGGING(debug, "--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
 			while (i < this->rp) {
 				if (i % width == 0) {
-					plog(debug, "%p ", (void *)((char *)this->rx + i));
+					LOGGING(debug, "%p ", (void *)((char *)this->rx + i));
 				}
-				plog(debug, " 0x%02x", *((char*)this->rx + i));
-				if (b0) {
-					plog(debug, " %c", *((char*)this->rx + i));
-				}
+				LOGGING(debug, " 0x%02x", *((char*)this->rx + i));
 
 				i++;
 				if (i % width == 0) {
@@ -296,33 +316,29 @@ class Transport {
 			return ;
 		}
 
-		void pw(size_t width = WIDTH, bool b0 = false) {
+		void printwrite(size_t width = WIDTH) {
 			if (width <= 0 || width > 1024) {
 				width = WIDTH;
 			}
-			assert(b0 == false);
 
 			struct sockaddr_in peer_addr;
 			socklen_t peer_addrlen;
 			this->get_peer(&peer_addr, &peer_addrlen);
 
-			char peer_ip[3 + 1 + 3 + 1 + 3 + 1 + 3 + 1];
-			memset(peer_ip, 0, sizeof peer_ip);
+			char peer_ip[16];
 			strcpy(peer_ip, inet_ntoa(peer_addr.sin_addr));
 
-			plog(info, "|%s:%u| this = %p, this->wx = %p, this->wp = 0x%lx, this->ws = 0x%lx\n",
+			LOGGING(info, "|%s:%u| this = %p, this->wx = %p, this->wp = 0x%lx, this->ws = 0x%lx\n",
 					peer_ip, htons(peer_addr.sin_port), this, this->wx, this->wp, this->ws);
-#if 0
+
+#ifndef NDEBUG
 			size_t i = 0;
-			plog(debug, "--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
+			LOGGING(debug, "--- begin (hexadecimal 2-byte units) -- %s --\n", __func__);
 			while (i < this->wp) {
 				if (i % width == 0) {
-					plog(debug, "%p ", (void *)((char *)this->wx + i));
+					LOGGING(debug, "%p ", (void *)((char *)this->wx + i));
 				}
-				plog(debug, " 0x%02x", *((char*)this->wx + i));
-				if (b0) {
-					plog(debug, " %c", *((char*)this->rx + i));
-				}
+				LOGGING(debug, " 0x%02x", *((char*)this->wx + i));
 
 				i++;
 				if (i % width == 0) {
@@ -342,7 +358,7 @@ class Transport {
 		}
 
 		~Transport() {
-			plog(debug, "Deconstruct %p. free rx = %p, rp = 0x%lx, rs = 0x%lx, free wx = %p, wp = 0x%lx, ws = 0x%lx\n", 
+			LOGGING(debug, "Deconstruct %p. free rx = %p, rp = 0x%lx, rs = 0x%lx, free wx = %p, wp = 0x%lx, ws = 0x%lx\n", 
 					this, this->rx, this->rp, this->rs, this->wx, this->wp, this->ws);
 			free(this->rx);
 			free(this->wx);
