@@ -82,14 +82,14 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std:
 			if (strcmp(keys[j], "sender") == 0) { t->set_appid(YAJL_GET_STRING(values[j])); }
 		}
 
-		LOGGING(info, "body: %s", (char*)body);
+		LOGGING(info, "body: %s\n", (char*)body);
 		free(body);
 
 		if (strcmp(t->get_command().c_str(), "LOGON") == 0) {
 			std::map<std::string, int>::iterator iter = __m->find(t->get_appid());
 			if (iter == __m->end()) {
 				__m->insert(std::make_pair(t->get_appid(), t->get_fd()));
-				LOGGING(debug, "__m: insert (%s, %d)", t->get_appid().c_str(), t->get_fd());
+				LOGGING(debug, "__m: insert (%s, %d)\n", t->get_appid().c_str(), t->get_fd());
 			}
 		}
 

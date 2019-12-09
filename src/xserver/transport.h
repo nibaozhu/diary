@@ -32,7 +32,7 @@
 /* 1024 bytes = 1KB */
 #define SIZE (1<<10)
 
-#define BUFFER_MAX (1<<8)
+#define BUFFER_MAX (1<<16)
 
 class Transport {
 	private:
