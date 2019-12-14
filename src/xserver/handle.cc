@@ -120,7 +120,8 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std:
 	} while (true);
 
 	if (t->get_rp() != 0) {
-		LOGGING(info, "[!] Transaction(%d) Cancel! length = 0x%x, t->rp = 0x%lx\n", i, length, t->get_rp());
+		LOGGING(warning, "[!] Transaction(%d) Cancel! length = 0x%x, t->rp = 0x%lx\n", i, length, t->get_rp());
+		t->clear_rx();
 	}
 	return ret;
 }
