@@ -7,14 +7,14 @@
 -mode	../../include/Makefile	/^	install --mode=0644 liblogging.a \/usr\/local\/lib64\/$/;"	m
 -mode	../../include/Makefile	/^	install --mode=0644 logging.h \/usr\/local\/include\/$/;"	m
 -mode	../../include/Makefile	/^	install --mode=0755 liblogging.so \/usr\/local\/lib64\/$/;"	m
-BUFFER_MAX	transport.h	33;"	d
+BUFFER_MAX	transport.h	35;"	d
 CFLAGS	../../include/Makefile	/^CFLAGS=-fPIC$/;"	m
 CPPFLAGS	../../include/Makefile	/^CPPFLAGS=-ULOGGING_DEBUG$/;"	m
-CPPFLAGS	Makefile	/^CPPFLAGS=$/;"	m
+CPPFLAGS	Makefile	/^CPPFLAGS=-DNDEBUG$/;"	m
 CXXFLAGS	Makefile	/^CXXFLAGS=-O0 -g -std=c++0x -Wall -Wextra -Werror$/;"	m
 DATE_MAX	../../include/logging.h	39;"	d
 HANDLE_H	handle.h	6;"	d
-LDFLAGS	Makefile	/^LDFLAGS=-pthread -llogging$/;"	m
+LDFLAGS	Makefile	/^LDFLAGS=-pthread -llogging -lyajl$/;"	m
 LOGGING	../../include/logging.h	98;"	d
 LOGGING_CACHE	../../include/logging.h	43;"	d
 LOGGING_H	../../include/logging.h	9;"	d
@@ -24,7 +24,7 @@ LOGGING_TRACING	../../include/logging.h	82;"	d
 MAIN_H	main.h	6;"	d
 MAX_EVENTS	task.cc	8;"	d	file:
 MODE_MAX	../../include/logging.h	38;"	d
-SIZE	transport.h	31;"	d
+SIZE	transport.h	33;"	d
 SIZE_MAX	../../include/logging.h	15;"	d
 SIZE_MAX	../../include/logging.h	17;"	d
 TASK_H	task.h	6;"	d
@@ -32,7 +32,7 @@ TRANSPORT_H	transport.h	6;"	d
 Transport	transport.h	/^		Transport(int fd, time_t created, struct sockaddr_in peer_addr, socklen_t peer_addrlen, size_t size = SIZE) {$/;"	f	class:Transport
 Transport	transport.h	/^class Transport {$/;"	c
 WAITING_SPACE	../../include/logging.h	40;"	d
-WIDTH	transport.h	28;"	d
+WIDTH	transport.h	30;"	d
 __flush	../../include/logging.c	/^static int __flush(void) {$/;"	f	file:
 __logging	../../include/logging.c	/^int __logging(enum level x, $/;"	f
 __mutex	../../include/logging.c	/^pthread_mutex_t __mutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
@@ -46,6 +46,7 @@ cache	../../include/logging.h	/^	unsigned int cache; \/\/ logging has cache line
 cache_max	../../include/logging.h	/^	unsigned int cache_max; \/\/ cache_max lines in memory$/;"	m	struct:__anon1
 clear_rx	transport.h	/^		void *clear_rx(size_t size = SIZE) {$/;"	f	class:Transport
 clear_wx	transport.h	/^		void *clear_wx(size_t size = SIZE) {$/;"	f	class:Transport
+command	transport.h	/^		std::string command; \/* AppChatProtocol Command *\/$/;"	m	class:Transport
 created	transport.h	/^		time_t created; \/* the first communication time *\/$/;"	m	class:Transport
 critical	../../include/logging.h	/^	critical,	\/* critical conditions *\/$/;"	e	enum:level
 debug	../../include/logging.h	/^	debug,		\/* debug-level messages *\/$/;"	e	enum:level
@@ -60,8 +61,9 @@ events	transport.h	/^		__uint32_t events;$/;"	m	class:Transport
 fd	transport.h	/^		int fd; \/* file descriptor *\/$/;"	m	class:Transport
 file_subfix	../../include/logging.h	/^	char file_subfix[NAME_MAX]; \/\/ logging file's temp subfix$/;"	m	struct:__anon1
 final_file	../../include/logging.h	/^	char final_file[NAME_MAX]; \/\/ logging file's final name$/;"	m	struct:__anon1
-get_alive	transport.h	/^		bool get_alive() $/;"	f	class:Transport
+get_alive	transport.h	/^		bool get_alive() {$/;"	f	class:Transport
 get_appid	transport.h	/^		std::string get_appid() {$/;"	f	class:Transport
+get_command	transport.h	/^		std::string get_command() {$/;"	f	class:Transport
 get_events	transport.h	/^		__uint32_t get_events() {$/;"	f	class:Transport
 get_fd	transport.h	/^		int get_fd() {$/;"	f	class:Transport
 get_peer	transport.h	/^		struct sockaddr_in get_peer(struct sockaddr_in *peer_addr, socklen_t *peer_addrlen) {$/;"	f	class:Transport
@@ -99,8 +101,8 @@ peer_addr	transport.h	/^		struct sockaddr_in peer_addr;$/;"	m	class:Transport	ty
 peer_addrlen	transport.h	/^		socklen_t peer_addrlen;$/;"	m	class:Transport
 pid	../../include/logging.h	/^	pid_t pid; \/\/ program process id$/;"	m	struct:__anon1
 port	task.cc	/^short int port = 12340;$/;"	v
-pr	transport.h	/^		void pr(size_t width = WIDTH, bool b0 = false) {$/;"	f	class:Transport
-pw	transport.h	/^		void pw(size_t width = WIDTH, bool b0 = false) {$/;"	f	class:Transport
+printread	transport.h	/^		void printread(size_t width = WIDTH) {$/;"	f	class:Transport
+printwrite	transport.h	/^		void printwrite(size_t width = WIDTH) {$/;"	f	class:Transport
 quit	task.cc	/^bool quit;$/;"	v
 reads	task.cc	/^int reads(Transport* t) {$/;"	f
 reset	transport.h	/^		void reset() {$/;"	f	class:Transport
@@ -108,7 +110,10 @@ rp	transport.h	/^		size_t rp; \/* transport data `Read' pointer position *\/$/;"
 rs	transport.h	/^		size_t rs; \/* transport data `Read' size  *\/$/;"	m	class:Transport
 rx	transport.h	/^		void *rx; \/* transport data `Read'  *\/$/;"	m	class:Transport
 set_alive	transport.h	/^		bool set_alive(bool alive) {$/;"	f	class:Transport
+set_appid	transport.h	/^		std::string set_appid(const char *appid) {$/;"	f	class:Transport
 set_appid	transport.h	/^		std::string set_appid(std::string &appid) {$/;"	f	class:Transport
+set_command	transport.h	/^		std::string set_command(const char *command) {$/;"	f	class:Transport
+set_command	transport.h	/^		std::string set_command(std::string &command) {$/;"	f	class:Transport
 set_disposition	task.cc	/^void set_disposition() {$/;"	f
 set_events	transport.h	/^		__uint32_t set_events(__uint32_t events) {$/;"	f	class:Transport
 set_fd	transport.h	/^		int set_fd(int fd) {$/;"	f	class:Transport
