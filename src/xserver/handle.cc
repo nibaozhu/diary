@@ -6,7 +6,6 @@
 
 
 int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *__m, Transport* t) {
-	int ret = 0;
 	int i = 0;
 
 	// NOTE: AppChatProtocol Header
@@ -28,6 +27,7 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std:
 		length = ntohl(length);
 		if (length > BUFFER_MAX) {
 			LOGGING(error, "maybe Handle fail. length = 0x%x(0x%x)\n", length, BUFFER_MAX);
+			t->clear_rx();
 			break;
 		}
 
@@ -52,6 +52,7 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std:
 		void *body = malloc(length + 1);
 		if (!body) {
 			LOGGING(error, "malloc fail.\n");
+			t->clear_rx();
 			continue;
 		}
 		memcpy(body, (char *)t->get_rx() + 3 * sizeof (uint32_t), length);
@@ -64,6 +65,7 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std:
 		yajl_val v = yajl_tree_parse (input, error_buffer, error_buffer_size);
 		if (!v) {
 			LOGGING(error, "yajl_tree_parse: error_buffer: %s\n", error_buffer);
+			t->clear_rx();
 			continue;
 		}
 
@@ -121,7 +123,6 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std:
 
 	if (t->get_rp() != 0) {
 		LOGGING(warning, "[!] Transaction(%d) Cancel! length = 0x%x, t->rp = 0x%lx\n", i, length, t->get_rp());
-		t->clear_rx();
 	}
-	return ret;
+	return i;
 }
