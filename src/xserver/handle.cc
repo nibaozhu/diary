@@ -10,11 +10,7 @@ yajl_gen_status appchat_yajl_gen_string(yajl_gen hand, const char * str, size_t 
 
 int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *__m, Transport* t) {
 	int i = 0;
-
-	// NOTE: AppChatProtocol Header
-	uint32_t length = 0;
-	uint32_t crc32 = 0;
-	uint32_t magic = 0;
+	AppChatProtocol appchat;
 
 	t->printread();
 	do {
@@ -24,43 +20,46 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std:
 			break;
 		}
 
-		memcpy(&length, t->get_rx(), sizeof (uint32_t));
-		length = ntohl(length);
-		if (length > BUFFER_MAX) {
-			LOGGING(error, "maybe Handle fail. length = 0x%x(0x%x)\n", length, BUFFER_MAX);
+		uint32_t netlong;
+		memcpy(&netlong, t->get_rx(), sizeof (uint32_t));
+		appchat.length = ntohl(netlong);
+		if (appchat.length > BUFFER_MAX) {
+			LOGGING(error, "maybe Handle fail. appchat.length = 0x%x(0x%x)\n",
+				 appchat.length, BUFFER_MAX);
 			t->clear_rx();
 			break;
 		}
 
-		memcpy(&crc32, (char *)t->get_rx() + sizeof (uint32_t), sizeof (uint32_t));
-		crc32 = ntohl(crc32);
+		memcpy(&netlong, (char *)t->get_rx() + sizeof (uint32_t), sizeof (uint32_t));
+		appchat.crc32 = ntohl(netlong);
 
-		memcpy(&magic, (char *)t->get_rx() + 2 * sizeof (uint32_t), sizeof (uint32_t));
-		magic = ntohl(magic);
+		memcpy(&netlong, (char *)t->get_rx() + 2 * sizeof (uint32_t), sizeof (uint32_t));
+		appchat.magic = ntohl(netlong);
 
-		LOGGING(notice, "[+] Transaction(%d) Begin: length = 0x%x, crc32 = 0x%x, magic = 0x%x\n", i, length, crc32, magic);
+		LOGGING(notice, "[+] Transaction(%d) Begin: appchat.length = 0x%x, \
+			crc32 = 0x%x, magic = 0x%x\n", i, appchat.length, appchat.crc32, appchat.magic);
 
 		/* MESSAGE BODY */
-		if (t->get_rp() < 3 * sizeof (uint32_t) + length) {
+		if (t->get_rp() < 3 * sizeof (uint32_t) + appchat.length) {
 			/* pending body message */
 			break;
 		}
 
-		LOGGING(notice, "Message completed(=0x%x).\n", (unsigned int)(3 * sizeof (uint32_t)) + length);
+		LOGGING(notice, "Message completed(=0x%x).\n", (unsigned int)(3 * sizeof (uint32_t)) + appchat.length);
 
 		// TODO: receive array to json
 		// ...
-		void *body = malloc(length + 1);
-		if (!body) {
+		appchat.body = malloc(appchat.length + 1);
+		if (!appchat.body) {
 			LOGGING(error, "malloc fail.\n");
 			t->clear_rx();
 			continue;
 		}
-		memcpy(body, (char *)t->get_rx() + 3 * sizeof (uint32_t), length);
-		char *bodyterminal = (char*)body + length;
+		memcpy(appchat.body, (char *)t->get_rx() + 3 * sizeof (uint32_t), appchat.length);
+		char *bodyterminal = (char*)appchat.body + appchat.length;
 		*bodyterminal = '\0';
 
-		const char *input = (char*)body;
+		const char *input = (char*)appchat.body;
 		char error_buffer[BUFSIZ];
 		size_t error_buffer_size = BUFSIZ;
 		yajl_val v = yajl_tree_parse (input, error_buffer, error_buffer_size);
@@ -84,9 +83,8 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std:
 			if (strcmp(keys[j], "receiver") == 0) t->receiver = YAJL_GET_STRING(values[j]);
 			if (strcmp(keys[j], "sender") == 0) t->sender = YAJL_GET_STRING(values[j]);
 		}
-
-		LOGGING(info, "body: %s\n", (char*)body);
-		free(body);
+		LOGGING(info, "appchat.body: %s\n", (char*)appchat.body);
+		free(appchat.body);
 
 		yajl_gen hand = yajl_gen_alloc(NULL);
 		yajl_gen_map_open(hand);
@@ -166,31 +164,36 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std:
 		yajl_gen_get_buf(hand, &buf, &len);
 		LOGGING(info, "push(%lu): %s\n", len, buf);
 
-		uint32_t push_length = 0;
-		uint32_t push_crc32 = 0;
-		uint32_t push_magic = 0;
+		AppChatProtocol push_appchat;
 
-		push_length = htonl(len);
-		tx->set_wx((void*)&push_length, sizeof (uint32_t));
+		push_appchat.length = len;
+		netlong = htonl(push_appchat.length);
+		tx->set_wx((void*)&netlong, sizeof (uint32_t));
 
-		// FIXME: calc `len' crc
-		push_crc32 = htonl(len);
-		tx->set_wx((void*)&push_crc32, sizeof (uint32_t));
+		// FIXME: calc `len' crc32
+		netlong = htonl(push_appchat.crc32);
+		tx->set_wx((void*)&netlong, sizeof (uint32_t));
 
-		push_magic = htonl(magic);
-		tx->set_wx((void*)&push_magic, sizeof (uint32_t));
+		// FIXME: set ..
+		netlong = htonl(push_appchat.magic);
+		tx->set_wx((void*)&netlong, sizeof (uint32_t));
 
-		tx->set_wx((void*)buf, len);
+		push_appchat.body = (void*)buf;
+		tx->set_wx(push_appchat.body, push_appchat.length);
+
 		w->push_back(tx);
 
-		memmove(t->get_rx(), (const void *)((char *)t->get_rx() + (3 * sizeof (uint32_t) + length)), t->get_rp() - (3 * sizeof (uint32_t) + length));
-		t->set_rp(t->get_rp() - (3 * sizeof (uint32_t) + length));
+		memmove(t->get_rx(),
+		 (const void *)((char *)t->get_rx() + (3 * sizeof (uint32_t) + appchat.length)),
+		 t->get_rp() - (3 * sizeof (uint32_t) + appchat.length));
+		t->set_rp(t->get_rp() - (3 * sizeof (uint32_t) + appchat.length));
 
 		LOGGING(info, "[x] Transaction(%d) Passed.\n", ++i);
 	} while (true);
 
 	if (t->get_rp() != 0) {
-		LOGGING(warning, "[!] Transaction(%d) Cancel! length = 0x%x, t->rp = 0x%lx\n", i, length, t->get_rp());
+		LOGGING(warning, "[!] Transaction(%d) Cancel! appchat.length = 0x%x, t->rp = 0x%lx\n",
+			 i, appchat.length, t->get_rp());
 	}
 	return i;
 }

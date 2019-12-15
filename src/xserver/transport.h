@@ -35,6 +35,15 @@
 
 #define BUFFER_MAX (1<<16)
 
+class AppChatProtocol {
+public:
+	uint32_t length = 0;
+	uint32_t crc32 = 0;
+	uint32_t magic = 0;
+
+	void *body;
+};
+
 class Transport {
 	public:
 		std::string appid; /* AppChat Unique ID */
