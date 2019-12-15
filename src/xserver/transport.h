@@ -22,6 +22,7 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 
+#include <yajl/yajl_gen.h>
 #include <yajl/yajl_tree.h>
 
 #include <logging.h>
@@ -35,9 +36,18 @@
 #define BUFFER_MAX (1<<16)
 
 class Transport {
-	private:
+	public:
 		std::string appid; /* AppChat Unique ID */
+		std::string dtime;
+		std::string sender;
+		std::string passwd;
+		std::string receiver;
+		std::string context;
 		std::string command; /* AppChatProtocol Command */
+		std::string errcode;
+		std::string errstring;
+
+	private:
 		time_t created; /* the first communication time */
 		time_t updated; /* the lastest communication time */
 		bool alive; /* true: live; false: die */
@@ -53,6 +63,7 @@ class Transport {
 		struct sockaddr_in peer_addr;
 		socklen_t peer_addrlen;
 		__uint32_t events;
+
 	public:
 		Transport(int fd, time_t created, struct sockaddr_in peer_addr, socklen_t peer_addrlen, size_t size = SIZE) {
 			assert(size > 0);
@@ -83,34 +94,6 @@ class Transport {
 
 			LOGGING(debug, "Construct %p. malloc rx = %p, rp = 0x%lx, rs = 0x%lx, malloc wx = %p, wp = 0x%lx, ws = 0x%lx\n", 
 					this, this->rx, this->rp, this->rs, this->wx, this->wp, this->ws);
-		}
-
-		std::string set_appid(std::string &appid) {
-			this->created = time(NULL);
-			return this->appid = appid;
-		}
-
-		std::string set_appid(const char *appid) {
-			this->created = time(NULL);
-			return this->appid = std::string(appid);
-		}
-
-		std::string set_command(std::string &command) {
-			this->created = time(NULL);
-			return this->command = command;
-		}
-
-		std::string set_command(const char *command) {
-			this->created = time(NULL);
-			return this->command = std::string(command);
-		}
-
-		std::string get_appid() {
-			return this->appid;
-		}
-
-		std::string get_command() {
-			return this->command;
 		}
 
 		time_t set_updated() {

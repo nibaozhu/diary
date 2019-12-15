@@ -12,5 +12,5 @@ main.o: main.cc main.h task.h transport.h handle.h
 task.o: task.cc task.h transport.h handle.h version.h
 
 CPPFLAGS=-DNDEBUG
-CXXFLAGS=-O0 -g -std=c++0x -Wall -Wextra -Werror
+CXXFLAGS=-g -std=c++0x -Wall -Wextra -Werror
 LDFLAGS=-pthread -llogging -lyajl

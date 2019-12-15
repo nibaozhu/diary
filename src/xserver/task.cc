@@ -285,7 +285,7 @@ int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tra
 				LOGGING(warning, "%s(%d)\n", strerror(errno), errno);
 			}
 
-			__m->erase(t->get_appid());
+			__m->erase(t->appid);
 			delete t;
 			m->erase(im++);
 		}
@@ -484,7 +484,7 @@ void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Tr
 
 			r->remove(t);
 			w->remove(t);
-			__m->erase(t->get_appid());
+			__m->erase(t->appid);
 			m->erase(im++);
 			delete t;
 		} else {
