@@ -91,7 +91,7 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std:
 		yajl_gen hand = yajl_gen_alloc(NULL);
 		yajl_gen_map_open(hand);
 
-		if (strcmp(t->command.c_str(), "LOGON") == 0) {
+		if (strcmp(t->command.c_str(), "LOGIN") == 0) {
 			t->appid = t->sender;
 			std::map<std::string, int>::iterator iter = __m->find(t->appid);
 			if (iter == __m->end()) {
@@ -100,7 +100,7 @@ int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std:
 			}
 
 			appchat_yajl_gen_string(hand, "command", strlen("command"));
-			appchat_yajl_gen_string(hand, "LOGON-RESPONSE", strlen("LOGON-RESPONSE"));
+			appchat_yajl_gen_string(hand, "LOGIN-RESPONSE", strlen("LOGIN-RESPONSE"));
 
 			appchat_yajl_gen_string(hand, "dtime", strlen("dtime"));
 			appchat_yajl_gen_string(hand, t->dtime.c_str(), t->dtime.length());
