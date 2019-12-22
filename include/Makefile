@@ -1,10 +1,10 @@
-CPPFLAGS=-ULOGGING_DEBUG
+CPPFLAGS=-DNDEBUG
 CFLAGS=-fPIC
 
 .PHONY: all clean install
 all: liblogging.so liblogging.a
 clean:
-	rm liblogging.so liblogging.a logging.o
+	$(RM) liblogging.so liblogging.a logging.o
 
 install: all
 	install --mode=0644 logging.h /usr/local/include/

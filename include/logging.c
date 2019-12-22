@@ -7,14 +7,14 @@
 #include "logging.h"
 
 const char *level[debug + 1][2] = {
-{ /* red         */ "\e[31m", "emergency[0]" },
-{ /* purple      */ "\e[35m", "....alert[1]" },
-{ /* yellow      */ "\e[33m", ".critical[2]" },
-{ /* blue        */ "\e[34m", "....error[3]" },
-{ /* cyan        */ "\e[36m", "..warning[4]" },
-{ /* green       */ "\e[32m", "...notice[5]" },
-{ /* white(gray) */ "\e[37m", ".....info[6]" },
-{ /* white(gray) */ "\e[37m", "....debug[7]" }}; /* Number stands for level. */
+{ /* red         */ "\e[31m", "emergency0" },
+{ /* purple      */ "\e[35m", "alert1" },
+{ /* yellow      */ "\e[33m", "critical2" },
+{ /* blue        */ "\e[34m", "error3" },
+{ /* cyan        */ "\e[36m", "warning4" },
+{ /* green       */ "\e[32m", "notice5" },
+{ /* white(gray) */ "\e[37m", "info6" },
+{ /* white(gray) */ "\e[37m", "debug7" }}; /* Number stands for level. */
 static char *stop = "\e[0m";
 static logging l;
 pthread_mutex_t __mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -44,8 +44,8 @@ static int __timestamp(char *str) {
 #endif // __USE_BSD
 }
 
-static int __flush(void) {
-#ifdef LOGGING_DEBUG
+static int __fflush(void) {
+#ifndef NDEBUG
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, fflush, l.stream = %p, l.cache= %u, l.cache_max = %u\n",
 			level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "tracing", l.stream, l.cache, l.cache_max);
 #endif
@@ -59,7 +59,7 @@ static int __flush(void) {
 	if (size == -1) LOGGING_TRACING;
 
 	l.size = size;
-#ifdef LOGGING_DEBUG
+#ifndef NDEBUG
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, l.size = %lu, l.size_max = %lu\n",
 			level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "tracing", l.size, l.size_max);
 #endif
@@ -108,7 +108,7 @@ int __logging(enum level x,
 	int ret = pthread_mutex_lock(&__mutex);
 	if (ret != 0) LOGGING_TRACING;
 
-#ifdef LOGGING_DEBUG
+#ifndef NDEBUG
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s\n",
 			level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "tracing");
 #endif
@@ -118,32 +118,31 @@ int __logging(enum level x,
 	localtime_r(&t1.tv_sec, &t0);
 	time_t diff = mktime(&t0) - mktime(&l.ltime);
 
-#ifdef LOGGING_DEBUG
+#ifndef NDEBUG
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s, %04d-%02d-%02d %02d:%02d:%02d => %04d-%02d-%02d %02d:%02d:%02d, diff = %lu seconds\n",
 			level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "tracing", 
 			l.ltime.tm_year + 1900, l.ltime.tm_mon + 1, l.ltime.tm_mday, l.ltime.tm_hour, l.ltime.tm_min, l.ltime.tm_sec, 
 			t0.tm_year + 1900, t0.tm_mon + 1, t0.tm_mday, t0.tm_hour, t0.tm_min, t0.tm_sec, diff);
 #endif
 	if (t0.tm_year != l.ltime.tm_year || t0.tm_mon != l.ltime.tm_mon || t0.tm_mday != l.ltime.tm_mday) {
-		ret = __flush();
+		ret = __fflush();
 		localtime_r(&t1.tv_sec, &l.ltime);
 	}
 
-	char str[DATE_MAX] = { 0 };
+	char str[DATE_MAX];
 	__timestamp(str);
 
-	pthread_t thread = pthread_self();
 	pid_t tid = syscall(SYS_gettid);
 
 	if (x <= l.stdout_level)
 		x <= warning ?
-			fprintf(stdout, "%s%s %s [0x%lx] [%d] (%s:%d:%s)%s ", level[x][0], str, level[x][1], thread, tid, __file, __line, __func, stop):
-			fprintf(stdout, "%s%s %s [0x%lx] [%d]%s ", level[x][0], str, level[x][1], thread, tid, stop);
+			fprintf(stdout, "%s%s %s %d (%s:%d:%s)%s ", level[x][0], str, level[x][1], tid, __file, __line, __func, stop):
+			fprintf(stdout, "%s%s %s %d%s ", level[x][0], str, level[x][1], tid, stop);
 
 	if (x <= l.stream_level)
 		x <= warning?
-			fprintf(l.stream, "%s %s [0x%lx] [%d] (%s:%d:%s) ", str, level[x][1], thread, tid, __file, __line, __func):
-			fprintf(l.stream, "%s %s [0x%lx] [%d] ", str, level[x][1], thread, tid);
+			fprintf(l.stream, "%s %s %d (%s:%d:%s) ", str, level[x][1], tid, __file, __line, __func):
+			fprintf(l.stream, "%s %s %d ", str, level[x][1], tid);
 
 	va_list ap;
 	va_start(ap, fmt);
@@ -154,7 +153,7 @@ int __logging(enum level x,
 	if (x <= l.stream_level) {
 		vfprintf(l.stream, fmt, ap);
 		if (x <= warning) {
-			ret = __flush();
+			ret = __fflush();
 			localtime_r(&t1.tv_sec, &l.ltime);
 		}
 	}
@@ -164,14 +163,14 @@ int __logging(enum level x,
 		if (diff + 1 < l.diff_max) break;
 		if (l.cache_max == 0) ;
 		else if (++l.cache < l.cache_max) {
-#ifdef LOGGING_DEBUG
+#ifndef NDEBUG
 			fprintf(stdout, "%s%s%s %s:%d: %s: %s, l.cache = %u, l.cache_max = %u\n",
 					level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "tracing", l.cache, l.cache_max);
 #endif
-			break; // no flush
+			break; // no fflush
 		}
 
-		ret = __flush();
+		ret = __fflush();
 		localtime_r(&t1.tv_sec, &l.ltime);
 	} while (0);
 	ret = pthread_mutex_unlock(&__mutex);
@@ -182,7 +181,7 @@ int __logging(enum level x,
 int initializing(const char *name, const char *path, const char *mode, 
 	enum level stream_level, enum level stdout_level, 
 	time_t diff_max, unsigned int cache_max, unsigned long size_max) {
-#ifdef LOGGING_DEBUG
+#ifndef NDEBUG
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s\n",
 			level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "tracing");
 #endif
@@ -226,7 +225,7 @@ int initializing(const char *name, const char *path, const char *mode,
 	if (fp == NULL) LOGGING_TRACING;
 	l.stream = fp;
 
-#ifdef LOGGING_DEBUG
+#ifndef NDEBUG
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s\n", level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "passed");
 #endif
 	LOGGING(info, "PROGRAM: %s, PID: %u, RELEASE: %s %s\n", 
@@ -235,7 +234,7 @@ int initializing(const char *name, const char *path, const char *mode,
 }
 
 int uninitialized(void) {
-#ifdef LOGGING_DEBUG
+#ifndef NDEBUG
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s\n",
 			level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "tracing");
 #endif
@@ -259,7 +258,7 @@ int uninitialized(void) {
 	ret = rename(oldpath, newpath);
 	if (ret == -1) LOGGING_TRACING;
 
-#ifdef LOGGING_DEBUG
+#ifndef NDEBUG
 	fprintf(stdout, "%s%s%s %s:%d: %s: %s\n", level[debug][0], level[debug][1], stop, __FILE__, __LINE__, __func__, "passed");
 #endif
 	return 0;
