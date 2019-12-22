@@ -4,73 +4,45 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
--mode	../../include/Makefile	/^	install --mode=0644 liblogging.a \/usr\/local\/lib64\/$/;"	m
--mode	../../include/Makefile	/^	install --mode=0644 logging.h \/usr\/local\/include\/$/;"	m
--mode	../../include/Makefile	/^	install --mode=0755 liblogging.so \/usr\/local\/lib64\/$/;"	m
-BUFFER_MAX	transport.h	35;"	d
-CFLAGS	../../include/Makefile	/^CFLAGS=-fPIC$/;"	m
-CPPFLAGS	../../include/Makefile	/^CPPFLAGS=-ULOGGING_DEBUG$/;"	m
+BUFFER_MAX	transport.h	36;"	d
 CPPFLAGS	Makefile	/^CPPFLAGS=-DNDEBUG$/;"	m
-CXXFLAGS	Makefile	/^CXXFLAGS=-O0 -g -std=c++0x -Wall -Wextra -Werror$/;"	m
-DATE_MAX	../../include/logging.h	39;"	d
+CXXFLAGS	Makefile	/^CXXFLAGS=-g -std=c++0x -Wall -Wextra -Werror$/;"	m
 HANDLE_H	handle.h	6;"	d
 LDFLAGS	Makefile	/^LDFLAGS=-pthread -llogging -lyajl$/;"	m
-LOGGING	../../include/logging.h	98;"	d
-LOGGING_CACHE	../../include/logging.h	43;"	d
-LOGGING_H	../../include/logging.h	9;"	d
-LOGGING_INTERVAL	../../include/logging.h	42;"	d
-LOGGING_SIZE	../../include/logging.h	44;"	d
-LOGGING_TRACING	../../include/logging.h	82;"	d
 MAIN_H	main.h	6;"	d
 MAX_EVENTS	task.cc	8;"	d	file:
-MODE_MAX	../../include/logging.h	38;"	d
-SIZE	transport.h	33;"	d
-SIZE_MAX	../../include/logging.h	15;"	d
-SIZE_MAX	../../include/logging.h	17;"	d
+SIZE	transport.h	34;"	d
 TASK_H	task.h	6;"	d
 TRANSPORT_H	transport.h	6;"	d
 Transport	transport.h	/^		Transport(int fd, time_t created, struct sockaddr_in peer_addr, socklen_t peer_addrlen, size_t size = SIZE) {$/;"	f	class:Transport
 Transport	transport.h	/^class Transport {$/;"	c
-WAITING_SPACE	../../include/logging.h	40;"	d
-WIDTH	transport.h	30;"	d
-__flush	../../include/logging.c	/^static int __flush(void) {$/;"	f	file:
-__logging	../../include/logging.c	/^int __logging(enum level x, $/;"	f
-__mutex	../../include/logging.c	/^pthread_mutex_t __mutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
-__timestamp	../../include/logging.c	/^static int __timestamp(char *str) {$/;"	f	file:
+WIDTH	transport.h	31;"	d
 addr	task.cc	/^struct sockaddr_in addr;$/;"	v	typeref:struct:sockaddr_in
-alert	../../include/logging.h	/^	alert,		\/* action must be taken immediately *\/$/;"	e	enum:level
 alive	transport.h	/^		bool alive; \/* true: live; false: die *\/$/;"	m	class:Transport
+appchat_yajl_gen_string	handle.cc	/^yajl_gen_status appchat_yajl_gen_string(yajl_gen hand, const char * str, size_t len) {$/;"	f
 appid	transport.h	/^		std::string appid; \/* AppChat Unique ID *\/$/;"	m	class:Transport
 author	version.h	/^const char *author = "Ni BaoZhu";$/;"	v
-cache	../../include/logging.h	/^	unsigned int cache; \/\/ logging has cache lines in memory$/;"	m	struct:__anon1
-cache_max	../../include/logging.h	/^	unsigned int cache_max; \/\/ cache_max lines in memory$/;"	m	struct:__anon1
 clear_rx	transport.h	/^		void *clear_rx(size_t size = SIZE) {$/;"	f	class:Transport
 clear_wx	transport.h	/^		void *clear_wx(size_t size = SIZE) {$/;"	f	class:Transport
 command	transport.h	/^		std::string command; \/* AppChatProtocol Command *\/$/;"	m	class:Transport
+context	transport.h	/^		std::string context;$/;"	m	class:Transport
 created	transport.h	/^		time_t created; \/* the first communication time *\/$/;"	m	class:Transport
-critical	../../include/logging.h	/^	critical,	\/* critical conditions *\/$/;"	e	enum:level
-debug	../../include/logging.h	/^	debug,		\/* debug-level messages *\/$/;"	e	enum:level
-diff_max	../../include/logging.h	/^	time_t diff_max; \/\/ time interval$/;"	m	struct:__anon1
+dtime	transport.h	/^		std::string dtime;$/;"	m	class:Transport
 email	version.h	/^const char *email = "nibz@qq.com";$/;"	v
-emergency	../../include/logging.h	/^	emergency,	\/* application is unusable *\/$/;"	e	enum:level
 epollfd	task.cc	/^int listen_sock, nfds, epollfd;$/;"	v
-error	../../include/logging.h	/^	error,		\/* error conditions *\/$/;"	e	enum:level
+errcode	transport.h	/^		std::string errcode;$/;"	m	class:Transport
+errstring	transport.h	/^		std::string errstring;$/;"	m	class:Transport
 ev	task.cc	/^struct epoll_event ev, events[MAX_EVENTS];$/;"	v	typeref:struct:epoll_event
 events	task.cc	/^struct epoll_event ev, events[MAX_EVENTS];$/;"	v	typeref:struct:
 events	transport.h	/^		__uint32_t events;$/;"	m	class:Transport
 fd	transport.h	/^		int fd; \/* file descriptor *\/$/;"	m	class:Transport
-file_subfix	../../include/logging.h	/^	char file_subfix[NAME_MAX]; \/\/ logging file's temp subfix$/;"	m	struct:__anon1
-final_file	../../include/logging.h	/^	char final_file[NAME_MAX]; \/\/ logging file's final name$/;"	m	struct:__anon1
 get_alive	transport.h	/^		bool get_alive() {$/;"	f	class:Transport
-get_appid	transport.h	/^		std::string get_appid() {$/;"	f	class:Transport
-get_command	transport.h	/^		std::string get_command() {$/;"	f	class:Transport
 get_events	transport.h	/^		__uint32_t get_events() {$/;"	f	class:Transport
 get_fd	transport.h	/^		int get_fd() {$/;"	f	class:Transport
 get_peer	transport.h	/^		struct sockaddr_in get_peer(struct sockaddr_in *peer_addr, socklen_t *peer_addrlen) {$/;"	f	class:Transport
 get_rp	transport.h	/^		size_t get_rp() {$/;"	f	class:Transport
 get_rs	transport.h	/^		size_t get_rs() {$/;"	f	class:Transport
 get_rx	transport.h	/^		void *get_rx() {$/;"	f	class:Transport
-get_speed	transport.h	/^		double get_speed() {$/;"	f	class:Transport
 get_updated	transport.h	/^		time_t get_updated() {$/;"	f	class:Transport
 get_wp	transport.h	/^		size_t get_wp() {$/;"	f	class:Transport
 get_ws	transport.h	/^		size_t get_ws() {$/;"	f	class:Transport
@@ -78,42 +50,27 @@ get_wx	transport.h	/^		void *get_wx() {$/;"	f	class:Transport
 handle	handle.cc	/^int handle(std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *__m, Transport* t) {$/;"	f
 handler	task.cc	/^void handler(int signum) {$/;"	f
 home	version.h	/^const char *home = "https:\/\/github.com\/nibaozhu\/mycode";$/;"	v
-info	../../include/logging.h	/^	info,		\/* informational *\/$/;"	e	enum:level
 init	task.cc	/^int init(int argc, char **argv) {$/;"	f
-initializing	../../include/logging.c	/^int initializing(const char *name, const char *path, const char *mode, $/;"	f
-ip	task.cc	/^char ip[3 + 1 + 3 + 1 + 3 + 1 + 3 + 1] = "0.0.0.0";$/;"	v
+ip	task.cc	/^char ip[16] = "0.0.0.0";$/;"	v
 is_reconfigure	task.cc	/^bool is_reconfigure;$/;"	v
-l	../../include/logging.c	/^static logging l;$/;"	v	file:
-level	../../include/logging.c	/^const char *level[debug + 1][2] = {$/;"	v
-level	../../include/logging.h	/^enum level {$/;"	g
 listen_sock	task.cc	/^int listen_sock, nfds, epollfd;$/;"	v
-logging	../../include/logging.h	/^} logging;$/;"	t	typeref:struct:__anon1
-ltime	../../include/logging.h	/^	struct tm ltime; \/\/ the last flush stream time$/;"	m	struct:__anon1	typeref:struct:__anon1::tm
 main	main.cc	/^int main(int argc, char **argv) {$/;"	f
-mode	../../include/logging.h	/^	char mode[MODE_MAX]; \/\/ logging file's mode$/;"	m	struct:__anon1
-name	../../include/logging.h	/^	char name[NAME_MAX]; \/\/ program name$/;"	m	struct:__anon1
 nfds	task.cc	/^int listen_sock, nfds, epollfd;$/;"	v
-none	../../include/logging.h	/^	none = -1,	\/* none logging *\/$/;"	e	enum:level
-notice	../../include/logging.h	/^	notice,		\/* normal but significant condition *\/$/;"	e	enum:level
-number	../../include/logging.h	/^	unsigned int number; \/\/ logging file's suffix number when splits file$/;"	m	struct:__anon1
-path	../../include/logging.h	/^	char path[PATH_MAX]; \/\/ logging file's path$/;"	m	struct:__anon1
+passwd	transport.h	/^		std::string passwd;$/;"	m	class:Transport
 peer_addr	transport.h	/^		struct sockaddr_in peer_addr;$/;"	m	class:Transport	typeref:struct:Transport::sockaddr_in
 peer_addrlen	transport.h	/^		socklen_t peer_addrlen;$/;"	m	class:Transport
-pid	../../include/logging.h	/^	pid_t pid; \/\/ program process id$/;"	m	struct:__anon1
 port	task.cc	/^short int port = 12340;$/;"	v
 printread	transport.h	/^		void printread(size_t width = WIDTH) {$/;"	f	class:Transport
 printwrite	transport.h	/^		void printwrite(size_t width = WIDTH) {$/;"	f	class:Transport
 quit	task.cc	/^bool quit;$/;"	v
 reads	task.cc	/^int reads(Transport* t) {$/;"	f
+receiver	transport.h	/^		std::string receiver;$/;"	m	class:Transport
 reset	transport.h	/^		void reset() {$/;"	f	class:Transport
 rp	transport.h	/^		size_t rp; \/* transport data `Read' pointer position *\/$/;"	m	class:Transport
 rs	transport.h	/^		size_t rs; \/* transport data `Read' size  *\/$/;"	m	class:Transport
 rx	transport.h	/^		void *rx; \/* transport data `Read'  *\/$/;"	m	class:Transport
+sender	transport.h	/^		std::string sender;$/;"	m	class:Transport
 set_alive	transport.h	/^		bool set_alive(bool alive) {$/;"	f	class:Transport
-set_appid	transport.h	/^		std::string set_appid(const char *appid) {$/;"	f	class:Transport
-set_appid	transport.h	/^		std::string set_appid(std::string &appid) {$/;"	f	class:Transport
-set_command	transport.h	/^		std::string set_command(const char *command) {$/;"	f	class:Transport
-set_command	transport.h	/^		std::string set_command(std::string &command) {$/;"	f	class:Transport
 set_disposition	task.cc	/^void set_disposition() {$/;"	f
 set_events	transport.h	/^		__uint32_t set_events(__uint32_t events) {$/;"	f	class:Transport
 set_fd	transport.h	/^		int set_fd(int fd) {$/;"	f	class:Transport
@@ -121,29 +78,18 @@ set_peer	transport.h	/^		struct sockaddr_in set_peer(struct sockaddr_in peer_add
 set_rp	transport.h	/^		size_t set_rp(size_t rp) {$/;"	f	class:Transport
 set_rs	transport.h	/^		size_t set_rs(size_t rs) {$/;"	f	class:Transport
 set_rx	transport.h	/^		void *set_rx(void *rx, size_t rs) {$/;"	f	class:Transport
-set_speed	transport.h	/^		double set_speed(double speed) {$/;"	f	class:Transport
 set_updated	transport.h	/^		time_t set_updated() {$/;"	f	class:Transport
 set_wp	transport.h	/^		size_t set_wp(size_t wp) {$/;"	f	class:Transport
 set_ws	transport.h	/^		size_t set_ws(size_t ws) {$/;"	f	class:Transport
 set_wx	transport.h	/^		void *set_wx(void *wx, size_t ws) {$/;"	f	class:Transport
 setnonblocking	task.cc	/^int setnonblocking(int fd) {$/;"	f
-size	../../include/logging.h	/^	unsigned long size; \/\/ logging has written bytes in file$/;"	m	struct:__anon1
-size_max	../../include/logging.h	/^	unsigned long size_max; \/\/ size_max bytes in file$/;"	m	struct:__anon1
-speed	transport.h	/^		double speed; \/* bytes per second *\/$/;"	m	class:Transport
-stdout_level	../../include/logging.h	/^	enum level stdout_level;$/;"	m	struct:__anon1	typeref:enum:__anon1::level
-stime	../../include/logging.h	/^	struct tm stime; \/\/ start time$/;"	m	struct:__anon1	typeref:struct:__anon1::tm
-stop	../../include/logging.c	/^static char *stop = "\\e[0m";$/;"	v	file:
-stream	../../include/logging.h	/^	FILE *stream;$/;"	m	struct:__anon1
-stream_level	../../include/logging.h	/^	enum level stream_level;$/;"	m	struct:__anon1	typeref:enum:__anon1::level
 task	task.cc	/^int task(int argc, char **argv) {$/;"	f
 task_r	task.cc	/^void task_r(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m) {$/;"	f
 task_w	task.cc	/^void task_w(std::list<Transport*> *w) {$/;"	f
 task_x	task.cc	/^void task_x(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *__m) {$/;"	f
 uninit	task.cc	/^int uninit(std::list<Transport*> *r, std::list<Transport*> *w, std::map<int, Transport*> *m, std::map<std::string, int> *__m) {$/;"	f
-uninitialized	../../include/logging.c	/^int uninitialized(void) {$/;"	f
 updated	transport.h	/^		time_t updated; \/* the lastest communication time *\/$/;"	m	class:Transport
 version	version.h	/^const char *version = "1.0-unstable";$/;"	v
-warning	../../include/logging.h	/^	warning,	\/* warning conditions *\/$/;"	e	enum:level
 wp	transport.h	/^		size_t wp; \/* transport data `Write' pointer position *\/$/;"	m	class:Transport
 writes	task.cc	/^void writes(Transport* t) {$/;"	f
 ws	transport.h	/^		size_t ws; \/* transport data `Write' size *\/$/;"	m	class:Transport

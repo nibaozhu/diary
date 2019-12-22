@@ -15,7 +15,7 @@ extern int optind, opterr, optopt;
 bool quit;
 bool is_reconfigure;
 short int port = 12340;
-char ip[3 + 1 + 3 + 1 + 3 + 1 + 3 + 1] = "0.0.0.0";
+char ip[16] = "0.0.0.0";
 
 int setnonblocking(int fd) {
 	int ret = 0;
@@ -38,62 +38,26 @@ int setnonblocking(int fd) {
 }
 
 int reads(Transport* t) {
-	assert(t != NULL);
+	assert(t);
 
-	ssize_t ret = 0;
-	void *buffer = malloc(BUFFER_MAX + 1);
-	size_t rl = 0;
-	time_t t0 = 0, t1 = 0;
-	struct timeval tv0, tv1;
-	double speed = 0;
+	ssize_t ret;
+	void *buffer;
 
-	/* Begin Time */
-	t0 = time(NULL);
-	gettimeofday(&tv0, NULL);
-
+	buffer = malloc(BUFFER_MAX);
 	do {
-		memset(buffer, 0, BUFFER_MAX + 1);
 		ret = read(t->get_fd(), buffer, BUFFER_MAX);
 		if (ret == -1) {
 			LOGGING(error, "%s(%d)\n", strerror(errno), errno);
 			break;
-		} else if (ret == 0) {
-			break;
-		} else if (ret > 0 && ret <= BUFFER_MAX) {
-			rl += ret;
+		} else if (0 <= ret) {
 			t->set_rx(buffer, ret);
-			memset(buffer, 0, ret);
-			if (ret != BUFFER_MAX) {
+			if (ret < BUFFER_MAX) {
 				break;
 			}
 		}
 	} while (true);
-
-	/* End Time */
-	t1 = time(NULL);
-	gettimeofday(&tv1, NULL);
-
-	if (t1 <= t0 && tv1.tv_usec <= tv0.tv_usec) {
-		speed = -1;
-	} else {									/* 1KiB = 1000B */
-		speed = rl * 1000000. / (((t1 - t0) * 1000000. + (tv1.tv_usec - tv0.tv_usec)) * 1000 * 1000);
-		t->set_speed(speed);
-
-		LOGGING(notice, "Read 0x%lx bytes from file = %d.\n", rl, t->get_fd());
-		if (speed < 1.) {
-			//LOGGING(notice, "Download Speed %0.1f KiB/s\n", speed * 1000.);
-		} else {
-			LOGGING(notice, "Download Speed %0.1f MiB/s\n", speed);
-		}
-	}
 	free(buffer);
-
-	if (ret > INT32_MAX) {
-		LOGGING(warning, "ret(0x%lx) > INT32_MAX(0x%x)\n", ret, INT32_MAX);
-		ret = INT32_MAX;
-	}
-	int _ret = labs(ret);
-	return _ret;
+	return (int)ret;
 }
 
 void writes(Transport* t) {

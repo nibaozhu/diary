@@ -58,7 +58,6 @@ class Transport {
 		size_t wp; /* transport data `Write' pointer position */
 		size_t rs; /* transport data `Read' size  */
 		size_t ws; /* transport data `Write' size */
-		double speed; /* bytes per second */
 
 		struct sockaddr_in peer_addr;
 		socklen_t peer_addrlen;
@@ -234,14 +233,6 @@ class Transport {
 
 		size_t get_ws() {
 			return this->ws;
-		}
-
-		double set_speed(double speed) {
-			return this->speed = speed;
-		}
-
-		double get_speed() {
-			return this->speed;
 		}
 
 		struct sockaddr_in set_peer(struct sockaddr_in peer_addr, socklen_t peer_addrlen) {
